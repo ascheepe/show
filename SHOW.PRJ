@@ -1,0 +1,12 @@
+bitmap.c
+cga.c
+color.c
+detect.c
+dither.c
+ega.c
+mda.c
+show.c
+system.c
+array.c
+vga.c
+
