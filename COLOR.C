@@ -51,10 +51,9 @@ static int
 max_color(struct array *palette)
 {
 	size_t i;
-	BYTE rmax = 0;
-	BYTE gmax = 0;
-	BYTE bmax = 0;
+	BYTE rmax, gmax, bmax;
 
+	rmax = gmax = bmax = 0;
 	for (i = 0; i < palette->size; ++i) {
 		struct color *color = palette->items[i];
 
@@ -83,7 +82,12 @@ sort_by_red(const void *color_a, const void *color_b)
 	struct color *a = *((struct color **) color_a);
 	struct color *b = *((struct color **) color_b);
 
-	return a->r < b->r;
+	if (a->r < b->r)
+		return -1;
+	else if (a->r > b->r)
+		return 1;
+
+	return 0;
 }
 
 static int
@@ -92,7 +96,12 @@ sort_by_green(const void *color_a, const void *color_b)
 	struct color *a = *((struct color **) color_a);
 	struct color *b = *((struct color **) color_b);
 
-	return a->g < b->g;
+	if (a->g < b->g)
+		return -1;
+	else if (a->g > b->g)
+		return 1;
+
+	return 0;
 }
 
 static int
@@ -101,7 +110,12 @@ sort_by_blue(const void *color_a, const void *color_b)
 	struct color *a = *((struct color **) color_a);
 	struct color *b = *((struct color **) color_b);
 
-	return a->b < b->b;
+	if (a->b < b->b)
+		return -1;
+	else if (a->b > b->b)
+		return 1;
+
+	return 0;
 }
 
 static void
@@ -132,10 +146,9 @@ palette_average(struct array *palette)
 {
 	struct color *avg;
 	size_t i;
-	DWORD rsum = 0;
-	DWORD gsum = 0;
-	DWORD bsum = 0;
+	DWORD rsum, gsum, bsum;
 
+	rsum = gsum = bsum = 0;
 	avg = xmalloc(sizeof(struct color));
 
 	for (i = 0; i < palette->size; ++i) {

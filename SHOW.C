@@ -101,7 +101,6 @@ ega_show(char *filename)
 
 	reduced = array_new();
 	median_cut(palette, 4, reduced);
-	write_palette(reduced, "reduced.pal");
 	ega_clear_screen();
 	ega_set_palette(reduced);
 
