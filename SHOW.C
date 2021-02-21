@@ -87,6 +87,29 @@ cga_show(char *filename)
 	bitmap_free(bmp);
 }
 
+static int
+ega_match_color(struct color *color, struct array *from)
+{
+	DWORD maxdist = 0xffffffffUL;
+	int match, i;
+
+	match = 0;
+	for (i = 0; i < from->size; ++i) {
+		struct color *new_color = from->items[i];
+		DWORD rdiff = color->r - new_color->r;
+		DWORD gdiff = color->g - new_color->g;
+		DWORD bdiff = color->b - new_color->b;
+		DWORD dist = SQR(rdiff) + SQR(gdiff) + SQR(bdiff);
+
+		if (dist < maxdist) {
+			maxdist = dist;
+			match = i;
+		}
+	}
+
+	return match;
+}
+
 static void
 ega_show(char *filename)
 {
@@ -108,26 +131,9 @@ ega_show(char *filename)
 		for (col = 0; col < bmp->width; ++col) {
 			int offset = bmp->image[row * bmp->width + col];
 			struct color *color = palette->items[offset];
-			DWORD maxdist = 0xffffffffUL;
-			int match;
-			int i;
 
-			for (i = 0; i < reduced->size; ++i) {
-				struct color *new_color =
-				    reduced->items[i];
-				DWORD rdiff = color->r - new_color->r;
-				DWORD gdiff = color->g - new_color->g;
-				DWORD bdiff = color->b - new_color->b;
-				DWORD dist = SQR(rdiff) + SQR(gdiff) +
-				    SQR(bdiff);
-
-				if (dist < maxdist) {
-					maxdist = dist;
-					match = i;
-				}
-			}
-
-			ega_plot(col + coff, row + roff, match);
+			ega_plot(col + coff, row + roff,
+			    ega_match_color(color, reduced));
 		}
 	}
 
