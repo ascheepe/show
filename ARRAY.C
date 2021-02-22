@@ -21,44 +21,44 @@
 struct array *
 array_new(void)
 {
-	struct array *a;
+	struct array *array;
 
 #define INITIAL_CAPACITY 16
-	a = xmalloc(sizeof(struct array));
-	a->items = xmalloc(INITIAL_CAPACITY * sizeof(void *));
-	a->size = 0;
-	a->cap = INITIAL_CAPACITY;
+	array = xmalloc(sizeof(struct array));
+	array->items = xmalloc(INITIAL_CAPACITY * sizeof(void *));
+	array->size = 0;
+	array->cap = INITIAL_CAPACITY;
 
-	return a;
+	return array;
 }
 
 void
-array_free(struct array *a)
+array_free(struct array *array)
 {
-	free(a->items);
-	free(a);
+	free(array->items);
+	free(array);
 }
 
 void
-array_add(struct array *a, void *data)
+array_add(struct array *array, void *data)
 {
-	if (a->size == a->cap) {
-		size_t newcap = a->cap * 2;
+	if (array->size == array->cap) {
+		size_t newcap = array->cap * 2;
 
-		a->items = xrealloc(a->items, sizeof(void *) * newcap);
-		a->cap = newcap;
+		array->items = xrealloc(array->items, sizeof(void *) * newcap);
+		array->cap = newcap;
 	}
 
-	a->items[a->size++] = data;
+	array->items[array->size++] = data;
 }
 
 void
-array_for_each(struct array *a, void (*f)(void *))
+array_for_each(struct array *array, void (*func)(void *))
 {
 	size_t i;
 
-	for (i = 0; i < a->size; ++i)
-		f(a->items[i]);
+	for (i = 0; i < array->size; ++i)
+		func(array->items[i]);
 }
 
 
