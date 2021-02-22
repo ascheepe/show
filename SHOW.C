@@ -90,7 +90,7 @@ cga_show(char *filename)
 static int
 ega_match_color(struct color *color, struct array *from)
 {
-	DWORD maxdist = 0xffffffffUL;
+	DWORD maxdist = ~0;
 	int match, i;
 
 	match = 0;
