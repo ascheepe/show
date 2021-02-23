@@ -96,9 +96,9 @@ ega_match_color(struct color *color, struct array *from)
 	match = 0;
 	for (i = 0; i < from->size; ++i) {
 		struct color *new_color = from->items[i];
-		DWORD rdiff = color->r - new_color->r;
-		DWORD gdiff = color->g - new_color->g;
-		DWORD bdiff = color->b - new_color->b;
+		int rdiff = color->r - new_color->r;
+		int gdiff = color->g - new_color->g;
+		int bdiff = color->b - new_color->b;
 		DWORD dist = SQR(rdiff) + SQR(gdiff) + SQR(bdiff);
 
 		if (dist < maxdist) {
