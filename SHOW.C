@@ -33,7 +33,6 @@
 #include "ega.h"
 #include "vga.h"
 
-static enum graphics_type graphics_type;
 static void (*show)(char *);
 
 static void
@@ -230,9 +229,8 @@ main(int argc, char *argv[])
 	int wait_msec = DEFAULT_WAIT_MSEC;
 
 	g_show_progress = true;
-	graphics_type = detect_graphics();
 
-	switch (graphics_type) {
+	switch (detect_graphics()) {
 	case MDA_GRAPHICS:
 		show = mda_show;
 		g_show_progress = false;
