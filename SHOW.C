@@ -200,12 +200,12 @@ slideshow(int wait_msec)
 {
 	struct ffblk ffblk;
 	int has_images;
-	int error;
+	int status;
 
 	has_images = false;
-	for (error = findfirst("*.bmp", &ffblk, 0);
-	    error == 0;
-	    error = findnext(&ffblk)) {
+	for (status = findfirst("*.bmp", &ffblk, 0);
+	    status == 0;
+	    status = findnext(&ffblk)) {
 		int total_delays = wait_msec / DELAY;
 		int ndelays = 0;
 
