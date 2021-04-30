@@ -32,7 +32,7 @@ vga_plot(int x, int y, int color)
 	vga_memory[VGA_MEM_OFFSET(x, y)] = color;
 }
 
-static void
+void
 vga_wait_vblank(void)
 {
 	while ((inp(0x03da) & 0x08))

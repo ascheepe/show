@@ -21,6 +21,8 @@
 #include "color.h"
 
 void ega_plot(int, int, int);
+BYTE ega_make_color(struct color *);
+void ega_plot(int, int, int);
 void ega_clear_screen(void);
 
 #endif
