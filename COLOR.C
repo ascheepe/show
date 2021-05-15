@@ -82,12 +82,7 @@ sort_by_red(const void *color_a, const void *color_b)
 	struct color *a = *((struct color **) color_a);
 	struct color *b = *((struct color **) color_b);
 
-	if (a->r < b->r)
-		return -1;
-	else if (a->r > b->r)
-		return 1;
-
-	return 0;
+	return a->r - b->r;
 }
 
 static int
@@ -96,12 +91,7 @@ sort_by_green(const void *color_a, const void *color_b)
 	struct color *a = *((struct color **) color_a);
 	struct color *b = *((struct color **) color_b);
 
-	if (a->g < b->g)
-		return -1;
-	else if (a->g > b->g)
-		return 1;
-
-	return 0;
+	return a->g - b->g;
 }
 
 static int
@@ -110,12 +100,7 @@ sort_by_blue(const void *color_a, const void *color_b)
 	struct color *a = *((struct color **) color_a);
 	struct color *b = *((struct color **) color_b);
 
-	if (a->b < b->b)
-		return -1;
-	else if (a->b > b->b)
-		return 1;
-
-	return 0;
+	return a->b - b->b;
 }
 
 static void

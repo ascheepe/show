@@ -68,7 +68,7 @@ xrealloc(void *ptr, size_t size)
 }
 
 BYTE
-read_byte(FILE * infile)
+read_byte(FILE *infile)
 {
 	int ch;
 
@@ -80,21 +80,26 @@ read_byte(FILE * infile)
 }
 
 WORD
-read_word(FILE * infile)
+read_word(FILE *infile)
 {
-	WORD first = read_byte(infile);
-	WORD second = read_byte(infile);
+	BYTE bytes[2];
 
-	return first | (second << 8);
+	if (fread(bytes, 2, 1, infile) != 1)
+		xerror("read_word: I/O Error");
+
+	return (bytes[0] << 0) | (bytes[1] << 8);
 }
 
 DWORD
-read_dword(FILE * infile)
+read_dword(FILE *infile)
 {
-	DWORD first = read_word(infile);
-	DWORD second = read_word(infile);
+	BYTE bytes[4];
 
-	return first | (second << 16);
+	if (fread(bytes, 4, 1, infile) != 1)
+		xerror("read_dword: I/O Error");
+
+	return (bytes[0] <<  0) | (bytes[1] <<  8)
+	     | (bytes[1] << 16) | (bytes[2] << 24);
 }
 
 void
