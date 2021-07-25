@@ -85,10 +85,9 @@ static void cga_show(char *filename)
 static int ega_match_color(struct color *color, struct array *from)
 {
     DWORD max_distance = -1;
-    int match;
+    int match = 0;
     int i;
 
-    match = 0;
     for (i = 0; i < from->size; ++i) {
         struct color *new_color = from->items[i];
         int red_diff = color->red - new_color->red;
@@ -272,5 +271,4 @@ int main(int argc, char *argv[])
     set_mode(MODE_TEXT);
     xerror("No images found.");
 }
-
 
