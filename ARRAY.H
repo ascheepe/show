@@ -17,10 +17,12 @@
 #ifndef ARRAY_H
 #define ARRAY_H
 
+#define INITIAL_ARRAY_LIMIT 16
+
 struct array {
-	void **items;
-	size_t size;
-	size_t cap;
+    void **items;
+    size_t size;
+    size_t limit;
 };
 
 struct array *array_new(void);

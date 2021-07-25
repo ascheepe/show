@@ -32,36 +32,34 @@ static BYTE *cga_memory = (BYTE *) 0xB8000000L;
  * while odd lines are offset +2000;
  * BA000.
  */
-void
-cga_plot(int x, int y, int color)
+void cga_plot(int x, int y, int color)
 {
-	BYTE mask[] = { 0x3f, 0xcf, 0xf3, 0xfc };
-	BYTE *pixel = cga_memory + (0x2000 * (y & 1)) + (80 * (y >> 1))
-	    + (x >> 2);
-	BYTE bitpos = x & 3;
-	BYTE value = *pixel;
+    BYTE mask[] = { 0x3f, 0xcf, 0xf3, 0xfc };
+    BYTE *pixel = cga_memory + (0x2000 * (y & 1)) +
+                  (80 * (y >> 1)) + (x >> 2);
+    BYTE bitpos = x & 3;
+    BYTE value = *pixel;
 
-	/* clear masked ps */
-	value &= mask[bitpos];
+    /* clear masked ps */
+    value &= mask[bitpos];
 
-	/*
-	 * set masked ps:
-	 *
-	 * 0 ^ 3 = 3 => 3 * 2 = 6
-	 * 1 ^ 3 = 2 => 2 * 2 = 4
-	 * 2 ^ 3 = 1 => 1 * 2 = 2
-	 * 3 ^ 3 = 0 => 0 * 2 = 0
-	 *
-	 */
-	value |= (color & 3) << ((bitpos ^ 3) << 1);
+    /*
+     * set masked ps:
+     *
+     * 0 ^ 3 = 3 => 3 * 2 = 6
+     * 1 ^ 3 = 2 => 2 * 2 = 4
+     * 2 ^ 3 = 1 => 1 * 2 = 2
+     * 3 ^ 3 = 0 => 0 * 2 = 0
+     *
+     */
+    value |= (color & 3) << ((bitpos ^ 3) << 1);
 
-	*pixel = value;
+    *pixel = value;
 }
 
-void
-cga_clear_screen(void)
+void cga_clear_screen(void)
 {
-	memset(cga_memory, 0, 16 * 1024);
+    memset(cga_memory, 0, 16 * 1024);
 }
 
 

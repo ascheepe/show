@@ -35,250 +35,242 @@
 
 static void (*show)(char *);
 
-static void
-mda_show(char *filename)
+static void mda_show(char *filename)
 {
-	struct bitmap *bmp;
-	int row, roff, col, coff;
+    struct bitmap *bmp = bitmap_read(filename);
+    int row_offset = 174 - (bmp->height >> 1);
+    int col_offset = 360 - (bmp->width >> 1);
+    int row;
+    int col;
 
-	bmp = bitmap_read(filename);
-	coff = 360 - (bmp->width >> 1);
-	roff = 174 - (bmp->height >> 1);
+    convert_to_grayscale(bmp);
+    dither(bmp, 2);
+    mda_clear_screen();
 
-	convert_to_grayscale(bmp);
-	dither(bmp, 2);
-	mda_clear_screen();
+    for (row = 0; row < bmp->height; ++row) {
+        for (col = 0; col < bmp->width; ++col) {
+            BYTE luma = bmp->image[row * bmp->width + col] >> 7;
 
-	for (row = 0; row < bmp->height; ++row) {
-		for (col = 0; col < bmp->width; ++col) {
-			BYTE y = bmp->image[row * bmp->width + col] >> 7;
+            mda_plot(col + col_offset, row + row_offset, luma);
+        }
+    }
 
-			mda_plot(col + coff, row + roff, y);
-		}
-	}
-
-	bitmap_free(bmp);
+    bitmap_free(bmp);
 }
 
-static void
-cga_show(char *filename)
+static void cga_show(char *filename)
 {
-	struct bitmap *bmp;
-	int row, roff, col, coff;
+    struct bitmap *bmp = bitmap_read(filename);
+    int row_offset = 100 - (bmp->height >> 1);
+    int col_offset = 160 - (bmp->width >> 1);
+    int row;
+    int col;
 
-	bmp = bitmap_read(filename);
-	coff = 160 - (bmp->width >> 1);
-	roff = 100 - (bmp->height >> 1);
+    convert_to_grayscale(bmp);
+    dither(bmp, 4);
+    cga_clear_screen();
 
-	convert_to_grayscale(bmp);
-	dither(bmp, 4);
-	cga_clear_screen();
+    for (row = 0; row < bmp->height; ++row) {
+        for (col = 0; col < bmp->width; ++col) {
+            BYTE pal[4] = { 0, 2, 1, 3 };
+            BYTE luma = bmp->image[row * bmp->width + col] >> 6;
 
-	for (row = 0; row < bmp->height; ++row) {
-		for (col = 0; col < bmp->width; ++col) {
-			BYTE pal[4] = { 0, 2, 1, 3 };
-			BYTE y = bmp->image[row * bmp->width + col] >> 6;
+            cga_plot(col + col_offset, row + row_offset, pal[luma]);
+        }
+    }
 
-			cga_plot(col + coff, row + roff, pal[y]);
-		}
-	}
-
-	bitmap_free(bmp);
+    bitmap_free(bmp);
 }
 
-static int
-ega_match_color(struct color *color, struct array *from)
+static int ega_match_color(struct color *color, struct array *from)
 {
-	DWORD maxdist = ~0;
-	int match, i;
+    DWORD max_distance = -1;
+    int match;
+    int i;
 
-	match = 0;
-	for (i = 0; i < from->size; ++i) {
-		struct color *new_color = from->items[i];
-		int rdiff = color->r - new_color->r;
-		int gdiff = color->g - new_color->g;
-		int bdiff = color->b - new_color->b;
-		DWORD dist = SQR(rdiff) + SQR(gdiff) + SQR(bdiff);
+    match = 0;
+    for (i = 0; i < from->size; ++i) {
+        struct color *new_color = from->items[i];
+        int red_diff = color->red - new_color->red;
+        int green_diff = color->green - new_color->green;
+        int blue_diff = color->blue - new_color->blue;
+        DWORD distance = SQR(red_diff) + SQR(green_diff) + SQR(blue_diff);
 
-		if (dist < maxdist) {
-			maxdist = dist;
-			match = i;
-		}
-	}
+        if (distance < max_distance) {
+            max_distance = distance;
+            match = i;
+        }
+    }
 
-	return match;
+    return match;
 }
 
-static void
-ega_show(char *filename)
+static void ega_show(char *filename)
 {
-	struct bitmap *bmp;
-	int row, roff, col, coff;
-	struct array *palette, *reduced;
+    struct bitmap *bmp = bitmap_read(filename);
+    struct array *palette = palette_to_array(bmp->palette, bmp->n_colors);
+    struct array *reduced = array_new();
+    int row_offset = 175 - (bmp->height >> 1);
+    int col_offset = 320 - (bmp->width >> 1);
+    int row;
+    int col;
 
-	bmp = bitmap_read(filename);
-	palette = palette_to_array(bmp->palette, bmp->ncolors);
-	coff = 320 - (bmp->width >> 1);
-	roff = 175 - (bmp->height >> 1);
+    median_cut(palette, 4, reduced);
+    ega_clear_screen();
+    ega_set_palette(reduced);
 
-	reduced = array_new();
-	median_cut(palette, 4, reduced);
-	ega_clear_screen();
-	ega_set_palette(reduced);
+    for (row = 0; row < bmp->height; ++row) {
+        for (col = 0; col < bmp->width; ++col) {
+            int offset = bmp->image[row * bmp->width + col];
+            struct color *color = palette->items[offset];
 
-	for (row = 0; row < bmp->height; ++row) {
-		for (col = 0; col < bmp->width; ++col) {
-			int offset = bmp->image[row * bmp->width + col];
-			struct color *color = palette->items[offset];
+            ega_plot(col + col_offset, row + row_offset,
+                     ega_match_color(color, reduced));
+        }
+    }
 
-			ega_plot(col + coff, row + roff,
-			    ega_match_color(color, reduced));
-		}
-	}
-
-	array_for_each(palette, free);
-	array_free(palette);
-	array_for_each(reduced, free);
-	array_free(reduced);
-	bitmap_free(bmp);
+    array_for_each(palette, free);
+    array_for_each(reduced, free);
+    array_free(palette);
+    array_free(reduced);
+    bitmap_free(bmp);
 }
 
-static void
-vga_show(char *filename)
+static void vga_show(char *filename)
 {
-	struct bitmap *bmp;
-	int row, roff, coff;
+    struct bitmap *bmp = bitmap_read(filename);
+    int row_offset = 100 - (bmp->height >> 1);
+    int col_offset = 160 - (bmp->width >> 1);
+    int row;
 
-	bmp = bitmap_read(filename);
-	coff = 160 - (bmp->width >> 1);
-	roff = 100 - (bmp->height >> 1);
+    vga_clear_screen();
+    vga_set_palette(bmp->palette);
+    for (row = 0; row < bmp->height; ++row) {
+        BYTE *src = bmp->image + row * bmp->width;
+        BYTE *dst = vga_memory +
+                    VGA_MEM_OFFSET(col_offset, row + row_offset);
 
-	vga_clear_screen();
-	vga_set_palette(bmp->palette);
-	for (row = 0; row < bmp->height; ++row) {
-		BYTE *src = bmp->image + row * bmp->width;
-		BYTE *dst = vga_memory + VGA_MEM_OFFSET(coff,
-		    row + roff);
+        memcpy(dst, src, bmp->width);
+    }
 
-		memcpy(dst, src, bmp->width);
-	}
-
-	bitmap_free(bmp);
+    bitmap_free(bmp);
 }
 
 #define KEY_ESC 27
-static int
-next_or_exit(void)
+static int next_or_exit(void)
 {
-	int key_pressed = false;
+    int key_pressed = false;
 
-	if (kbhit()) {
-		key_pressed = true;
-		switch (getch()) {
-		case 'q':
-		case 'Q':
-		case KEY_ESC:
-			set_mode(MODE_TEXT);
-			exit(EXIT_SUCCESS);
+    if (kbhit()) {
+        key_pressed = true;
+        switch (getch()) {
+            case 'q':
+            case 'Q':
+            case KEY_ESC:
+                set_mode(MODE_TEXT);
+                exit(EXIT_SUCCESS);
 
-			/* read away special key */
-		case 0:
-		case 224:
-			getch();
-			break;
-		}
-	}
+            /* read away special key */
+            case 0:
+            case 224:
+                getch();
+                break;
+        }
+    }
 
-	return key_pressed;
+    return key_pressed;
 }
 
 #define DEFAULT_WAIT_MSEC 10000
 #define DELAY 100
 
-static int
-slideshow(int wait_msec)
+static int slideshow(int wait_msec)
 {
-	struct ffblk ffblk;
-	int has_images;
-	int status;
+    struct ffblk ffblk;
+    int has_images = false;
+    int status;
 
-	has_images = false;
-	for (status = findfirst("*.bmp", &ffblk, 0);
-	    status == 0;
-	    status = findnext(&ffblk)) {
-		int total_delays = wait_msec / DELAY;
-		int ndelays = 0;
+    for (status = findfirst("*.bmp", &ffblk, 0);
+         status == 0;
+         status = findnext(&ffblk))
+    {
+        int total_delays = wait_msec / DELAY;
+        int n_delays = 0;
 
-		if (ffblk.ff_attrib & FA_DIREC)
-			continue;
+        if (ffblk.ff_attrib & FA_DIREC) {
+            continue;
+        }
 
-		has_images = true;
-		show(ffblk.ff_name);
-		while (!next_or_exit() && (ndelays < total_delays)) {
-			delay(DELAY);
-			++ndelays;
-		}
-	}
+        has_images = true;
+        show(ffblk.ff_name);
+        while (!next_or_exit() && (n_delays < total_delays)) {
+            delay(DELAY);
+            ++n_delays;
+        }
+    }
 
-	return has_images;
+    return has_images;
 }
 
-int
-main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
-	int wait_msec = DEFAULT_WAIT_MSEC;
+    int wait_msec = DEFAULT_WAIT_MSEC;
 
-	g_show_progress = true;
+    g_show_progress = true;
 
-	switch (detect_graphics()) {
-	case MDA_GRAPHICS:
-		show = mda_show;
-		g_show_progress = false;
-		mda_set_graphics_mode(1);
-		mda_clear_screen();
-		break;
+    switch (detect_graphics()) {
+        case MDA_GRAPHICS:
+            show = mda_show;
+            g_show_progress = false;
+            mda_set_graphics_mode(1);
+            mda_clear_screen();
+            break;
 
-	case CGA_GRAPHICS:
-		show = cga_show;
-		set_mode(MODE_CGA2);
-		break;
+        case CGA_GRAPHICS:
+            show = cga_show;
+            set_mode(MODE_CGA2);
+            break;
 
-	case EGA_GRAPHICS:
-		show = ega_show;
-		set_mode(MODE_EGA);
-		break;
+        case EGA_GRAPHICS:
+            show = ega_show;
+            set_mode(MODE_EGA);
+            break;
 
-	case VGA_GRAPHICS:
-		show = vga_show;
-		g_show_progress = false;
-		set_mode(MODE_VGA);
-		break;
+        case VGA_GRAPHICS:
+            show = vga_show;
+            g_show_progress = false;
+            set_mode(MODE_VGA);
+            break;
 
-	default:
-		xerror("Error detecting graphics card.");
-	}
+        default:
+            xerror("Error detecting graphics card.");
+    }
 
-	/*
-	 * If we have an argument it's either a file to show
-	 * or a delay for a slideshow (and the images will be
-	 * read from the current directory).
-	 */
-	if (argc == 2) {
-		if (file_exists(argv[1])) {
-			show(argv[1]);
-			while (!next_or_exit());
-		} else {
-			wait_msec = atoi(argv[1]) * 1000;
+    /*
+     * If we have an argument it's either a file to show
+     * or a delay for a slideshow (and the images will be
+     * read from the current directory).
+     */
+    if (argc == 2) {
+        if (file_exists(argv[1])) {
+            show(argv[1]);
+            while (!next_or_exit()) {
+            }
+        }
+        else {
+            wait_msec = atoi(argv[1]) * 1000;
 
-			if (wait_msec <= 0)
-				wait_msec = DEFAULT_WAIT_MSEC;
-		}
-	}
+            if (wait_msec <= 0) {
+                wait_msec = DEFAULT_WAIT_MSEC;
+            }
+        }
+    }
 
-	while (slideshow(wait_msec));
+    while (slideshow(wait_msec)) {
+    }
 
-	set_mode(MODE_TEXT);
-	xerror("No images found.");
+    set_mode(MODE_TEXT);
+    xerror("No images found.");
 }
 
 

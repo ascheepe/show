@@ -18,47 +18,46 @@
 #include "system.h"
 #include "array.h"
 
-struct array *
-array_new(void)
+struct array *array_new(void)
 {
-	struct array *array;
+    struct array *array = xmalloc(sizeof(struct array));
 
-#define INITIAL_CAPACITY 16
-	array = xmalloc(sizeof(struct array));
-	array->items = xmalloc(INITIAL_CAPACITY * sizeof(void *));
-	array->size = 0;
-	array->cap = INITIAL_CAPACITY;
+    array->items = xmalloc(INITIAL_ARRAY_LIMIT * sizeof(void *));
+    array->limit = INITIAL_ARRAY_LIMIT;
+    array->size = 0;
 
-	return array;
+    return array;
 }
 
-void
-array_free(struct array *array)
+void array_free(struct array *array)
 {
-	free(array->items);
-	free(array);
+    free(array->items);
+    free(array);
 }
 
-void
-array_add(struct array *array, void *data)
+void array_add(struct array *array, void *data)
 {
-	if (array->size == array->cap) {
-		size_t newcap = array->cap * 2;
+    if (array->size == array->limit) {
+        size_t new_limit = array->limit * 2;
 
-		array->items = xrealloc(array->items, sizeof(void *) * newcap);
-		array->cap = newcap;
-	}
+        if (new_limit < array->limit) {
+            xerror("array_add: overflow.");
+        }
 
-	array->items[array->size++] = data;
+        array->items = xrealloc(array->items, sizeof(void *) * new_limit);
+        array->limit = new_limit;
+    }
+
+    array->items[array->size++] = data;
 }
 
-void
-array_for_each(struct array *array, void (*func)(void *))
+void array_for_each(struct array *array, void (*function)(void *))
 {
-	size_t i;
+    size_t i;
 
-	for (i = 0; i < array->size; ++i)
-		func(array->items[i]);
+    for (i = 0; i < array->size; ++i) {
+        function(array->items[i]);
+    }
 }
 
 
