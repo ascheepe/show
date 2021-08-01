@@ -25,4 +25,3 @@ void mda_clear_screen(void);
 
 #endif
 
-

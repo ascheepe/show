@@ -20,8 +20,7 @@
 #include "system.h"
 #include "bitmap.h"
 
-struct bitmap *bitmap_read(char *filename)
-{
+struct bitmap *bitmap_read(char *filename) {
     struct bitmap *bmp = NULL;
     FILE *bmpfile = NULL;
     DWORD padded_width;
@@ -53,8 +52,7 @@ struct bitmap *bitmap_read(char *filename)
     bmp->height = read_dword(bmpfile);
 
     if ((bmp->width == 0) || (bmp->height == 0) ||
-        (bmp->width > 320) || (bmp->height > 200))
-    {
+        (bmp->width > 320) || (bmp->height > 200)) {
         xerror("image must be 320x200 or less");
     }
 
@@ -121,10 +119,8 @@ struct bitmap *bitmap_read(char *filename)
     return bmp;
 }
 
-void bitmap_free(struct bitmap *bmp)
-{
+void bitmap_free(struct bitmap *bmp) {
     free(bmp->image);
     free(bmp);
 }
 
-

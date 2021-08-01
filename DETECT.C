@@ -18,8 +18,7 @@
 
 #include "detect.h"
 
-enum graphics_type detect_graphics(void)
-{
+enum graphics_type detect_graphics(void) {
     union REGS regs = { 0 };
 
     /* First try int10 service */
@@ -71,4 +70,3 @@ enum graphics_type detect_graphics(void)
     return CGA_GRAPHICS;
 }
 
-

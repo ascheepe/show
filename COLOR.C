@@ -23,8 +23,7 @@
 #include "array.h"
 #include "color.h"
 
-struct array *palette_to_array(BYTE * palette, int palette_size)
-{
+struct array *palette_to_array(BYTE * palette, int palette_size) {
     struct array *result = array_new();
     size_t i;
 
@@ -44,8 +43,7 @@ struct array *palette_to_array(BYTE * palette, int palette_size)
 
 
 /* which part has the maximum val, r, g or b? */
-static int max_color(struct array *palette)
-{
+static int max_color(struct array *palette) {
     size_t i;
     BYTE red_max = 0;
     BYTE green_max = 0;
@@ -78,32 +76,28 @@ static int max_color(struct array *palette)
     return MAX_COLOR_BLUE;
 }
 
-static int sort_by_red(const void *color_a, const void *color_b)
-{
+static int sort_by_red(const void *color_a, const void *color_b) {
     struct color *a = *((struct color **) color_a);
     struct color *b = *((struct color **) color_b);
 
     return a->red - b->red;
 }
 
-static int sort_by_green(const void *color_a, const void *color_b)
-{
+static int sort_by_green(const void *color_a, const void *color_b) {
     struct color *a = *((struct color **) color_a);
     struct color *b = *((struct color **) color_b);
 
     return a->green - b->green;
 }
 
-static int sort_by_blue(const void *color_a, const void *color_b)
-{
+static int sort_by_blue(const void *color_a, const void *color_b) {
     struct color *a = *((struct color **) color_a);
     struct color *b = *((struct color **) color_b);
 
     return a->blue - b->blue;
 }
 
-static void sort_palette(struct array *palette, int by)
-{
+static void sort_palette(struct array *palette, int by) {
     int (*compare)(const void *, const void *) = NULL;
 
     switch (by) {
@@ -127,8 +121,7 @@ static void sort_palette(struct array *palette, int by)
 }
 
 /* average color of palette */
-static struct color *palette_average(struct array *palette)
-{
+static struct color *palette_average(struct array *palette) {
     struct color *average_color = xmalloc(sizeof(*average_color));
     size_t i;
     DWORD red_sum = 0;
@@ -150,8 +143,7 @@ static struct color *palette_average(struct array *palette)
     return average_color;
 }
 
-void median_cut(struct array *palette, int ncuts, struct array *reduced)
-{
+void median_cut(struct array *palette, int ncuts, struct array *reduced) {
     struct array *top = NULL;
     struct array *bottom = NULL;
     size_t median;
@@ -192,8 +184,7 @@ void median_cut(struct array *palette, int ncuts, struct array *reduced)
     array_free(top);
 }
 
-static void print_binary(FILE *output_file, BYTE value)
-{
+static void print_binary(FILE *output_file, BYTE value) {
     int bit;
 
     for (bit = 0; bit < 8; ++bit) {
@@ -201,15 +192,13 @@ static void print_binary(FILE *output_file, BYTE value)
 
         if (value & bitmask) {
             fputc('1', output_file);
-        }
-        else {
+        } else {
             fputc('0', output_file);
         }
     }
 }
 
-void write_palette(struct array *palette, char *filename)
-{
+void write_palette(struct array *palette, char *filename) {
     FILE *output_file = fopen(filename, "w");
     size_t i;
 
@@ -236,4 +225,3 @@ void write_palette(struct array *palette, char *filename)
     fclose(output_file);
 }
 
-

@@ -27,4 +27,3 @@ void ega_clear_screen(void);
 
 #endif
 
-

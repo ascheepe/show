@@ -35,8 +35,7 @@
 
 static void (*show)(char *);
 
-static void mda_show(char *filename)
-{
+static void mda_show(char *filename) {
     struct bitmap *bmp = bitmap_read(filename);
     int row_offset = 174 - (bmp->height >> 1);
     int col_offset = 360 - (bmp->width >> 1);
@@ -58,8 +57,7 @@ static void mda_show(char *filename)
     bitmap_free(bmp);
 }
 
-static void cga_show(char *filename)
-{
+static void cga_show(char *filename) {
     struct bitmap *bmp = bitmap_read(filename);
     int row_offset = 100 - (bmp->height >> 1);
     int col_offset = 160 - (bmp->width >> 1);
@@ -82,8 +80,7 @@ static void cga_show(char *filename)
     bitmap_free(bmp);
 }
 
-static int ega_match_color(struct color *color, struct array *from)
-{
+static int ega_match_color(struct color *color, struct array *from) {
     DWORD max_distance = -1;
     int match = 0;
     int i;
@@ -104,8 +101,7 @@ static int ega_match_color(struct color *color, struct array *from)
     return match;
 }
 
-static void ega_show(char *filename)
-{
+static void ega_show(char *filename) {
     struct bitmap *bmp = bitmap_read(filename);
     struct array *palette = palette_to_array(bmp->palette, bmp->n_colors);
     struct array *reduced = array_new();
@@ -135,8 +131,7 @@ static void ega_show(char *filename)
     bitmap_free(bmp);
 }
 
-static void vga_show(char *filename)
-{
+static void vga_show(char *filename) {
     struct bitmap *bmp = bitmap_read(filename);
     int row_offset = 100 - (bmp->height >> 1);
     int col_offset = 160 - (bmp->width >> 1);
@@ -156,8 +151,7 @@ static void vga_show(char *filename)
 }
 
 #define KEY_ESC 27
-static int next_or_exit(void)
-{
+static int next_or_exit(void) {
     int key_pressed = false;
 
     if (kbhit()) {
@@ -183,16 +177,14 @@ static int next_or_exit(void)
 #define DEFAULT_WAIT_MSEC 10000
 #define DELAY 100
 
-static int slideshow(int wait_msec)
-{
+static int slideshow(int wait_msec) {
     struct ffblk ffblk;
     int has_images = false;
     int status;
 
     for (status = findfirst("*.bmp", &ffblk, 0);
          status == 0;
-         status = findnext(&ffblk))
-    {
+         status = findnext(&ffblk)) {
         int total_delays = wait_msec / DELAY;
         int n_delays = 0;
 
@@ -211,8 +203,7 @@ static int slideshow(int wait_msec)
     return has_images;
 }
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     int wait_msec = DEFAULT_WAIT_MSEC;
 
     g_show_progress = true;
@@ -255,8 +246,7 @@ int main(int argc, char *argv[])
             show(argv[1]);
             while (!next_or_exit()) {
             }
-        }
-        else {
+        } else {
             wait_msec = atoi(argv[1]) * 1000;
 
             if (wait_msec <= 0) {
@@ -271,4 +261,4 @@ int main(int argc, char *argv[])
     set_mode(MODE_TEXT);
     xerror("No images found.");
 }
-
+

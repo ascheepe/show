@@ -24,4 +24,3 @@ void dither(struct bitmap *, int);
 
 #endif
 
-

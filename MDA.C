@@ -43,8 +43,7 @@ static BYTE mda_text_table[TABLE_SIZE] = {
     0x02, 0x0d, 0x0b, 0x0c,
 };
 
-void mda_set_graphics_mode(int on)
-{
+void mda_set_graphics_mode(int on) {
     BYTE *table = NULL;
     int i;
 
@@ -57,8 +56,7 @@ void mda_set_graphics_mode(int on)
     if (on) {
         table = mda_graphics_table;
         outp(PORT_CONTROL, MDA_MODE_GRAPHICS);
-    }
-    else {
+    } else {
         table = mda_text_table;
         outp(PORT_CONTROL, MDA_MODE_TEXT);
     }
@@ -72,31 +70,26 @@ void mda_set_graphics_mode(int on)
     /* set screen on, page 0 (2 = 0b10) */
     if (on) {
         outp(PORT_CONTROL, MDA_MODE_GRAPHICS | 2);
-    }
-    else {
+    } else {
         outp(PORT_CONTROL, MDA_MODE_TEXT | 2);
     }
 
     enable();
 }
 
-void mda_plot(int x, int y, int color)
-{
+void mda_plot(int x, int y, int color) {
     BYTE *pixel = mda_memory + (0x2000 * (y & 3)) + (90 * (y >> 2)) +
                   (x >> 3);
     BYTE value = 1 << (7 - (x & 7));
 
     if (color) {
         *pixel |= value;
-    }
-    else {
+    } else {
         *pixel &= ~value;
     }
 }
 
-void mda_clear_screen(void)
-{
+void mda_clear_screen(void) {
     memset(mda_memory, 0, 32 * 1024);
 }
 
-

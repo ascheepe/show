@@ -38,4 +38,3 @@ void write_palette(struct array *, char *);
 
 #endif
 
-

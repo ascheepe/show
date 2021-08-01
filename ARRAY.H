@@ -32,4 +32,3 @@ void array_for_each(struct array *, void (*)(void *));
 
 #endif
 
-

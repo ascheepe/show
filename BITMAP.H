@@ -48,4 +48,3 @@ void bitmap_free(struct bitmap *);
 
 #endif
 
-

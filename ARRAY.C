@@ -18,8 +18,7 @@
 #include "system.h"
 #include "array.h"
 
-struct array *array_new(void)
-{
+struct array *array_new(void) {
     struct array *array = xmalloc(sizeof(struct array));
 
     array->items = xmalloc(INITIAL_ARRAY_LIMIT * sizeof(void *));
@@ -29,14 +28,12 @@ struct array *array_new(void)
     return array;
 }
 
-void array_free(struct array *array)
-{
+void array_free(struct array *array) {
     free(array->items);
     free(array);
 }
 
-void array_add(struct array *array, void *data)
-{
+void array_add(struct array *array, void *data) {
     if (array->size == array->limit) {
         size_t new_limit = array->limit * 2;
 
@@ -51,8 +48,7 @@ void array_add(struct array *array, void *data)
     array->items[array->size++] = data;
 }
 
-void array_for_each(struct array *array, void (*function)(void *))
-{
+void array_for_each(struct array *array, void (*function)(void *)) {
     size_t i;
 
     for (i = 0; i < array->size; ++i) {
@@ -60,4 +56,3 @@ void array_for_each(struct array *array, void (*function)(void *))
     }
 }
 
-

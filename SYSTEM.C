@@ -22,16 +22,14 @@
 
 int g_show_progress = false;
 
-void xerror(char *message)
-{
+void xerror(char *message) {
     set_mode(MODE_TEXT);
     fprintf(stderr, "%s\n", message);
     exit(1);
 }
 
 
-void *xmalloc(size_t size)
-{
+void *xmalloc(size_t size) {
     void *result = malloc(size);
 
     if (result == NULL) {
@@ -41,8 +39,7 @@ void *xmalloc(size_t size)
     return result;
 }
 
-void *xcalloc(size_t nmemb, size_t size)
-{
+void *xcalloc(size_t nmemb, size_t size) {
     void *result = calloc(nmemb, size);
 
     if (result == NULL) {
@@ -52,8 +49,7 @@ void *xcalloc(size_t nmemb, size_t size)
     return result;
 }
 
-void *xrealloc(void *ptr, size_t size)
-{
+void *xrealloc(void *ptr, size_t size) {
     void *result = realloc(ptr, size);
 
     if (result == NULL) {
@@ -63,8 +59,7 @@ void *xrealloc(void *ptr, size_t size)
     return result;
 }
 
-BYTE read_byte(FILE *input_file)
-{
+BYTE read_byte(FILE *input_file) {
     int ch = fgetc(input_file);
 
     if (ch == EOF) {
@@ -74,8 +69,7 @@ BYTE read_byte(FILE *input_file)
     return ch;
 }
 
-WORD read_word(FILE *input_file)
-{
+WORD read_word(FILE *input_file) {
     BYTE bytes[2];
 
     if (fread(bytes, 2, 1, input_file) != 1) {
@@ -85,8 +79,7 @@ WORD read_word(FILE *input_file)
     return (bytes[0] << 0) | (bytes[1] << 8);
 }
 
-DWORD read_dword(FILE *input_file)
-{
+DWORD read_dword(FILE *input_file) {
     BYTE bytes[4];
 
     if (fread(bytes, 4, 1, input_file) != 1) {
@@ -94,11 +87,10 @@ DWORD read_dword(FILE *input_file)
     }
 
     return (bytes[0] << 0)  | (bytes[1] << 8)
-         | (bytes[1] << 16) | (bytes[2] << 24);
+           | (bytes[1] << 16) | (bytes[2] << 24);
 }
 
-void set_mode(int mode)
-{
+void set_mode(int mode) {
     union REGS regs = { 0 };
 
     regs.h.ah = 0;
@@ -106,8 +98,7 @@ void set_mode(int mode)
     int86(0x10, &regs, &regs);
 }
 
-int file_exists(char *filename)
-{
+int file_exists(char *filename) {
     FILE *test = fopen(filename, "rb");
 
     if (test == NULL) {
@@ -118,4 +109,3 @@ int file_exists(char *filename)
     return true;
 }
 
-

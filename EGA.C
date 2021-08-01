@@ -35,8 +35,7 @@ static BYTE *ega_memory = (BYTE *) 0xA0000000L;
  * | +------------- Reserved
  * +--------------- Reserved
  */
-BYTE ega_make_color(struct color *color)
-{
+BYTE ega_make_color(struct color *color) {
     BYTE red = color->red >> 6;
     BYTE green = color->green >> 6;
     BYTE blue = color->blue >> 6;
@@ -58,7 +57,7 @@ BYTE ega_make_color(struct color *color)
  * This register can act like a flip-flop to automatically
  * switch between setting the palette index and the palette
  * value. To enable this mode a read of port 0x3da is
- * requir. The datasheet calls this 'sending an IOR command'.
+ * required. The datasheet calls this 'sending an IOR command'.
  *
  * After that the first write selects the attribute
  * and the second sets the value.
@@ -66,8 +65,7 @@ BYTE ega_make_color(struct color *color)
  * Attributes 0x00 - 0x0F specify the 16 color palette in
  * the format as the make_color function provides.
  */
-void ega_set_palette(struct array *palette)
-{
+void ega_set_palette(struct array *palette) {
     int i;
 
     /* enable 0x3c0 flip-flop */
@@ -86,8 +84,7 @@ void ega_set_palette(struct array *palette)
  * 640x350x4bits: each row has 640 bits = 640/8 = 80 bytes
  * x byte position therefor is x/640/80 = x/8
  */
-void ega_plot(int x, int y, int color)
-{
+void ega_plot(int x, int y, int color) {
     BYTE *pixel = ega_memory + (y << 6) + (y << 4) + (x >> 3);
     BYTE mask = 0x80 >> (x & 7);
 
@@ -110,10 +107,8 @@ void ega_plot(int x, int y, int color)
     *pixel |= 0xff;
 }
 
-void ega_clear_screen(void)
-{
+void ega_clear_screen(void) {
     set_mode(MODE_EGA);
     /* memset(ega_memory, 0, 128 * 1024); */
 }
 
-

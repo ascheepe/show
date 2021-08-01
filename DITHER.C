@@ -19,8 +19,7 @@
 
 #define INDEX(x, y) ((y) * bmp->width + (x))
 
-void convert_to_grayscale(struct bitmap *bmp)
-{
+void convert_to_grayscale(struct bitmap *bmp) {
     int row;
     int col;
 
@@ -42,8 +41,7 @@ void convert_to_grayscale(struct bitmap *bmp)
     }
 }
 
-void dither(struct bitmap *bmp, int n_colors)
-{
+void dither(struct bitmap *bmp, int n_colors) {
     int row;
     int col;
 
@@ -78,4 +76,3 @@ void dither(struct bitmap *bmp, int n_colors)
     }
 }
 
-

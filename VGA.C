@@ -26,13 +26,11 @@
 
 BYTE *vga_memory = (BYTE *) 0xA0000000L;
 
-void vga_plot(int x, int y, int color)
-{
+void vga_plot(int x, int y, int color) {
     vga_memory[VGA_MEM_OFFSET(x, y)] = color;
 }
 
-void vga_wait_vblank(void)
-{
+void vga_wait_vblank(void) {
     while ((inp(0x03da) & 0x08)) {
     }
 
@@ -40,8 +38,7 @@ void vga_wait_vblank(void)
     }
 }
 
-void vga_set_color(BYTE index, BYTE red, BYTE green, BYTE blue)
-{
+void vga_set_color(BYTE index, BYTE red, BYTE green, BYTE blue) {
     vga_wait_vblank();
     outp(0x03C8, index);
     outp(0x03C9, red >> 2);
@@ -49,14 +46,12 @@ void vga_set_color(BYTE index, BYTE red, BYTE green, BYTE blue)
     outp(0x03C9, blue >> 2);
 }
 
-void vga_clear_screen(void)
-{
+void vga_clear_screen(void) {
     vga_set_color(0, 0, 0, 0);
     memset(vga_memory, 0, 320 * 200);
 }
 
-void vga_set_palette(BYTE * palette)
-{
+void vga_set_palette(BYTE * palette) {
     int i;
 
     vga_wait_vblank();
@@ -66,4 +61,3 @@ void vga_set_palette(BYTE * palette)
     }
 }
 
-
