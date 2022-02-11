@@ -18,23 +18,23 @@
 #define COLOR_H
 
 #include "system.h"
-#include "array.h"
+#include "vector.h"
 
 enum {
-    MAX_COLOR_RED,
-    MAX_COLOR_GREEN,
-    MAX_COLOR_BLUE
+	MAX_COLOR_RED,
+	MAX_COLOR_GREEN,
+	MAX_COLOR_BLUE
 };
 
 struct color {
-    BYTE red;
-    BYTE green;
-    BYTE blue;
+	BYTE	r;
+	BYTE	g;
+	BYTE	b;
 };
 
-struct array *palette_to_array(BYTE *, int);
-void median_cut(struct array *, int, struct array *);
-void write_palette(struct array *, char *);
+struct vector *palette_to_vector(BYTE *, int);
+void median_cut(struct vector *, int, struct vector *);
+void write_palette(struct vector *, char *);
 
 #endif
-
+

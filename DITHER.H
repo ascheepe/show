@@ -23,4 +23,4 @@ void convert_to_grayscale(struct bitmap *);
 void dither(struct bitmap *, int);
 
 #endif
-
+

@@ -16,9 +16,11 @@
 
 #include "system.h"
 
-int main(void) {
-    set_mode(MODE_TEXT);
+int
+main(void)
+{
+	set_mode(MODE_TEXT);
 
-    return 0;
+	return 0;
 }
-
+

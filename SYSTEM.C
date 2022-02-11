@@ -20,92 +20,103 @@
 
 #include "system.h"
 
-int g_show_progress = false;
+int show_progress = false;
 
-void xerror(char *message) {
-    set_mode(MODE_TEXT);
-    fprintf(stderr, "%s\n", message);
-    exit(1);
+void
+xerror(char *message)
+{
+	set_mode(MODE_TEXT);
+	fprintf(stderr, "%s\n", message);
+	exit(1);
 }
 
 
-void *xmalloc(size_t size) {
-    void *result = malloc(size);
+void *
+xmalloc(size_t size)
+{
+	void *ret;
 
-    if (result == NULL) {
-        xerror("malloc: no more memory.");
-    }
+	if ((ret = malloc(size)) == NULL)
+		xerror("malloc: no more memory.");
 
-    return result;
+	return ret;
 }
 
-void *xcalloc(size_t nmemb, size_t size) {
-    void *result = calloc(nmemb, size);
+void *
+xcalloc(size_t nmemb, size_t size)
+{
+	void *ret;
 
-    if (result == NULL) {
-        xerror("xcalloc: no more memory.");
-    }
+	if ((ret = calloc(nmemb, size)) == NULL)
+		xerror("xcalloc: no more memory.");
 
-    return result;
+	return ret;
 }
 
-void *xrealloc(void *ptr, size_t size) {
-    void *result = realloc(ptr, size);
+void *
+xrealloc(void *ptr, size_t size)
+{
+	void *ret;
 
-    if (result == NULL) {
-        xerror("xrealloc: no more memory.");
-    }
+	if ((ret = realloc(ptr, size)) == NULL)
+		xerror("xrealloc: no more memory.");
 
-    return result;
+	return ret;
 }
 
-BYTE read_byte(FILE *input_file) {
-    int ch = fgetc(input_file);
+BYTE
+read_byte(FILE *f)
+{
+	int ch;
 
-    if (ch == EOF) {
-        xerror("read_byte: I/O Error");
-    }
+	if ((ch = fgetc(f)) == EOF)
+		xerror("read_byte: I/O Error");
 
-    return ch;
+	return ch;
 }
 
-WORD read_word(FILE *input_file) {
-    BYTE bytes[2];
+WORD
+read_word(FILE *f)
+{
+	BYTE bytes[2];
 
-    if (fread(bytes, 2, 1, input_file) != 1) {
-        xerror("read_word: I/O Error");
-    }
+	if (fread(bytes, 2, 1, f) != 1)
+		xerror("read_word: I/O Error");
 
-    return (bytes[0] << 0) | (bytes[1] << 8);
+	return (bytes[0] << 0) | (bytes[1] << 8);
 }
 
-DWORD read_dword(FILE *input_file) {
-    BYTE bytes[4];
+DWORD
+read_dword(FILE *f)
+{
+	BYTE bytes[4];
 
-    if (fread(bytes, 4, 1, input_file) != 1) {
-        xerror("read_dword: I/O Error");
-    }
+	if (fread(bytes, 4, 1, f) != 1)
+		xerror("read_dword: I/O Error");
 
-    return (bytes[0] << 0)  | (bytes[1] << 8)
-           | (bytes[1] << 16) | (bytes[2] << 24);
+	return (bytes[0] << 0) | (bytes[1] << 8) | (bytes[1] << 16) |
+	    (bytes[2] << 24);
 }
 
-void set_mode(int mode) {
-    union REGS regs = { 0 };
+void
+set_mode(int mode)
+{
+	union REGS regs = { 0 };
 
-    regs.h.ah = 0;
-    regs.h.al = mode;
-    int86(0x10, &regs, &regs);
+	regs.h.ah = 0;
+	regs.h.al = mode;
+	int86(0x10, &regs, &regs);
 }
 
-int file_exists(char *filename) {
-    FILE *test = fopen(filename, "rb");
+int
+file_exists(char *filename)
+{
+	FILE *test = fopen(filename, "rb");
 
-    if (test == NULL) {
-        return false;
-    }
+	if (test == NULL)
+		return false;
 
-    fclose(test);
-    return true;
+	fclose(test);
+	return true;
 }
-
+

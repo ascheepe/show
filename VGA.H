@@ -19,7 +19,7 @@
 
 #include "system.h"
 
-extern BYTE *vga_memory;
+extern BYTE *vmem;
 #define VGA_MEM_OFFSET(x, y) (((y) << 8) + ((y << 6)) + (x))
 
 void vga_plot(int, int, int);
@@ -29,4 +29,4 @@ void vga_set_palette(BYTE *);
 void vga_wait_vblank(void);
 
 #endif
-
+

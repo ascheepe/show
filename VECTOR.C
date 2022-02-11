@@ -14,37 +14,48 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef BITMAP_H
-#define BITMAP_H
-
+#include <stdlib.h>
 #include "system.h"
+#include "vector.h"
 
-/*
- * .BMP file structure
- */
-struct bitmap {
-	WORD	file_type;
-	DWORD	file_size;
-	DWORD	reserved;
-	DWORD	pixel_offset;
-	DWORD	header_size;
-	DWORD	width;
-	DWORD	height;
-	WORD	planes;
-	WORD	bpp;
-	DWORD	compression;
-	DWORD	image_size;
-	DWORD	x_ppm;
-	DWORD	y_ppm;
-	DWORD	ncolors;
-	DWORD	ncolors_important;
+struct vector *
+vector_new(void)
+{
+	struct vector *v = xmalloc(sizeof(*v));
 
-	BYTE	palette[256 * 3];
-	BYTE	*image;
-};
+	v->items = xmalloc(INITIAL_ARRAY_LIMIT * sizeof(void *));
+	v->size = 0;
+	v->cap = INITIAL_ARRAY_LIMIT;
 
-struct bitmap *bitmap_read(char *);
-void bitmap_free(struct bitmap *);
+	return v;
+}
 
-#endif
+void
+vector_free(struct vector *v)
+{
+	free(v->items);
+	free(v);
+}
+
+void
+vector_add(struct vector *v, void *data)
+{
+	if (v->size == v->cap) {
+		size_t newcap = v->cap * 3 / 2;
+
+		v->items = xrealloc(v->items, sizeof(void *) * newcap);
+		v->cap = newcap;
+	}
+
+	v->items[v->size++] = data;
+}
+
+void
+vector_foreach(struct vector *v, void (*f)(void *))
+{
+	size_t i;
+
+	for (i = 0; i < v->size; ++i)
+		f(v->items[i]);
+}
 

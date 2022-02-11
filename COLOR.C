@@ -20,208 +20,218 @@
 #include <string.h>
 
 #include "system.h"
-#include "array.h"
+#include "vector.h"
 #include "color.h"
 
-struct array *palette_to_array(BYTE * palette, int palette_size) {
-    struct array *result = array_new();
-    size_t i;
+struct vector *
+palette_to_vector(BYTE *palette, int size)
+{
+	struct vector *ret;
+	size_t i;
 
-    for (i = 0; i < palette_size; ++i) {
-        struct color *color = xmalloc(sizeof(*color));
-        int offset = i * 3;
+	ret = vector_new();
 
-        color->red = palette[offset + 0];
-        color->green = palette[offset + 1];
-        color->blue = palette[offset + 2];
+	for (i = 0; i < size; ++i) {
+		struct color *color;
+		int offset = i * 3;
 
-        array_add(result, color);
-    }
+		color = xmalloc(sizeof(*color));
+		color->r = palette[offset + 0];
+		color->g = palette[offset + 1];
+		color->b = palette[offset + 2];
 
-    return result;
+		vector_add(ret, color);
+	}
+
+	return ret;
 }
 
 
 /* which part has the maximum val, r, g or b? */
-static int max_color(struct array *palette) {
-    size_t i;
-    BYTE red_max = 0;
-    BYTE green_max = 0;
-    BYTE blue_max = 0;
+static int
+max_color(struct vector *palette)
+{
+	BYTE rmax = 0, gmax = 0, bmax = 0;
+	size_t i;
 
-    for (i = 0; i < palette->size; ++i) {
-        struct color *color = palette->items[i];
+	for (i = 0; i < palette->size; ++i) {
+		struct color *color = palette->items[i];
 
-        if (color->red > red_max) {
-            red_max = color->red;
-        }
+		if (color->r > rmax)
+			rmax = color->r;
 
-        if (color->green > green_max) {
-            green_max = color->green;
-        }
+		if (color->g > gmax)
+			gmax = color->g;
 
-        if (color->blue > blue_max) {
-            blue_max = color->blue;
-        }
-    }
+		if (color->b > bmax)
+			bmax = color->b;
+	}
 
-    if (red_max > green_max && red_max > blue_max) {
-        return MAX_COLOR_RED;
-    }
+	if (rmax > gmax && rmax > bmax)
+		return MAX_COLOR_RED;
 
-    if (green_max > red_max && green_max > blue_max) {
-        return MAX_COLOR_GREEN;
-    }
+	if (gmax > rmax && gmax > bmax)
+		return MAX_COLOR_GREEN;
 
-    return MAX_COLOR_BLUE;
+	return MAX_COLOR_BLUE;
 }
 
-static int sort_by_red(const void *color_a, const void *color_b) {
-    struct color *a = *((struct color **) color_a);
-    struct color *b = *((struct color **) color_b);
+static int
+sort_by_red(const void *color_a, const void *color_b)
+{
+	struct color *a = *((struct color **) color_a);
+	struct color *b = *((struct color **) color_b);
 
-    return a->red - b->red;
+	return a->r - b->r;
 }
 
-static int sort_by_green(const void *color_a, const void *color_b) {
-    struct color *a = *((struct color **) color_a);
-    struct color *b = *((struct color **) color_b);
+static int
+sort_by_green(const void *color_a, const void *color_b)
+{
+	struct color *a = *((struct color **) color_a);
+	struct color *b = *((struct color **) color_b);
 
-    return a->green - b->green;
+	return a->g - b->g;
 }
 
-static int sort_by_blue(const void *color_a, const void *color_b) {
-    struct color *a = *((struct color **) color_a);
-    struct color *b = *((struct color **) color_b);
+static int
+sort_by_blue(const void *color_a, const void *color_b)
+{
+	struct color *a = *((struct color **) color_a);
+	struct color *b = *((struct color **) color_b);
 
-    return a->blue - b->blue;
+	return a->b - b->b;
 }
 
-static void sort_palette(struct array *palette, int by) {
-    int (*compare)(const void *, const void *) = NULL;
+static void
+sort_palette(struct vector *palette, int by)
+{
+	int (*compare)(const void *, const void *) = NULL;
 
-    switch (by) {
-        case MAX_COLOR_RED:
-            compare = sort_by_red;
-            break;
+	switch (by) {
+	case MAX_COLOR_RED:
+		compare = sort_by_red;
+		break;
 
-        case MAX_COLOR_GREEN:
-            compare = sort_by_green;
-            break;
+	case MAX_COLOR_GREEN:
+		compare = sort_by_green;
+		break;
 
-        case MAX_COLOR_BLUE:
-            compare = sort_by_blue;
-            break;
+	case MAX_COLOR_BLUE:
+		compare = sort_by_blue;
+		break;
 
-        default:
-            xerror("sort_palette: unknown sort function.");
-    }
+	default:
+		xerror("sort_palette: unknown sort function.");
+	}
 
-    qsort(palette->items, palette->size, sizeof(void *), compare);
+	qsort(palette->items, palette->size, sizeof(void *), compare);
 }
 
 /* average color of palette */
-static struct color *palette_average(struct array *palette) {
-    struct color *average_color = xmalloc(sizeof(*average_color));
-    size_t i;
-    DWORD red_sum = 0;
-    DWORD green_sum = 0;
-    DWORD blue_sum = 0;
+static struct color *
+palette_average(struct vector *palette)
+{
+	struct color *avg;
+	DWORD rsum = 0, gsum = 0, bsum = 0;
+	size_t i;
 
-    for (i = 0; i < palette->size; ++i) {
-        struct color *color = palette->items[i];
+	avg = xmalloc(sizeof(*avg));
 
-        red_sum += color->red;
-        green_sum += color->green;
-        blue_sum += color->blue;
-    }
+	for (i = 0; i < palette->size; ++i) {
+		struct color *color = palette->items[i];
 
-    average_color->red = red_sum / palette->size;
-    average_color->green = green_sum / palette->size;
-    average_color->blue = blue_sum / palette->size;
+		rsum += color->r;
+		gsum += color->g;
+		bsum += color->b;
+	}
 
-    return average_color;
+	avg->r = rsum / palette->size;
+	avg->g = gsum / palette->size;
+	avg->b = bsum / palette->size;
+
+	return avg;
 }
 
-void median_cut(struct array *palette, int ncuts, struct array *reduced) {
-    struct array *top = NULL;
-    struct array *bottom = NULL;
-    size_t median;
-    size_t i;
+void
+median_cut(struct vector *palette, int ncuts, struct vector *reduced)
+{
+	struct vector *top = NULL, *bottom = NULL;
+	size_t i, median;
 
-    /*
-     * if done add the average color of the bucket
-     * to the reduced palette.
-     */
-    if (ncuts == 0) {
-        struct color *average_color = palette_average(palette);
+	/*
+	 * if done add the average color of the bucket
+	 * to the reduced palette.
+	 */
+	if (ncuts == 0) {
+		struct color *avg;
 
-        array_add(reduced, average_color);
-        return;
-    }
+		avg = palette_average(palette);
+		vector_add(reduced, avg);
+		return;
+	}
 
-    /* sort palette by highest color val of r,g,b */
-    sort_palette(palette, max_color(palette));
+	/* sort palette by highest color val of r,g,b */
+	sort_palette(palette, max_color(palette));
 
-    /* split into top and bottom part */
-    median = palette->size >> 1;
-    bottom = array_new();
-    top = array_new();
+	/* split into top and bottom part */
+	median = palette->size >> 1;
+	bottom = vector_new();
+	top = vector_new();
 
-    for (i = 0; i < median; ++i) {
-        array_add(bottom, palette->items[i]);
-    }
+	for (i = 0; i < median; ++i)
+		vector_add(bottom, palette->items[i]);
 
-    for (i = median; i < palette->size; ++i) {
-        array_add(top, palette->items[i]);
-    }
+	for (i = median; i < palette->size; ++i)
+		vector_add(top, palette->items[i]);
 
-    /* repeat for the two created buckets */
-    median_cut(bottom, ncuts - 1, reduced);
-    median_cut(top, ncuts - 1, reduced);
+	/* repeat for the two created buckets */
+	median_cut(bottom, ncuts - 1, reduced);
+	median_cut(top, ncuts - 1, reduced);
 
-    array_free(bottom);
-    array_free(top);
+	vector_free(bottom);
+	vector_free(top);
 }
 
-static void print_binary(FILE *output_file, BYTE value) {
-    int bit;
+static void
+print_binary(FILE *f, BYTE value)
+{
+	int bit;
 
-    for (bit = 0; bit < 8; ++bit) {
-        int bitmask = (1 << (7 - bit));
+	for (bit = 0; bit < 8; ++bit) {
+		int mask = (1 << (7 - bit));
 
-        if (value & bitmask) {
-            fputc('1', output_file);
-        } else {
-            fputc('0', output_file);
-        }
-    }
+		if (value & mask)
+			fputc('1', f);
+		else
+			fputc('0', f);
+	}
 }
 
-void write_palette(struct array *palette, char *filename) {
-    FILE *output_file = fopen(filename, "w");
-    size_t i;
+void
+write_palette(struct vector *palette, char *filename)
+{
+	FILE *f;
+	size_t i;
 
-    if (output_file == NULL) {
-        xerror("write_palette: can't open file.");
-    }
+	if ((f = fopen(filename, "w")) == NULL)
+		xerror("write_palette: can't open file.");
 
-    for (i = 0; i < palette->size; ++i) {
-        struct color *color = palette->items[i];
-        BYTE ega_red   = color->red   >> 6;
-        BYTE ega_green = color->green >> 6;
-        BYTE ega_blue  = color->blue  >> 6;
+	for (i = 0; i < palette->size; ++i) {
+		struct color *color = palette->items[i];
+		BYTE ega_r = color->r >> 6;
+		BYTE ega_g = color->g >> 6;
+		BYTE ega_b = color->b >> 6;
 
-        fprintf(output_file,
-                "#%02x%02x%02x => #%02x%02x%02x => %d %d %d => %02x => ",
-                color->red, color->green, color->blue,
-                ega_red * 85, ega_green * 85, ega_blue * 85,
-                ega_red, ega_green, ega_blue,
-                ega_make_color(color));
-        print_binary(output_file, ega_make_color(color));
-        fputc('\n', output_file);
-    }
+		fprintf(f,
+		    "#%02x%02x%02x => #%02x%02x%02x => %d %d %d => %02x => ",
+		    color->r, color->g, color->b,
+		    ega_r * 85, ega_g * 85, ega_b * 85,
+		    ega_r, ega_g, ega_b, ega_make_color(color));
+		print_binary(f, ega_make_color(color));
+		fputc('\n', f);
+	}
 
-    fclose(output_file);
+	fclose(f);
 }
-
+

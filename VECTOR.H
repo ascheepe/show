@@ -19,16 +19,16 @@
 
 #define INITIAL_ARRAY_LIMIT 16
 
-struct array {
-    void **items;
-    size_t size;
-    size_t limit;
+struct vector {
+	void	**items;
+	size_t	size;
+	size_t	cap;
 };
 
-struct array *array_new(void);
-void array_free(struct array *);
-void array_add(struct array *, void *);
-void array_for_each(struct array *, void (*)(void *));
+struct vector *vector_new(void);
+void vector_free(struct vector *);
+void vector_add(struct vector *, void *);
+void vector_foreach(struct vector *, void (*)(void *));
 
 #endif
-
+

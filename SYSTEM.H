@@ -18,20 +18,20 @@
 #define SYSTEM_H
 #include <stdio.h>
 
-extern int g_show_progress;
+extern int show_progress;
 
 enum { false, true };
 
 /* int10 modes */
-#define MODE_TEXT 0x03
-#define MODE_CGA 0x04
-#define MODE_CGA2 0x05
-#define MODE_EGA 0x10
-#define MODE_VGA 0x13
+#define MODE_TEXT	0x03
+#define MODE_CGA	0x04
+#define MODE_CGA2	0x05
+#define MODE_EGA	0x0D
+#define MODE_VGA	0x13
 
-typedef unsigned char BYTE;
-typedef unsigned short WORD;
-typedef unsigned long DWORD;
+typedef unsigned char	BYTE;
+typedef unsigned short	WORD;
+typedef unsigned long	DWORD;
 
 #define SQR(n) (((DWORD)n)*((DWORD)n))
 
@@ -46,4 +46,4 @@ void set_mode(int);
 int file_exists(char *);
 
 #endif
-
+

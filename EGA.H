@@ -26,4 +26,4 @@ void ega_plot(int, int, int);
 void ega_clear_screen(void);
 
 #endif
-
+
