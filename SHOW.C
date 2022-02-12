@@ -196,7 +196,7 @@ next_or_exit(void)
 			set_mode(MODE_TEXT);
 			exit(EXIT_SUCCESS);
 
-			/* read away special key */
+		/* read away special key */
 		case 0:
 		case 224:
 			getch();
@@ -280,8 +280,8 @@ main(int argc, char *argv[])
 	if (argc == 2) {
 		if (file_exists(argv[1])) {
 			show(argv[1]);
-			while (!next_or_exit()) {
-			}
+			while (!next_or_exit())
+				;
 		} else {
 			wait_msec = atoi(argv[1]) * 1000;
 
@@ -290,8 +290,8 @@ main(int argc, char *argv[])
 		}
 	}
 
-	while (slideshow(wait_msec)) {
-	}
+	while (slideshow(wait_msec))
+		;
 
 	set_mode(MODE_TEXT);
 	xerror("No images found.");
