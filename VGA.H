@@ -17,6 +17,7 @@
 #ifndef VGA_H
 #define VGA_H
 
+#include "color.h"
 #include "system.h"
 
 extern BYTE *vmem;
@@ -25,7 +26,7 @@ extern BYTE *vmem;
 void vga_plot(int, int, int);
 void vga_clear_screen(void);
 void vga_set_color(BYTE, BYTE, BYTE, BYTE);
-void vga_set_palette(BYTE *);
+void vga_set_palette(struct color *);
 void vga_wait_vblank(void);
 
 #endif

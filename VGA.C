@@ -21,6 +21,7 @@
 #include <dos.h>
 #include <conio.h>
 
+#include "color.h"
 #include "system.h"
 #include "vga.h"
 
@@ -35,11 +36,8 @@ vga_plot(int x, int y, int color)
 void
 vga_wait_vblank(void)
 {
-	while ((inp(0x03da) & 0x08))
-		;
-
-	while (!(inp(0x03da) & 0x08))
-		;
+	while ((inp(0x03da) & 0x08));
+	while (!(inp(0x03da) & 0x08));
 }
 
 void
@@ -60,13 +58,16 @@ vga_clear_screen(void)
 }
 
 void
-vga_set_palette(BYTE *palette)
+vga_set_palette(struct color *palette)
 {
 	int i;
 
 	vga_wait_vblank();
 	outp(0x03C8, 0);
-	for (i = 0; i < 256 * 3; ++i)
-		outp(0x03C9, palette[i] >> 2);
+	for (i = 0; i < 256; ++i) {
+		outp(0x03C9, palette[i].r >> 2);
+		outp(0x03C9, palette[i].g >> 2);
+		outp(0x03C9, palette[i].b >> 2);
+	}
 }
 

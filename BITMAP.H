@@ -17,6 +17,7 @@
 #ifndef BITMAP_H
 #define BITMAP_H
 
+#include "color.h"
 #include "system.h"
 
 /*
@@ -39,7 +40,7 @@ struct bitmap {
 	DWORD	ncolors;
 	DWORD	ncolors_important;
 
-	BYTE	palette[256 * 3];
+	struct	color *palette;
 	BYTE	*image;
 };
 

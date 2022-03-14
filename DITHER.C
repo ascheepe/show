@@ -15,7 +15,9 @@
  */
 
 #include "bitmap.h"
+#include "color.h"
 #include "dither.h"
+#include "ega.h"
 
 #define INDEX(x, y) ((y) * bmp->width + (x))
 
@@ -29,12 +31,10 @@ convert_to_grayscale(struct bitmap *bmp)
 			printf("G:%03d\r", row);
 
 		for (col = 0; col < bmp->width; ++col) {
-			BYTE offset = bmp->image[INDEX(col, row)];
-			BYTE r = bmp->palette[offset + 0];
-			BYTE g = bmp->palette[offset + 1];
-			BYTE b = bmp->palette[offset + 2];
-			BYTE Y =
-			    (3 * r / 10) + (59 * g / 100) + (11 * b / 100);
+			struct color *c =
+			    &bmp->palette[bmp->image[INDEX(col, row)]];
+			BYTE Y = (3 * c->r / 10) + (59 * c->g / 100) +
+			    (11 * c->b / 100);
 
 			bmp->image[INDEX(col, row)] = Y;
 		}
@@ -73,6 +73,103 @@ dither(struct bitmap *bmp, int ncolors)
 				bmp->image[INDEX(col + 1, row + 1)] +=
 				    error >> 4;
 		}
+	}
+}
+
+int
+pick(const struct color *c, const struct color *pal, int ncolors)
+{
+	DWORD maxdist = -1;
+	DWORD dist;
+	int i, match;
+
+	for (i = 0; i < ncolors; ++i) {
+		const struct color *pc = &pal[i];
+		int rdiff, gdiff, bdiff;
+
+		rdiff = c->r - pc->r;
+		gdiff = c->g - pc->g;
+		bdiff = c->b - pc->b;
+
+		dist = SQR(rdiff) + SQR(gdiff) + SQR(bdiff);
+		if (dist < maxdist) {
+			maxdist = dist;
+			match = i;
+		}
+	}
+
+	return match;
+}
+
+BYTE
+color_to_luma(const struct color *c)
+{
+	return (3 * c->r / 10) + (59 * c->g / 100) + (11 * c->b / 100);
+}
+
+void
+egadither(struct bitmap *bmp)
+{
+	struct color egapal[] = {
+		{ 0x00, 0x00, 0x00 },
+		{ 0x00, 0x00, 0xAA },
+		{ 0x00, 0xAA, 0x00 },
+		{ 0x00, 0xAA, 0xAA },
+		{ 0xAA, 0x00, 0x00 },
+		{ 0xAA, 0x00, 0xAA },
+		{ 0xAA, 0x55, 0x00 },
+		{ 0xAA, 0xAA, 0xAA },
+		{ 0x55, 0x55, 0x55 },
+		{ 0x55, 0x55, 0xFF },
+		{ 0x55, 0xFF, 0x55 },
+		{ 0x55, 0xFF, 0xFF },
+		{ 0xFF, 0x55, 0x55 },
+		{ 0xFF, 0x55, 0xFF },
+		{ 0xFF, 0xFF, 0x55 },
+		{ 0xFF, 0xFF, 0xFF }
+	};
+	BYTE error[2][320] = { 0 };
+	int row, col, rowoff, coloff;
+
+	coloff = 320 / 2 - bmp->width / 2;
+	rowoff = 200 / 2 - bmp->height / 2;
+
+	for (row = 0; row < bmp->height; ++row) {
+		if (show_progress)
+			printf("D:%03d\r", row);
+
+		for (col = 0; col < bmp->width; ++col) {
+			struct color *oldpixel, *newpixel;
+			BYTE Yold, Ynew, Yerr;
+			int palidx;
+
+			oldpixel = &bmp->palette[bmp->image[INDEX(col, row)]];
+			oldpixel->r += error[0][col];
+			oldpixel->g += error[0][col];
+			oldpixel->b += error[0][col];
+			Yold = color_to_luma(oldpixel);
+			palidx = pick(oldpixel, egapal, 16);
+			newpixel = &egapal[palidx];
+			Ynew = color_to_luma(newpixel);
+			Yerr = Yold - Ynew;
+
+			ega_plot(col + coloff, row + rowoff, palidx);
+
+			if (col + 1 < bmp->width)
+				error[0][col + 1] += (Yerr * 7) >> 4;
+
+			if (col - 1 > 0 && row + 1 < bmp->height)
+				error[1][col - 1] += (Yerr * 3) >> 4;
+
+			if (row + 1 < bmp->height)
+				error[1][col] += (Yerr * 5) >> 4;
+
+			if (col + 1 < bmp->width && row + 1 < bmp->height)
+				error[1][col + 1] += Yerr >> 4;
+		}
+
+		memcpy(&error[0][0], &error[1][0], 320);
+		memset(&error[1][0], 0, 320);
 	}
 }
 

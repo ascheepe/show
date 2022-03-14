@@ -112,37 +112,18 @@ ega_match_color(struct color *color, struct color *from)
 static void
 ega_show(char *filename)
 {
-	struct color ega_palette[16] = {
-		{ 0x00, 0x00, 0x00 },
-		{ 0x00, 0x00, 0xAA },
-		{ 0x00, 0xAA, 0x00 },
-		{ 0x00, 0xAA, 0xAA },
-		{ 0xAA, 0x00, 0x00 },
-		{ 0xAA, 0x00, 0xAA },
-		{ 0xAA, 0x55, 0x00 },
-		{ 0xAA, 0xAA, 0xAA },
-
-		{ 0x55, 0x55, 0x55 },
-		{ 0x55, 0x55, 0xFF },
-		{ 0x55, 0xFF, 0x55 },
-		{ 0x55, 0xFF, 0xFF },
-		{ 0xFF, 0x55, 0x55 },
-		{ 0xFF, 0x55, 0xFF },
-		{ 0xFF, 0xFF, 0x55 },
-		{ 0xFF, 0xFF, 0xFF }
-	};
 	struct bitmap *bmp;
-	struct vector *palette;
 	int row_offset, col_offset;
 	int row, col;
 
 	bmp = bitmap_read(filename);
 	row_offset = 100 - (bmp->height >> 1);
 	col_offset = 160 - (bmp->width >> 1);
-	palette = palette_to_vector(bmp->palette, bmp->ncolors);
 
 	ega_clear_screen();
+	egadither(bmp);
 
+	#if 0
 	for (row = 0; row < bmp->height; ++row) {
 		for (col = 0; col < bmp->width; ++col) {
 			int offset = bmp->image[row * bmp->width + col];
@@ -152,9 +133,8 @@ ega_show(char *filename)
 			    ega_match_color(color, ega_palette));
 		}
 	}
+	#endif
 
-	vector_foreach(palette, free);
-	vector_free(palette);
 	bitmap_free(bmp);
 }
 

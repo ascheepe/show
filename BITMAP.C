@@ -19,6 +19,7 @@
 
 #include "system.h"
 #include "bitmap.h"
+#include "color.h"
 
 struct bitmap *
 bitmap_read(char *filename)
@@ -62,26 +63,25 @@ bitmap_read(char *filename)
 	bmp->x_ppm = read_dword(bmpfile);
 	bmp->y_ppm = read_dword(bmpfile);
 	bmp->ncolors = read_dword(bmpfile);
+	bmp->palette = malloc(sizeof(*bmp->palette) * bmp->ncolors);
+	if (bmp->palette == NULL)
+		xerror("can't allocate memory for image palette");
 	bmp->ncolors_important = read_dword(bmpfile);
 
 	/* palette data is bgr(a) */
 	fseek(bmpfile, pal_offset, SEEK_SET);
 	for (i = 0; i < bmp->ncolors; ++i) {
-		int offset = i * 3;
-
-		bmp->palette[offset + 2] = read_byte(bmpfile);
-		bmp->palette[offset + 1] = read_byte(bmpfile);
-		bmp->palette[offset + 0] = read_byte(bmpfile);
-		read_byte(bmpfile);	/* read away alpha value */
+		bmp->palette[i].b = read_byte(bmpfile);
+		bmp->palette[i].g = read_byte(bmpfile);
+		bmp->palette[i].r = read_byte(bmpfile);
+		read_byte(bmpfile);		/* read away alpha value */
 	}
 
 	/* fill remaining palette with black */
 	for (; i < 256; ++i) {
-		int offset = i * 3;
-
-		bmp->palette[offset + 0] = 0;
-		bmp->palette[offset + 1] = 0;
-		bmp->palette[offset + 2] = 0;
+		bmp->palette[i].r = 0;
+		bmp->palette[i].g = 0;
+		bmp->palette[i].b = 0;
 	}
 
 	if ((bmp->image = malloc(bmp->width * bmp->height)) == NULL)
@@ -111,6 +111,7 @@ void
 bitmap_free(struct bitmap *bmp)
 {
 	free(bmp->image);
+	free(bmp->palette);
 	free(bmp);
 }
 
