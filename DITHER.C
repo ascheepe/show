@@ -128,7 +128,7 @@ egadither(struct bitmap *bmp)
 		{ 0xFF, 0xFF, 0x55 },
 		{ 0xFF, 0xFF, 0xFF }
 	};
-	BYTE error[2][320] = { 0 };
+	struct color error[2][320] = { 0 };
 	int row, col, rowoff, coloff;
 
 	coloff = 320 / 2 - bmp->width / 2;
@@ -140,36 +140,48 @@ egadither(struct bitmap *bmp)
 
 		for (col = 0; col < bmp->width; ++col) {
 			struct color *oldpixel, *newpixel;
-			BYTE Yold, Ynew, Yerr;
+			BYTE rerr, gerr, berr;
 			int palidx;
 
 			oldpixel = &bmp->palette[bmp->image[INDEX(col, row)]];
-			oldpixel->r += error[0][col];
-			oldpixel->g += error[0][col];
-			oldpixel->b += error[0][col];
-			Yold = color_to_luma(oldpixel);
+			oldpixel->r += error[0][col].r;
+			oldpixel->g += error[0][col].g;
+			oldpixel->b += error[0][col].b;
 			palidx = pick(oldpixel, egapal, 16);
-			newpixel = &egapal[palidx];
-			Ynew = color_to_luma(newpixel);
-			Yerr = Yold - Ynew;
-
 			ega_plot(col + coloff, row + rowoff, palidx);
 
-			if (col + 1 < bmp->width)
-				error[0][col + 1] += (Yerr * 7) >> 4;
+			newpixel = &egapal[palidx];
+			rerr = oldpixel->r - newpixel->r;
+			gerr = oldpixel->g - newpixel->g;
+			berr = oldpixel->b - newpixel->b;
 
-			if (col - 1 > 0 && row + 1 < bmp->height)
-				error[1][col - 1] += (Yerr * 3) >> 4;
+			if (col + 1 < bmp->width) {
+				error[0][col + 1].r += (rerr * 7) >> 4;
+				error[0][col + 1].g += (gerr * 7) >> 4;
+				error[0][col + 1].b += (berr * 7) >> 4;
+			}
 
-			if (row + 1 < bmp->height)
-				error[1][col] += (Yerr * 5) >> 4;
+			if (col - 1 > 0 && row + 1 < bmp->height) {
+				error[1][col - 1].r += (rerr * 3) >> 4;
+				error[1][col - 1].g += (gerr * 3) >> 4;
+				error[1][col - 1].b += (berr * 3) >> 4;
+			}
 
-			if (col + 1 < bmp->width && row + 1 < bmp->height)
-				error[1][col + 1] += Yerr >> 4;
+			if (row + 1 < bmp->height) {
+				error[1][col].r += (rerr * 5) >> 4;
+				error[1][col].g += (gerr * 5) >> 4;
+				error[1][col].b += (berr * 5) >> 4;
+			}
+
+			if (col + 1 < bmp->width && row + 1 < bmp->height) {
+				error[1][col + 1].r += rerr >> 4;
+				error[1][col + 1].g += gerr >> 4;
+				error[1][col + 1].b += berr >> 4;
+			}
 		}
 
-		memcpy(&error[0][0], &error[1][0], 320);
-		memset(&error[1][0], 0, 320);
+		memcpy(&error[0][0], &error[1][0], sizeof(struct color) * 320);
+		memset(&error[1][0], 0, sizeof(struct color) * 320);
 	}
 }
 
