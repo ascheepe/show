@@ -76,7 +76,7 @@ dither(struct bitmap *bmp, int ncolors)
 	}
 }
 
-int
+static int
 pick(const struct color *c, const struct color *pal, int ncolors)
 {
 	DWORD maxdist = -1;
@@ -105,6 +105,18 @@ BYTE
 color_to_luma(const struct color *c)
 {
 	return (3 * c->r / 10) + (59 * c->g / 100) + (11 * c->b / 100);
+}
+
+static BYTE
+cadd(int a, int b)
+{
+	if ((a + b) > 255)
+		return 255;
+
+	if ((a + b) < 0)
+		return 0;
+
+	return a + b;
 }
 
 void
@@ -140,13 +152,12 @@ egadither(struct bitmap *bmp)
 
 		for (col = 0; col < bmp->width; ++col) {
 			struct color *oldpixel, *newpixel;
-			BYTE rerr, gerr, berr;
-			int palidx;
+			int palidx, rerr, gerr, berr;
 
 			oldpixel = &bmp->palette[bmp->image[INDEX(col, row)]];
-			oldpixel->r += error[0][col].r;
-			oldpixel->g += error[0][col].g;
-			oldpixel->b += error[0][col].b;
+			oldpixel->r = cadd(oldpixel->r, error[0][col].r);
+			oldpixel->g = cadd(oldpixel->g, error[0][col].g);
+			oldpixel->b = cadd(oldpixel->b, error[0][col].b);
 			palidx = pick(oldpixel, egapal, 16);
 			ega_plot(col + coloff, row + rowoff, palidx);
 
@@ -156,27 +167,39 @@ egadither(struct bitmap *bmp)
 			berr = oldpixel->b - newpixel->b;
 
 			if (col + 1 < bmp->width) {
-				error[0][col + 1].r += (rerr * 7) >> 4;
-				error[0][col + 1].g += (gerr * 7) >> 4;
-				error[0][col + 1].b += (berr * 7) >> 4;
+				error[0][col + 1].r =
+				    cadd(error[0][col + 1].r, (rerr * 7) >> 4);
+				error[0][col + 1].g =
+				    cadd(error[0][col + 1].g, (gerr * 7) >> 4);
+				error[0][col + 1].b =
+				    cadd(error[0][col + 1].b, (berr * 7) >> 4);
 			}
 
 			if (col - 1 > 0 && row + 1 < bmp->height) {
-				error[1][col - 1].r += (rerr * 3) >> 4;
-				error[1][col - 1].g += (gerr * 3) >> 4;
-				error[1][col - 1].b += (berr * 3) >> 4;
+				error[1][col - 1].r =
+				    cadd(error[1][col - 1].r, (rerr * 3) >> 4);
+				error[1][col - 1].g =
+				    cadd(error[1][col - 1].g, (gerr * 3) >> 4);
+				error[1][col - 1].b =
+				    cadd(error[1][col - 1].b, (berr * 3) >> 4);
 			}
 
 			if (row + 1 < bmp->height) {
-				error[1][col].r += (rerr * 5) >> 4;
-				error[1][col].g += (gerr * 5) >> 4;
-				error[1][col].b += (berr * 5) >> 4;
+				error[1][col].r =
+				    cadd(error[1][col].r, (rerr * 5) >> 4);
+				error[1][col].g =
+				    cadd(error[1][col].g, (gerr * 5) >> 4);
+				error[1][col].b =
+				    cadd(error[1][col].b, (berr * 5) >> 4);
 			}
 
 			if (col + 1 < bmp->width && row + 1 < bmp->height) {
-				error[1][col + 1].r += rerr >> 4;
-				error[1][col + 1].g += gerr >> 4;
-				error[1][col + 1].b += berr >> 4;
+				error[1][col + 1].r =
+				    cadd(error[1][col + 1].r, rerr >> 4);
+				error[1][col + 1].g =
+				    cadd(error[1][col + 1].g, gerr >> 4);
+				error[1][col + 1].b =
+				    cadd(error[1][col + 1].b, berr >> 4);
 			}
 		}
 
