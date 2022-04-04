@@ -110,19 +110,21 @@ color_to_luma(const struct color *c)
 static BYTE
 cadd(int a, int b)
 {
-	if ((a + b) > 255)
+	int ret = a + b;
+
+	if (ret > 255)
 		return 255;
 
-	if ((a + b) < 0)
+	if (ret < 0)
 		return 0;
 
-	return a + b;
+	return ret;
 }
 
 void
 egadither(struct bitmap *bmp)
 {
-	struct color egapal[] = {
+	struct color pal[] = {
 		{ 0x00, 0x00, 0x00 },
 		{ 0x00, 0x00, 0xAA },
 		{ 0x00, 0xAA, 0x00 },
@@ -140,7 +142,7 @@ egadither(struct bitmap *bmp)
 		{ 0xFF, 0xFF, 0x55 },
 		{ 0xFF, 0xFF, 0xFF }
 	};
-	struct color error[2][320] = { 0 };
+	struct color qerr[2][320] = { 0 };
 	int row, col, rowoff, coloff;
 
 	coloff = 320 / 2 - bmp->width / 2;
@@ -151,60 +153,60 @@ egadither(struct bitmap *bmp)
 			printf("D:%03d\r", row);
 
 		for (col = 0; col < bmp->width; ++col) {
-			struct color *oldpixel, *newpixel;
+			struct color *pixel, *egapixel;
 			int palidx, rerr, gerr, berr;
 
-			oldpixel = &bmp->palette[bmp->image[INDEX(col, row)]];
-			oldpixel->r = cadd(oldpixel->r, error[0][col].r);
-			oldpixel->g = cadd(oldpixel->g, error[0][col].g);
-			oldpixel->b = cadd(oldpixel->b, error[0][col].b);
-			palidx = pick(oldpixel, egapal, 16);
+			pixel = &bmp->palette[bmp->image[INDEX(col, row)]];
+			pixel->r = cadd(pixel->r, qerr[0][col].r);
+			pixel->g = cadd(pixel->g, qerr[0][col].g);
+			pixel->b = cadd(pixel->b, qerr[0][col].b);
+			palidx = pick(pixel, pal, 16);
 			ega_plot(col + coloff, row + rowoff, palidx);
 
-			newpixel = &egapal[palidx];
-			rerr = oldpixel->r - newpixel->r;
-			gerr = oldpixel->g - newpixel->g;
-			berr = oldpixel->b - newpixel->b;
+			egapixel = &pal[palidx];
+			rerr = pixel->r - egapixel->r;
+			gerr = pixel->g - egapixel->g;
+			berr = pixel->b - egapixel->b;
 
 			if (col + 1 < bmp->width) {
-				error[0][col + 1].r =
-				    cadd(error[0][col + 1].r, (rerr * 7) >> 4);
-				error[0][col + 1].g =
-				    cadd(error[0][col + 1].g, (gerr * 7) >> 4);
-				error[0][col + 1].b =
-				    cadd(error[0][col + 1].b, (berr * 7) >> 4);
+				qerr[0][col + 1].r =
+				    cadd(qerr[0][col + 1].r, (rerr * 7) >> 4);
+				qerr[0][col + 1].g =
+				    cadd(qerr[0][col + 1].g, (gerr * 7) >> 4);
+				qerr[0][col + 1].b =
+				    cadd(qerr[0][col + 1].b, (berr * 7) >> 4);
 			}
 
 			if (col - 1 > 0 && row + 1 < bmp->height) {
-				error[1][col - 1].r =
-				    cadd(error[1][col - 1].r, (rerr * 3) >> 4);
-				error[1][col - 1].g =
-				    cadd(error[1][col - 1].g, (gerr * 3) >> 4);
-				error[1][col - 1].b =
-				    cadd(error[1][col - 1].b, (berr * 3) >> 4);
+				qerr[1][col - 1].r =
+				    cadd(qerr[1][col - 1].r, (rerr * 3) >> 4);
+				qerr[1][col - 1].g =
+				    cadd(qerr[1][col - 1].g, (gerr * 3) >> 4);
+				qerr[1][col - 1].b =
+				    cadd(qerr[1][col - 1].b, (berr * 3) >> 4);
 			}
 
 			if (row + 1 < bmp->height) {
-				error[1][col].r =
-				    cadd(error[1][col].r, (rerr * 5) >> 4);
-				error[1][col].g =
-				    cadd(error[1][col].g, (gerr * 5) >> 4);
-				error[1][col].b =
-				    cadd(error[1][col].b, (berr * 5) >> 4);
+				qerr[1][col].r =
+				    cadd(qerr[1][col].r, (rerr * 5) >> 4);
+				qerr[1][col].g =
+				    cadd(qerr[1][col].g, (gerr * 5) >> 4);
+				qerr[1][col].b =
+				    cadd(qerr[1][col].b, (berr * 5) >> 4);
 			}
 
 			if (col + 1 < bmp->width && row + 1 < bmp->height) {
-				error[1][col + 1].r =
-				    cadd(error[1][col + 1].r, rerr >> 4);
-				error[1][col + 1].g =
-				    cadd(error[1][col + 1].g, gerr >> 4);
-				error[1][col + 1].b =
-				    cadd(error[1][col + 1].b, berr >> 4);
+				qerr[1][col + 1].r =
+				    cadd(qerr[1][col + 1].r, rerr >> 4);
+				qerr[1][col + 1].g =
+				    cadd(qerr[1][col + 1].g, gerr >> 4);
+				qerr[1][col + 1].b =
+				    cadd(qerr[1][col + 1].b, berr >> 4);
 			}
 		}
 
-		memcpy(&error[0][0], &error[1][0], sizeof(struct color) * 320);
-		memset(&error[1][0], 0, sizeof(struct color) * 320);
+		memcpy(&qerr[0][0], &qerr[1][0], sizeof(struct color) * 320);
+		memset(&qerr[1][0], 0, sizeof(struct color) * 320);
 	}
 }
 
