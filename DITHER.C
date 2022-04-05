@@ -149,9 +149,6 @@ egadither(struct bitmap *bmp)
 	rowoff = 200 / 2 - bmp->height / 2;
 
 	for (row = 0; row < bmp->height; ++row) {
-		if (show_progress)
-			printf("D:%03d\r", row);
-
 		for (col = 0; col < bmp->width; ++col) {
 			struct color *pixel, *egapixel;
 			int palidx, rerr, gerr, berr;
