@@ -18,44 +18,44 @@
 #include "system.h"
 #include "vector.h"
 
-struct vector *
-vector_new(void)
+struct vector *vector_new(void)
 {
-	struct vector *v = xmalloc(sizeof(*v));
+    struct vector *vector;
 
-	v->items = xmalloc(INITIAL_ARRAY_LIMIT * sizeof(void *));
-	v->size = 0;
-	v->cap = INITIAL_ARRAY_LIMIT;
+    vector = xmalloc(sizeof(*vector));
+    vector->items = xmalloc(INITIAL_ARRAY_LIMIT * sizeof(void *));
+    vector->capacity = INITIAL_ARRAY_LIMIT;
+    vector->size = 0;
 
-	return v;
+    return vector;
 }
 
-void
-vector_free(struct vector *v)
+void vector_free(struct vector *vector)
 {
-	free(v->items);
-	free(v);
+    free(vector->items);
+    free(vector);
 }
 
-void
-vector_add(struct vector *v, void *data)
+void vector_add(struct vector *vector, void *data)
 {
-	if (v->size == v->cap) {
-		size_t newcap = v->cap * 3 / 2;
+    if (vector->size == vector->capacity) {
+        size_t new_capacity = vector->capacity * 3 / 2;
 
-		v->items = xrealloc(v->items, sizeof(void *) * newcap);
-		v->cap = newcap;
-	}
+        vector->items = xrealloc(vector->items,
+                                 sizeof(void *) * new_capacity);
+        vector->capacity = new_capacity;
+    }
 
-	v->items[v->size++] = data;
+    vector->items[vector->size++] = data;
 }
 
-void
-vector_foreach(struct vector *v, void (*f)(void *))
+void vector_foreach(struct vector *vector, void (*function)(void *))
 {
-	size_t i;
+    size_t i;
 
-	for (i = 0; i < v->size; ++i)
-		f(v->items[i]);
+    for (i = 0; i < vector->size; ++i) {
+        function(vector->items[i]);
+    }
 }
+
 

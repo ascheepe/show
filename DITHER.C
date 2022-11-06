@@ -21,189 +21,213 @@
 
 #define INDEX(x, y) ((y) * bmp->width + (x))
 
-void
-convert_to_grayscale(struct bitmap *bmp)
+void convert_to_grayscale(struct bitmap *bmp)
 {
-	int row, col;
+    int row;
+    int col;
 
-	for (row = 0; row < bmp->height; ++row) {
-		if (show_progress)
-			printf("G:%03d\r", row);
+    for (row = 0; row < bmp->height; ++row) {
+        if (show_progress) {
+            printf("G:%03d\r", row);
+        }
 
-		for (col = 0; col < bmp->width; ++col) {
-			struct color *c =
-			    &bmp->palette[bmp->image[INDEX(col, row)]];
-			BYTE Y = (3 * c->r / 10) + (59 * c->g / 100) +
-			    (11 * c->b / 100);
+        for (col = 0; col < bmp->width; ++col) {
+            struct color *color = &bmp->palette[bmp->image[INDEX(col, row)]];
+            BYTE Y = (3 * color->red / 10)
+                   + (59 * color->green / 100)
+                   + (11 * color->blue / 100);
 
-			bmp->image[INDEX(col, row)] = Y;
-		}
-	}
+            bmp->image[INDEX(col, row)] = Y;
+        }
+    }
 }
 
-void
-dither(struct bitmap *bmp, int ncolors)
+void dither(struct bitmap *bmp, int ncolors)
 {
-	int row, col;
+    int row;
+    int col;
 
-	for (row = 0; row < bmp->height; ++row) {
-		if (show_progress)
-			printf("D:%03d\r", row);
+    for (row = 0; row < bmp->height; ++row) {
+        if (show_progress) {
+            printf("D:%03d\r", row);
+        }
 
-		for (col = 0; col < bmp->width; ++col) {
-			BYTE Y = bmp->image[INDEX(col, row)];
-			BYTE newY = ((Y * ncolors) / 256) * (256 / ncolors);
-			BYTE error = Y - newY;
+        for (col = 0; col < bmp->width; ++col) {
+            BYTE Y = bmp->image[INDEX(col, row)];
+            BYTE newY = ((Y * ncolors) / 256) * (256 / ncolors);
+            BYTE error = Y - newY;
 
-			bmp->image[INDEX(col, row)] = newY;
+            bmp->image[INDEX(col, row)] = newY;
 
-			if (col + 1 < bmp->width)
-				bmp->image[INDEX(col + 1, row)] +=
-				    (error * 7) >> 4;
+            if (col + 1 < bmp->width) {
+                bmp->image[INDEX(col + 1, row)] += (error * 7) >> 4;
+            }
 
-			if (col - 1 > 0 && row + 1 < bmp->height)
-				bmp->image[INDEX(col - 1, row + 1)] +=
-				    (error * 3) >> 4;
+            if (col - 1 > 0 && row + 1 < bmp->height) {
+                bmp->image[INDEX(col - 1, row + 1)] += (error * 3) >> 4;
+            }
 
-			if (row + 1 < bmp->height)
-				bmp->image[INDEX(col, row + 1)] +=
-				    (error * 5) >> 4;
+            if (row + 1 < bmp->height) {
+                bmp->image[INDEX(col, row + 1)] += (error * 5) >> 4;
+            }
 
-			if (col + 1 < bmp->width && row + 1 < bmp->height)
-				bmp->image[INDEX(col + 1, row + 1)] +=
-				    error >> 4;
-		}
-	}
+            if (col + 1 < bmp->width && row + 1 < bmp->height) {
+                bmp->image[INDEX(col + 1, row + 1)] += error >> 4;
+            }
+        }
+    }
 }
 
-static int
-pick(const struct color *c, const struct color *pal, int ncolors)
+static int pick(const struct color *color,
+                const struct color *palette,
+                int ncolors)
 {
-	DWORD maxdist = -1;
-	DWORD dist;
-	int i, match;
+    DWORD max_distance = -1;
+    DWORD distance;
+    int match;
+    int i;
 
-	for (i = 0; i < ncolors; ++i) {
-		const struct color *pc = &pal[i];
-		int rdiff, gdiff, bdiff;
+    for (i = 0; i < ncolors; ++i) {
+        const struct color *palette_color = &palette[i];
+        int red_diff = color->red - palette_color->red;
+        int green_diff = color->green - palette_color->green;
+        int blue_diff = color->blue - palette_color->blue;
 
-		rdiff = c->r - pc->r;
-		gdiff = c->g - pc->g;
-		bdiff = c->b - pc->b;
+        distance = SQR(red_diff) + SQR(green_diff) + SQR(blue_diff);
+        if (distance < max_distance) {
+            max_distance = distance;
+            match = i;
+        }
+    }
 
-		dist = SQR(rdiff) + SQR(gdiff) + SQR(bdiff);
-		if (dist < maxdist) {
-			maxdist = dist;
-			match = i;
-		}
-	}
-
-	return match;
+    return match;
 }
 
-BYTE
-color_to_luma(const struct color *c)
+BYTE color_to_luma(const struct color *color)
 {
-	return (3 * c->r / 10) + (59 * c->g / 100) + (11 * c->b / 100);
+    return (3 * color->red / 10)
+         + (59 * color->green / 100)
+         + (11 * color->blue / 100);
 }
 
-static BYTE
-cadd(int a, int b)
+static BYTE add_colors(int a, int b)
 {
-	int ret = a + b;
+    int result = a + b;
 
-	if (ret > 255)
-		return 255;
+    if (result > 255) {
+        return 255;
+    }
 
-	if (ret < 0)
-		return 0;
+    if (result < 0) {
+        return 0;
+    }
 
-	return ret;
+    return result;
 }
 
-void
-egadither(struct bitmap *bmp)
+void egadither(struct bitmap *bmp)
 {
-	struct color pal[] = {
-		{ 0x00, 0x00, 0x00 },
-		{ 0x00, 0x00, 0xAA },
-		{ 0x00, 0xAA, 0x00 },
-		{ 0x00, 0xAA, 0xAA },
-		{ 0xAA, 0x00, 0x00 },
-		{ 0xAA, 0x00, 0xAA },
-		{ 0xAA, 0x55, 0x00 },
-		{ 0xAA, 0xAA, 0xAA },
-		{ 0x55, 0x55, 0x55 },
-		{ 0x55, 0x55, 0xFF },
-		{ 0x55, 0xFF, 0x55 },
-		{ 0x55, 0xFF, 0xFF },
-		{ 0xFF, 0x55, 0x55 },
-		{ 0xFF, 0x55, 0xFF },
-		{ 0xFF, 0xFF, 0x55 },
-		{ 0xFF, 0xFF, 0xFF }
-	};
-	struct color qerr[2][320] = { 0 };
-	int row, col, rowoff, coloff;
+    struct color palette[] = {
+        { 0x00, 0x00, 0x00 },
+        { 0x00, 0x00, 0xAA },
+        { 0x00, 0xAA, 0x00 },
+        { 0x00, 0xAA, 0xAA },
+        { 0xAA, 0x00, 0x00 },
+        { 0xAA, 0x00, 0xAA },
+        { 0xAA, 0x55, 0x00 },
+        { 0xAA, 0xAA, 0xAA },
+        { 0x55, 0x55, 0x55 },
+        { 0x55, 0x55, 0xFF },
+        { 0x55, 0xFF, 0x55 },
+        { 0x55, 0xFF, 0xFF },
+        { 0xFF, 0x55, 0x55 },
+        { 0xFF, 0x55, 0xFF },
+        { 0xFF, 0xFF, 0x55 },
+        { 0xFF, 0xFF, 0xFF }
+    };
+    struct color quant_error[2][320] = { 0 };
+    int row_offset;
+    int column_offset;
+    int row;
+    int col;
 
-	coloff = 320 / 2 - bmp->width / 2;
-	rowoff = 200 / 2 - bmp->height / 2;
+    column_offset = 320 / 2 - bmp->width / 2;
+    row_offset = 200 / 2 - bmp->height / 2;
 
-	for (row = 0; row < bmp->height; ++row) {
-		for (col = 0; col < bmp->width; ++col) {
-			struct color *pixel, *egapixel;
-			int palidx, rerr, gerr, berr;
+    for (row = 0; row < bmp->height; ++row) {
+        for (col = 0; col < bmp->width; ++col) {
+            struct color *pixel;
+            struct color *egapixel;
+            int palette_index;
+            int red_error;
+            int green_error;
+            int blue_error;
 
-			pixel = &bmp->palette[bmp->image[INDEX(col, row)]];
-			pixel->r = cadd(pixel->r, qerr[0][col].r);
-			pixel->g = cadd(pixel->g, qerr[0][col].g);
-			pixel->b = cadd(pixel->b, qerr[0][col].b);
-			palidx = pick(pixel, pal, 16);
-			ega_plot(col + coloff, row + rowoff, palidx);
+            pixel = &bmp->palette[bmp->image[INDEX(col, row)]];
+            pixel->red = add_colors(pixel->red, quant_error[0][col].red);
+            pixel->green = add_colors(pixel->green, quant_error[0][col].green);
+            pixel->blue = add_colors(pixel->blue, quant_error[0][col].blue);
+            palette_index = pick(pixel, palette, 16);
+            ega_plot(col + column_offset, row + row_offset, palette_index);
 
-			egapixel = &pal[palidx];
-			rerr = pixel->r - egapixel->r;
-			gerr = pixel->g - egapixel->g;
-			berr = pixel->b - egapixel->b;
+            egapixel = &palette[palette_index];
+            red_error = pixel->red - egapixel->red;
+            green_error = pixel->green - egapixel->green;
+            blue_error = pixel->blue - egapixel->blue;
 
-			if (col + 1 < bmp->width) {
-				qerr[0][col + 1].r =
-				    cadd(qerr[0][col + 1].r, (rerr * 7) >> 4);
-				qerr[0][col + 1].g =
-				    cadd(qerr[0][col + 1].g, (gerr * 7) >> 4);
-				qerr[0][col + 1].b =
-				    cadd(qerr[0][col + 1].b, (berr * 7) >> 4);
-			}
+            if (col + 1 < bmp->width) {
+                quant_error[0][col + 1].red =
+                    add_colors(quant_error[0][col + 1].red,
+                               (red_error * 7) >> 4);
+                quant_error[0][col + 1].green =
+                    add_colors(quant_error[0][col + 1].green,
+                               (green_error * 7) >> 4);
+                quant_error[0][col + 1].blue =
+                    add_colors(quant_error[0][col + 1].blue,
+                               (blue_error * 7) >> 4);
+            }
 
-			if (col - 1 > 0 && row + 1 < bmp->height) {
-				qerr[1][col - 1].r =
-				    cadd(qerr[1][col - 1].r, (rerr * 3) >> 4);
-				qerr[1][col - 1].g =
-				    cadd(qerr[1][col - 1].g, (gerr * 3) >> 4);
-				qerr[1][col - 1].b =
-				    cadd(qerr[1][col - 1].b, (berr * 3) >> 4);
-			}
+            if (col - 1 > 0 && row + 1 < bmp->height) {
+                quant_error[1][col - 1].red =
+                    add_colors(quant_error[1][col - 1].red,
+                               (red_error * 3) >> 4);
+                quant_error[1][col - 1].green =
+                    add_colors(quant_error[1][col - 1].green,
+                               (green_error * 3) >> 4);
+                quant_error[1][col - 1].blue =
+                    add_colors(quant_error[1][col - 1].blue,
+                               (blue_error * 3) >> 4);
+            }
 
-			if (row + 1 < bmp->height) {
-				qerr[1][col].r =
-				    cadd(qerr[1][col].r, (rerr * 5) >> 4);
-				qerr[1][col].g =
-				    cadd(qerr[1][col].g, (gerr * 5) >> 4);
-				qerr[1][col].b =
-				    cadd(qerr[1][col].b, (berr * 5) >> 4);
-			}
+            if (row + 1 < bmp->height) {
+                quant_error[1][col].red =
+                    add_colors(quant_error[1][col].red,
+                               (red_error * 5) >> 4);
+                quant_error[1][col].green =
+                    add_colors(quant_error[1][col].green,
+                               (green_error * 5) >> 4);
+                quant_error[1][col].blue =
+                    add_colors(quant_error[1][col].blue,
+                               (blue_error * 5) >> 4);
+            }
 
-			if (col + 1 < bmp->width && row + 1 < bmp->height) {
-				qerr[1][col + 1].r =
-				    cadd(qerr[1][col + 1].r, rerr >> 4);
-				qerr[1][col + 1].g =
-				    cadd(qerr[1][col + 1].g, gerr >> 4);
-				qerr[1][col + 1].b =
-				    cadd(qerr[1][col + 1].b, berr >> 4);
-			}
-		}
+            if (col + 1 < bmp->width && row + 1 < bmp->height) {
+                quant_error[1][col + 1].red =
+                    add_colors(quant_error[1][col + 1].red,
+                               red_error >> 4);
+                quant_error[1][col + 1].green =
+                    add_colors(quant_error[1][col + 1].green,
+                               green_error >> 4);
+                quant_error[1][col + 1].blue =
+                    add_colors(quant_error[1][col + 1].blue,
+                               blue_error >> 4);
+            }
+        }
 
-		memcpy(&qerr[0][0], &qerr[1][0], sizeof(struct color) * 320);
-		memset(&qerr[1][0], 0, sizeof(struct color) * 320);
-	}
+        memcpy(&quant_error[0][0], &quant_error[1][0],
+               sizeof(struct color) * 320);
+        memset(&quant_error[1][0], 0, sizeof(struct color) * 320);
+    }
 }
+
 

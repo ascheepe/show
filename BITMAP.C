@@ -21,97 +21,105 @@
 #include "bitmap.h"
 #include "color.h"
 
-struct bitmap *
-bitmap_read(char *filename)
+struct bitmap *bitmap_read(char *filename)
 {
-	struct bitmap *bmp = NULL;
-	FILE *bmpfile = NULL;
-	DWORD width;
-	DWORD row;
-	DWORD pal_offset;
-	int i;
+    struct bitmap *bmp = NULL;
+    FILE *bmp_file = NULL;
+    DWORD width;
+    DWORD row;
+    DWORD pal_offset;
+    int i;
 
-	if ((bmpfile = fopen(filename, "rb")) == NULL)
-		xerror("can't open file");
+    if ((bmp_file = fopen(filename, "rb")) == NULL) {
+        xerror("can't open file");
+    }
 
-	if ((bmp = malloc(sizeof(struct bitmap))) == NULL)
-		xerror("can't allocate image struct");
+    if ((bmp = malloc(sizeof(struct bitmap))) == NULL) {
+        xerror("can't allocate image struct");
+    }
 
-	if ((bmp->file_type = read_word(bmpfile)) != 0x4d42)
-		xerror("not a bitmap file");
+    if ((bmp->file_type = read_word(bmp_file)) != 0x4d42) {
+        xerror("not a bitmap file");
+    }
 
-	bmp->file_size = read_dword(bmpfile);
-	bmp->reserved = read_dword(bmpfile);
-	bmp->pixel_offset = read_dword(bmpfile);
-	bmp->header_size = read_dword(bmpfile);
-	pal_offset = 14 + bmp->header_size;
-	bmp->width = read_dword(bmpfile);
-	bmp->height = read_dword(bmpfile);
+    bmp->file_size = read_dword(bmp_file);
+    bmp->reserved = read_dword(bmp_file);
+    bmp->pixel_offset = read_dword(bmp_file);
+    bmp->header_size = read_dword(bmp_file);
+    pal_offset = 14 + bmp->header_size;
+    bmp->width = read_dword(bmp_file);
+    bmp->height = read_dword(bmp_file);
 
-	if (bmp->width == 0 || bmp->height == 0 ||
-	    bmp->width > 320 || bmp->height > 200)
-		xerror("image must be 320x200 or less");
+    if (bmp->width == 0 || bmp->height == 0 ||
+        bmp->width > 320 || bmp->height > 200) {
+        xerror("image must be 320x200 or less");
+    }
 
-	bmp->planes = read_word(bmpfile);
-	if ((bmp->bpp = read_word(bmpfile)) > 8)
-		xerror("unsupported bit depth");
+    bmp->planes = read_word(bmp_file);
+    if ((bmp->bpp = read_word(bmp_file)) > 8) {
+        xerror("unsupported bit depth");
+    }
 
-	if ((bmp->compression = read_dword(bmpfile)) != 0)
-		xerror("compression is not supported");
+    if ((bmp->compression = read_dword(bmp_file)) != 0) {
+        xerror("compression is not supported");
+    }
 
-	bmp->image_size = read_dword(bmpfile);
-	bmp->x_ppm = read_dword(bmpfile);
-	bmp->y_ppm = read_dword(bmpfile);
-	bmp->ncolors = read_dword(bmpfile);
-	bmp->palette = malloc(sizeof(*bmp->palette) * bmp->ncolors);
-	if (bmp->palette == NULL)
-		xerror("can't allocate memory for image palette");
-	bmp->ncolors_important = read_dword(bmpfile);
+    bmp->image_size = read_dword(bmp_file);
+    bmp->x_ppm = read_dword(bmp_file);
+    bmp->y_ppm = read_dword(bmp_file);
+    bmp->ncolors = read_dword(bmp_file);
+    bmp->palette = malloc(sizeof(*bmp->palette) * bmp->ncolors);
+    if (bmp->palette == NULL) {
+        xerror("can't allocate memory for image palette");
+    }
+    bmp->ncolors_important = read_dword(bmp_file);
 
-	/* palette data is bgr(a) */
-	fseek(bmpfile, pal_offset, SEEK_SET);
-	for (i = 0; i < bmp->ncolors; ++i) {
-		bmp->palette[i].b = read_byte(bmpfile);
-		bmp->palette[i].g = read_byte(bmpfile);
-		bmp->palette[i].r = read_byte(bmpfile);
-		read_byte(bmpfile);		/* read away alpha value */
-	}
+    /* palette data is bgr(a) */
+    fseek(bmp_file, pal_offset, SEEK_SET);
+    for (i = 0; i < bmp->ncolors; ++i) {
+        bmp->palette[i].blue = read_byte(bmp_file);
+        bmp->palette[i].green = read_byte(bmp_file);
+        bmp->palette[i].red = read_byte(bmp_file);
+        read_byte(bmp_file);     /* read away alpha value */
+    }
 
-	/* fill remaining palette with black */
-	for (; i < 256; ++i) {
-		bmp->palette[i].r = 0;
-		bmp->palette[i].g = 0;
-		bmp->palette[i].b = 0;
-	}
+    /* fill remaining palette with black */
+    for (; i < 256; ++i) {
+        bmp->palette[i].red = 0;
+        bmp->palette[i].green = 0;
+        bmp->palette[i].blue = 0;
+    }
 
-	if ((bmp->image = malloc(bmp->width * bmp->height)) == NULL)
-		xerror("can't allocate memory for image");
+    if ((bmp->image = malloc(bmp->width * bmp->height)) == NULL) {
+        xerror("can't allocate memory for image");
+    }
 
-	/* pad width to multiple of 4 with formula (x + 4-1) & (-4) */
-	width = (bmp->width + 4 - 1) & -4;
-	for (row = 0; row < bmp->height; ++row) {
-		BYTE *prow = bmp->image + row * bmp->width;
+    /* pad width to multiple of 4 with formula (x + 4-1) & (-4) */
+    width = (bmp->width + 4 - 1) & -4;
+    for (row = 0; row < bmp->height; ++row) {
+        BYTE *row_ptr = bmp->image + row * bmp->width;
 
-		if (show_progress)
-			printf("L:%03d\r", row);
+        if (show_progress) {
+            printf("L:%03d\r", row);
+        }
 
-		/* bitmap stores data beginning at the last line */
-		fseek(bmpfile,
-		    bmp->pixel_offset + (bmp->height - row - 1) * width,
-		    SEEK_SET);
-		fread(prow, bmp->width, 1, bmpfile);
-	}
+        /* bitmap stores data beginning at the last line */
+        fseek(bmp_file,
+              bmp->pixel_offset + (bmp->height - row - 1) * width,
+              SEEK_SET);
+        fread(row_ptr, bmp->width, 1, bmp_file);
+    }
 
-	fclose(bmpfile);
+    fclose(bmp_file);
 
-	return bmp;
+    return bmp;
 }
 
-void
-bitmap_free(struct bitmap *bmp)
+void bitmap_free(struct bitmap *bmp)
 {
-	free(bmp->image);
-	free(bmp->palette);
-	free(bmp);
+    free(bmp->image);
+    free(bmp->palette);
+    free(bmp);
 }
+
 

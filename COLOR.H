@@ -21,15 +21,15 @@
 #include "vector.h"
 
 enum {
-	MAX_COLOR_RED,
-	MAX_COLOR_GREEN,
-	MAX_COLOR_BLUE
+    MAX_COLOR_RED,
+    MAX_COLOR_GREEN,
+    MAX_COLOR_BLUE
 };
 
 struct color {
-	BYTE	r;
-	BYTE	g;
-	BYTE	b;
+    BYTE red;
+    BYTE green;
+    BYTE blue;
 };
 
 struct vector *palette_to_vector(BYTE *, int);

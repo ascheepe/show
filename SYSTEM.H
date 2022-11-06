@@ -29,9 +29,9 @@ enum { false, true };
 #define MODE_EGA	0x0D
 #define MODE_VGA	0x13
 
-typedef unsigned char	BYTE;
-typedef unsigned short	WORD;
-typedef unsigned long	DWORD;
+typedef unsigned char BYTE;
+typedef unsigned short WORD;
+typedef unsigned long DWORD;
 
 #define SQR(n) (((DWORD)n)*((DWORD)n))
 
