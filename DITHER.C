@@ -33,11 +33,8 @@ void convert_to_grayscale(struct bitmap *bmp)
 
         for (col = 0; col < bmp->width; ++col) {
             struct color *color = &bmp->palette[bmp->image[INDEX(col, row)]];
-            BYTE Y = (3 * color->red / 10)
-                   + (59 * color->green / 100)
-                   + (11 * color->blue / 100);
 
-            bmp->image[INDEX(col, row)] = Y;
+            bmp->image[INDEX(col, row)] = color_to_luma(color);
         }
     }
 }
@@ -101,13 +98,6 @@ static int pick(const struct color *color,
     }
 
     return match;
-}
-
-BYTE color_to_luma(const struct color *color)
-{
-    return (3 * color->red / 10)
-         + (59 * color->green / 100)
-         + (11 * color->blue / 100);
 }
 
 static BYTE add_colors(int a, int b)

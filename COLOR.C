@@ -241,4 +241,11 @@ void write_palette(struct vector *palette, char *filename)
     fclose(palette_file);
 }
 
+
+BYTE color_to_luma(struct color *color)
+{
+    return 3 * color->red / 10
+         + 59 * color->green / 100
+         + 11 * color->blue / 100;
+}
 
