@@ -95,7 +95,7 @@ void ega_plot(int x, int y, int color)
     outp(0x3c4, 2);
     outp(0x3c5, color);
 
-    /* set p mask */
+    /* set pixel mask */
     outp(0x3ce, 8);
     outp(0x3cf, mask);
 

@@ -121,7 +121,7 @@ static void ega_show(char *filename)
 
     bmp = bitmap_read(filename);
     ega_clear_screen();
-    egadither(bmp);
+    ega_dither(bmp);
 
 #if 0
     for (row = 0; row < bmp->height; ++row) {
