@@ -154,29 +154,33 @@ void ega_dither(struct bitmap *bmp)
 
     for (row = 0; row < bmp->height - 1; ++row) {
         for (col = 1; col < bmp->width - 1; ++col) {
-            struct color *old_pixel;
-            struct color *new_pixel;
+            struct color old_pixel;
+            struct color new_pixel;
+            struct color *color_ptr;
             int palette_index;
             int red_error;
             int green_error;
             int blue_error;
 
-            old_pixel = &bmp->palette[bmp->image[INDEX(col, row)]];
+            color_ptr = &bmp->palette[bmp->image[INDEX(col, row)]];
 
-            old_pixel->red = add_colors(old_pixel->red,
+            old_pixel.red = add_colors(color_ptr->red,
                                         quant_error[0][col].red);
-            old_pixel->green = add_colors(old_pixel->green,
+            old_pixel.green = add_colors(color_ptr->green,
                                           quant_error[0][col].green);
-            old_pixel->blue = add_colors(old_pixel->blue,
+            old_pixel.blue = add_colors(color_ptr->blue,
                                          quant_error[0][col].blue);
 
-            palette_index = find_closest_color(old_pixel, palette, 16);
+            palette_index = find_closest_color(&old_pixel, palette, 16);
             ega_plot(col + column_offset, row + row_offset, palette_index);
-            new_pixel = &palette[palette_index];
+            color_ptr = &palette[palette_index];
+            new_pixel.red = color_ptr->red;
+            new_pixel.green = color_ptr->green;
+            new_pixel.blue = color_ptr->blue;
 
-            red_error   = old_pixel->red   - new_pixel->red;
-            green_error = old_pixel->green - new_pixel->green;
-            blue_error  = old_pixel->blue  - new_pixel->blue;
+            red_error   = old_pixel.red   - new_pixel.red;
+            green_error = old_pixel.green - new_pixel.green;
+            blue_error  = old_pixel.blue  - new_pixel.blue;
 
             quant_error[0][col + 1].red   += red_error   * 7 / 16;
             quant_error[0][col + 1].green += green_error * 7 / 16;
