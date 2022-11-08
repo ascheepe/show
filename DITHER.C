@@ -49,10 +49,9 @@ void grayscale_dither(struct bitmap *bmp, int ncolors)
 
         for (col = 1; col < bmp->width - 1; ++col) {
             struct color *color_ptr;
-            int value;
+            int luma_error;
             BYTE old_pixel;
             BYTE new_pixel;
-            BYTE luma_error;
 
             color_ptr = &bmp->palette[bmp->image[INDEX(col, row)]];
             old_pixel = add_colors(color_to_luma(color_ptr),
@@ -168,4 +167,3 @@ void dither(struct bitmap *bmp, struct color *palette, int ncolors)
     }
 }
 
-
