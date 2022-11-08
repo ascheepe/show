@@ -250,7 +250,7 @@ BYTE color_to_luma(struct color *color)
          + 11 * color->blue  / 100;
 }
 
-#define SQR(n) ((n)*(n))
+#define SQR(n) ((DWORD)((n)*(n)))
 
 int find_closest_color(const struct color *color,
                        const struct color *palette,
@@ -263,9 +263,9 @@ int find_closest_color(const struct color *color,
 
     for (i = 0; i < ncolors; ++i) {
         const struct color *palette_color = &palette[i];
-        long red_diff   = color->red   - palette_color->red;
-        long green_diff = color->green - palette_color->green;
-        long blue_diff  = color->blue  - palette_color->blue;
+        WORD red_diff   = abs(color->red   - palette_color->red);
+        WORD green_diff = abs(color->green - palette_color->green);
+        WORD blue_diff  = abs(color->blue  - palette_color->blue);
 
         distance = SQR(red_diff) + SQR(green_diff) + SQR(blue_diff);
         if (distance < max_distance) {
@@ -276,5 +276,4 @@ int find_closest_color(const struct color *color,
 
     return match;
 }
-
 
