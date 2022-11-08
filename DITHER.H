@@ -18,9 +18,10 @@
 #define DITHER_H
 
 #include "bitmap.h"
+#include "color.h"
 
 void convert_to_grayscale(struct bitmap *);
-void dither(struct bitmap *, int);
+void grayscale_dither(struct bitmap *, int);
+void dither(struct bitmap *, struct color *, int);
 
 #endif
-

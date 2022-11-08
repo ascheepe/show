@@ -84,6 +84,24 @@ static void cga_show(char *filename)
 
 static void ega_show(char *filename)
 {
+    struct color palette[] = {
+        { 0x00, 0x00, 0x00 },
+        { 0x00, 0x00, 0xAA },
+        { 0x00, 0xAA, 0x00 },
+        { 0x00, 0xAA, 0xAA },
+        { 0xAA, 0x00, 0x00 },
+        { 0xAA, 0x00, 0xAA },
+        { 0xAA, 0x55, 0x00 },
+        { 0xAA, 0xAA, 0xAA },
+        { 0x55, 0x55, 0x55 },
+        { 0x55, 0x55, 0xFF },
+        { 0x55, 0xFF, 0x55 },
+        { 0x55, 0xFF, 0xFF },
+        { 0xFF, 0x55, 0x55 },
+        { 0xFF, 0x55, 0xFF },
+        { 0xFF, 0xFF, 0x55 },
+        { 0xFF, 0xFF, 0xFF }
+    };
     struct bitmap *bmp;
     int row_offset, col_offset;
     int row, col;
@@ -91,7 +109,7 @@ static void ega_show(char *filename)
     bmp = bitmap_read(filename);
     row_offset = 100 - (bmp->height >> 1);
     col_offset = 160 - (bmp->width >> 1);
-    ega_dither(bmp);
+    dither(bmp, palette, 16);
     ega_clear_screen();
 
     for (row = 0; row < bmp->height - 1; ++row) {
@@ -243,4 +261,3 @@ int main(int argc, char *argv[])
     xerror("No images found.");
 }
 
-

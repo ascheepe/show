@@ -103,26 +103,8 @@ struct error_color {
     int blue;
 };
 
-void ega_dither(struct bitmap *bmp)
+void dither(struct bitmap *bmp, struct color *palette, int ncolors)
 {
-    struct color palette[] = {
-        { 0x00, 0x00, 0x00 },
-        { 0x00, 0x00, 0xAA },
-        { 0x00, 0xAA, 0x00 },
-        { 0x00, 0xAA, 0xAA },
-        { 0xAA, 0x00, 0x00 },
-        { 0xAA, 0x00, 0xAA },
-        { 0xAA, 0x55, 0x00 },
-        { 0xAA, 0xAA, 0xAA },
-        { 0x55, 0x55, 0x55 },
-        { 0x55, 0x55, 0xFF },
-        { 0x55, 0xFF, 0x55 },
-        { 0x55, 0xFF, 0xFF },
-        { 0xFF, 0x55, 0x55 },
-        { 0xFF, 0x55, 0xFF },
-        { 0xFF, 0xFF, 0x55 },
-        { 0xFF, 0xFF, 0xFF }
-    };
     struct error_color error[2][320];
     int row;
     int col;
@@ -151,7 +133,7 @@ void ega_dither(struct bitmap *bmp)
             old_pixel.blue  = add_colors(color_ptr->blue,
                                          error[0][col].blue);
 
-            palette_index = find_closest_color(&old_pixel, palette, 16);
+            palette_index = find_closest_color(&old_pixel, palette, ncolors);
             bmp->image[INDEX(col, row)] = palette_index;
 
             color_ptr = &palette[palette_index];
@@ -185,4 +167,5 @@ void ega_dither(struct bitmap *bmp)
         memset(&error[1][0], 0, sizeof(struct error_color) * 320);
     }
 }
+
 
