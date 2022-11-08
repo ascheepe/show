@@ -198,6 +198,7 @@ void median_cut(struct vector *palette, int ncuts, struct vector *reduced)
     vector_free(top);
 }
 
+#if 0
 static void print_binary(FILE *f, BYTE value)
 {
     int bit;
@@ -240,7 +241,7 @@ void write_palette(struct vector *palette, char *filename)
 
     fclose(palette_file);
 }
-
+#endif
 
 BYTE color_to_luma(struct color *color)
 {
