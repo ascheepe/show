@@ -36,6 +36,7 @@ struct vector *palette_to_vector(BYTE *, int);
 void median_cut(struct vector *, int, struct vector *);
 void write_palette(struct vector *, char *);
 BYTE color_to_luma(struct color *);
-
+int find_closest_color(const struct color *,
+                       const struct color *,
+                       int ncolors);
 #endif
-

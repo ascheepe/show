@@ -35,9 +35,9 @@ struct vector *palette_to_vector(BYTE *palette, int size)
         int offset = i * 3;
 
         color = xmalloc(sizeof(*color));
-        color->red = palette[offset + 0];
+        color->red   = palette[offset + 0];
         color->green = palette[offset + 1];
-        color->blue = palette[offset + 2];
+        color->blue  = palette[offset + 2];
 
         vector_add(result, color);
     }
@@ -46,12 +46,12 @@ struct vector *palette_to_vector(BYTE *palette, int size)
 }
 
 
-/* which part has the maximum val, r, g or b? */
+/* which part has the maximum value, red, green or blue? */
 static int max_color(struct vector *palette)
 {
-    BYTE red_max = 0;
+    BYTE red_max   = 0;
     BYTE green_max = 0;
-    BYTE blue_max = 0;
+    BYTE blue_max  = 0;
     size_t i;
 
     for (i = 0; i < palette->size; ++i) {
@@ -133,9 +133,9 @@ static void sort_palette(struct vector *palette, int by)
 static struct color *palette_average(struct vector *palette)
 {
     struct color *average_color;
-    DWORD red_sum = 0;
+    DWORD red_sum   = 0;
     DWORD green_sum = 0;
-    DWORD blue_sum = 0;
+    DWORD blue_sum  = 0;
     size_t i;
 
     average_color = xmalloc(sizeof(*average_color));
@@ -143,14 +143,14 @@ static struct color *palette_average(struct vector *palette)
     for (i = 0; i < palette->size; ++i) {
         struct color *color = palette->items[i];
 
-        red_sum += color->red;
+        red_sum   += color->red;
         green_sum += color->green;
-        blue_sum += color->blue;
+        blue_sum  += color->blue;
     }
 
-    average_color->red = red_sum / palette->size;
+    average_color->red   = red_sum   / palette->size;
     average_color->green = green_sum / palette->size;
-    average_color->blue = blue_sum / palette->size;
+    average_color->blue  = blue_sum  / palette->size;
 
     return average_color;
 }
@@ -180,7 +180,7 @@ void median_cut(struct vector *palette, int ncuts, struct vector *reduced)
     /* split into top and bottom part */
     median = palette->size >> 1;
     bottom = vector_new();
-    top = vector_new();
+    top    = vector_new();
 
     for (i = 0; i < median; ++i) {
         vector_add(bottom, palette->items[i]);
@@ -248,4 +248,29 @@ BYTE color_to_luma(struct color *color)
          + 59 * color->green / 100
          + 11 * color->blue / 100;
 }
-
+
+int find_closest_color(const struct color *color,
+                       const struct color *palette,
+                       int ncolors)
+{
+    DWORD max_distance = -1;
+    DWORD distance;
+    int match;
+    int i;
+
+    for (i = 0; i < ncolors; ++i) {
+        const struct color *palette_color = &palette[i];
+        int red_diff   = color->red   - palette_color->red;
+        int green_diff = color->green - palette_color->green;
+        int blue_diff  = color->blue  - palette_color->blue;
+
+        distance = SQR(red_diff) + SQR(green_diff) + SQR(blue_diff);
+        if (distance < max_distance) {
+            max_distance = distance;
+            match = i;
+        }
+    }
+
+    return match;
+}
+

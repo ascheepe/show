@@ -71,31 +71,6 @@ void grayscale_dither(struct bitmap *bmp, int ncolors)
     }
 }
 
-static int find_closest_color(const struct color *color,
-                              const struct color *palette,
-                              int ncolors)
-{
-    DWORD max_distance = -1;
-    DWORD distance;
-    int match;
-    int i;
-
-    for (i = 0; i < ncolors; ++i) {
-        const struct color *palette_color = &palette[i];
-        int red_diff   = color->red   - palette_color->red;
-        int green_diff = color->green - palette_color->green;
-        int blue_diff  = color->blue  - palette_color->blue;
-
-        distance = SQR(red_diff) + SQR(green_diff) + SQR(blue_diff);
-        if (distance < max_distance) {
-            max_distance = distance;
-            match = i;
-        }
-    }
-
-    return match;
-}
-
 struct error_color {
     int red;
     int green;
