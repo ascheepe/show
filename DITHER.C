@@ -98,7 +98,7 @@ static int find_closest_color(const struct color *color,
     return match;
 }
 
-struct quant_color {
+struct error_color {
     int red;
     int green;
     int blue;
@@ -124,7 +124,7 @@ void ega_dither(struct bitmap *bmp)
         { 0xFF, 0xFF, 0x55 },
         { 0xFF, 0xFF, 0xFF }
     };
-    struct quant_color error[2][320];
+    struct error_color error[2][320];
     int row_offset;
     int column_offset;
     int row;
@@ -134,7 +134,7 @@ void ega_dither(struct bitmap *bmp)
     column_offset = 320 / 2 - bmp->width / 2;
     row_offset = 200 / 2 - bmp->height / 2;
 
-    memset(error, 0, sizeof(struct quant_color) * 2 * 320);
+    memset(error, 0, sizeof(struct error_color) * 2 * 320);
     for (row = 0; row < bmp->height - 1; ++row) {
         for (col = 1; col < bmp->width - 1; ++col) {
             struct color old_pixel;
@@ -184,8 +184,7 @@ void ega_dither(struct bitmap *bmp)
         }
 
         memcpy(&error[0][0], &error[1][0],
-               sizeof(struct quant_color) * 320);
-        memset(&error[1][0], 0, sizeof(struct quant_color) * 320);
+               sizeof(struct error_color) * 320);
+        memset(&error[1][0], 0, sizeof(struct error_color) * 320);
     }
 }
-
