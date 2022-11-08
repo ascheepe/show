@@ -21,6 +21,21 @@
 
 #define INDEX(x, y) ((y) * bmp->width + (x))
 
+static BYTE add_colors(int a, int b)
+{
+    int result = a + b;
+
+    if (result > 255) {
+        return 255;
+    }
+
+    if (result < 0) {
+        return 0;
+    }
+
+    return result;
+}
+
 void grayscale_dither(struct bitmap *bmp, int ncolors)
 {
     int quant_error[2][320] = { 0 };
@@ -34,12 +49,14 @@ void grayscale_dither(struct bitmap *bmp, int ncolors)
 
         for (col = 1; col < bmp->width - 1; ++col) {
             struct color *color_ptr;
+            int value;
             BYTE old_pixel;
             BYTE new_pixel;
             BYTE error;
 
             color_ptr = &bmp->palette[bmp->image[INDEX(col, row)]];
-            old_pixel = color_to_luma(color_ptr) + quant_error[0][col];
+            old_pixel = add_colors(color_to_luma(color_ptr),
+                                   quant_error[0][col]);
             new_pixel = (old_pixel * ncolors / 256) * (256 / ncolors);
             bmp->image[INDEX(col, row)] = new_pixel;
 
@@ -78,21 +95,6 @@ static int find_closest_color(const struct color *color,
     }
 
     return match;
-}
-
-static BYTE add_colors(int a, int b)
-{
-    int result = a + b;
-
-    if (result > 255) {
-        return 255;
-    }
-
-    if (result < 0) {
-        return 0;
-    }
-
-    return result;
 }
 
 struct quant_color {
@@ -183,4 +185,3 @@ void ega_dither(struct bitmap *bmp)
         memset(&quant_error[1][0], 0, sizeof(struct quant_color) * 320);
     }
 }
-
