@@ -38,10 +38,11 @@ static BYTE add_colors(int a, int b)
 
 void grayscale_dither(struct bitmap *bmp, int ncolors)
 {
-    int quant_error[2][320] = { 0 };
+    int error[2][320];
     int row;
     int col;
 
+    memset(error, 0, sizeof(int) * 2 * 320);
     for (row = 0; row < bmp->height - 1; ++row) {
         if (show_progress) {
             printf("D:%03d\r", row);
@@ -52,23 +53,23 @@ void grayscale_dither(struct bitmap *bmp, int ncolors)
             int value;
             BYTE old_pixel;
             BYTE new_pixel;
-            BYTE error;
+            BYTE luma_error;
 
             color_ptr = &bmp->palette[bmp->image[INDEX(col, row)]];
             old_pixel = add_colors(color_to_luma(color_ptr),
-                                   quant_error[0][col]);
+                                   error[0][col]);
             new_pixel = (old_pixel * ncolors / 256) * (256 / ncolors);
             bmp->image[INDEX(col, row)] = new_pixel;
 
-            error = old_pixel - new_pixel;
-            quant_error[0][col + 1] += error * 7 / 16;
-            quant_error[1][col - 1] += error * 3 / 16;
-            quant_error[1][col    ] += error * 5 / 16;
-            quant_error[1][col + 1] += error * 1 / 16;
+            luma_error = old_pixel - new_pixel;
+            error[0][col + 1] += luma_error * 7 / 16;
+            error[1][col - 1] += luma_error * 3 / 16;
+            error[1][col    ] += luma_error * 5 / 16;
+            error[1][col + 1] += luma_error * 1 / 16;
         }
 
-        memcpy(&quant_error[0][0], &quant_error[1][0], sizeof(int) * 320);
-        memset(&quant_error[1][0], 0, sizeof(int) * 320);
+        memcpy(&error[0][0], &error[1][0], sizeof(int) * 320);
+        memset(&error[1][0], 0, sizeof(int) * 320);
     }
 }
 
@@ -123,7 +124,7 @@ void ega_dither(struct bitmap *bmp)
         { 0xFF, 0xFF, 0x55 },
         { 0xFF, 0xFF, 0xFF }
     };
-    struct quant_color quant_error[2][320];
+    struct quant_color error[2][320];
     int row_offset;
     int column_offset;
     int row;
@@ -133,6 +134,7 @@ void ega_dither(struct bitmap *bmp)
     column_offset = 320 / 2 - bmp->width / 2;
     row_offset = 200 / 2 - bmp->height / 2;
 
+    memset(error, 0, sizeof(struct quant_color) * 2 * 320);
     for (row = 0; row < bmp->height - 1; ++row) {
         for (col = 1; col < bmp->width - 1; ++col) {
             struct color old_pixel;
@@ -146,42 +148,44 @@ void ega_dither(struct bitmap *bmp)
             color_ptr = &bmp->palette[bmp->image[INDEX(col, row)]];
 
             old_pixel.red = add_colors(color_ptr->red,
-                                        quant_error[0][col].red);
+                                        error[0][col].red);
             old_pixel.green = add_colors(color_ptr->green,
-                                          quant_error[0][col].green);
+                                          error[0][col].green);
             old_pixel.blue = add_colors(color_ptr->blue,
-                                         quant_error[0][col].blue);
+                                         error[0][col].blue);
 
             palette_index = find_closest_color(&old_pixel, palette, 16);
             ega_plot(col + column_offset, row + row_offset, palette_index);
+
             color_ptr = &palette[palette_index];
-            new_pixel.red = color_ptr->red;
+            new_pixel.red   = color_ptr->red;
             new_pixel.green = color_ptr->green;
-            new_pixel.blue = color_ptr->blue;
+            new_pixel.blue  = color_ptr->blue;
 
             red_error   = old_pixel.red   - new_pixel.red;
             green_error = old_pixel.green - new_pixel.green;
             blue_error  = old_pixel.blue  - new_pixel.blue;
 
-            quant_error[0][col + 1].red   += red_error   * 7 / 16;
-            quant_error[0][col + 1].green += green_error * 7 / 16;
-            quant_error[0][col + 1].blue  += blue_error  * 7 / 16;
+            error[0][col + 1].red   += red_error   * 7 / 16;
+            error[0][col + 1].green += green_error * 7 / 16;
+            error[0][col + 1].blue  += blue_error  * 7 / 16;
 
-            quant_error[1][col - 1].red   += red_error   * 3 / 16;
-            quant_error[1][col - 1].green += green_error * 3 / 16;
-            quant_error[1][col - 1].blue  += blue_error  * 3 / 16;
+            error[1][col - 1].red   += red_error   * 3 / 16;
+            error[1][col - 1].green += green_error * 3 / 16;
+            error[1][col - 1].blue  += blue_error  * 3 / 16;
 
-            quant_error[1][col    ].red   += red_error   * 5 / 16;
-            quant_error[1][col    ].green += green_error * 5 / 16;
-            quant_error[1][col    ].blue  += blue_error  * 5 / 16;
+            error[1][col    ].red   += red_error   * 5 / 16;
+            error[1][col    ].green += green_error * 5 / 16;
+            error[1][col    ].blue  += blue_error  * 5 / 16;
 
-            quant_error[1][col + 1].red   += red_error   * 1 / 16;
-            quant_error[1][col + 1].green += green_error * 1 / 16;
-            quant_error[1][col + 1].blue  += blue_error  * 1 / 16;
+            error[1][col + 1].red   += red_error   * 1 / 16;
+            error[1][col + 1].green += green_error * 1 / 16;
+            error[1][col + 1].blue  += blue_error  * 1 / 16;
         }
 
-        memcpy(&quant_error[0][0], &quant_error[1][0],
+        memcpy(&error[0][0], &error[1][0],
                sizeof(struct quant_color) * 320);
-        memset(&quant_error[1][0], 0, sizeof(struct quant_color) * 320);
+        memset(&error[1][0], 0, sizeof(struct quant_color) * 320);
     }
 }
+
