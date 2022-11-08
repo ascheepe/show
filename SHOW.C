@@ -85,10 +85,24 @@ static void cga_show(char *filename)
 static void ega_show(char *filename)
 {
     struct bitmap *bmp;
+    int row_offset, col_offset;
+    int row, col;
 
     bmp = bitmap_read(filename);
-    ega_clear_screen();
+    row_offset = 100 - (bmp->height >> 1);
+    col_offset = 160 - (bmp->width >> 1);
     ega_dither(bmp);
+    ega_clear_screen();
+
+    for (row = 0; row < bmp->height - 1; ++row) {
+        for (col = 1; col < bmp->width - 1; ++col) {
+            BYTE color;
+
+            color = bmp->image[row * bmp->width + col];
+            ega_plot(col + col_offset, row + row_offset, color);
+        }
+    }
+
     bitmap_free(bmp);
 }
 

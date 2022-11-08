@@ -17,7 +17,6 @@
 #include "bitmap.h"
 #include "color.h"
 #include "dither.h"
-#include "ega.h"
 
 #define INDEX(x, y) ((y) * bmp->width + (x))
 
@@ -125,17 +124,15 @@ void ega_dither(struct bitmap *bmp)
         { 0xFF, 0xFF, 0xFF }
     };
     struct error_color error[2][320];
-    int row_offset;
-    int column_offset;
     int row;
     int col;
-    int i;
-
-    column_offset = 320 / 2 - bmp->width / 2;
-    row_offset = 200 / 2 - bmp->height / 2;
 
     memset(error, 0, sizeof(struct error_color) * 2 * 320);
     for (row = 0; row < bmp->height - 1; ++row) {
+        if (show_progress) {
+            printf("D:%03d\r", row);
+        }
+
         for (col = 1; col < bmp->width - 1; ++col) {
             struct color old_pixel;
             struct color new_pixel;
@@ -147,15 +144,15 @@ void ega_dither(struct bitmap *bmp)
 
             color_ptr = &bmp->palette[bmp->image[INDEX(col, row)]];
 
-            old_pixel.red = add_colors(color_ptr->red,
-                                        error[0][col].red);
+            old_pixel.red   = add_colors(color_ptr->red,
+                                         error[0][col].red);
             old_pixel.green = add_colors(color_ptr->green,
-                                          error[0][col].green);
-            old_pixel.blue = add_colors(color_ptr->blue,
+                                         error[0][col].green);
+            old_pixel.blue  = add_colors(color_ptr->blue,
                                          error[0][col].blue);
 
             palette_index = find_closest_color(&old_pixel, palette, 16);
-            ega_plot(col + column_offset, row + row_offset, palette_index);
+            bmp->image[INDEX(col, row)] = palette_index;
 
             color_ptr = &palette[palette_index];
             new_pixel.red   = color_ptr->red;
@@ -188,3 +185,4 @@ void ega_dither(struct bitmap *bmp)
         memset(&error[1][0], 0, sizeof(struct error_color) * 320);
     }
 }
+
