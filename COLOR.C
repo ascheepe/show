@@ -245,12 +245,12 @@ void write_palette(struct vector *palette, char *filename)
 
 BYTE color_to_luma(struct color *color)
 {
-    return 3 * color->red / 10
+    return  3 * color->red   /  10
          + 59 * color->green / 100
-         + 11 * color->blue / 100;
+         + 11 * color->blue  / 100;
 }
 
-#define SQR(n) (((long)n)*((long)n))
+#define SQR(n) ((n)*(n))
 
 int find_closest_color(const struct color *color,
                        const struct color *palette,
@@ -263,9 +263,9 @@ int find_closest_color(const struct color *color,
 
     for (i = 0; i < ncolors; ++i) {
         const struct color *palette_color = &palette[i];
-        int red_diff   = color->red   - palette_color->red;
-        int green_diff = color->green - palette_color->green;
-        int blue_diff  = color->blue  - palette_color->blue;
+        long red_diff   = color->red   - palette_color->red;
+        long green_diff = color->green - palette_color->green;
+        long blue_diff  = color->blue  - palette_color->blue;
 
         distance = SQR(red_diff) + SQR(green_diff) + SQR(blue_diff);
         if (distance < max_distance) {
