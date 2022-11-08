@@ -21,26 +21,9 @@
 
 #define INDEX(x, y) ((y) * bmp->width + (x))
 
-void convert_to_grayscale(struct bitmap *bmp)
+void grayscale_dither(struct bitmap *bmp, int ncolors)
 {
-    int row;
-    int col;
-
-    for (row = 0; row < bmp->height; ++row) {
-        if (show_progress) {
-            printf("G:%03d\r", row);
-        }
-
-        for (col = 0; col < bmp->width; ++col) {
-            struct color *color = &bmp->palette[bmp->image[INDEX(col, row)]];
-
-            bmp->image[INDEX(col, row)] = color_to_luma(color);
-        }
-    }
-}
-
-void dither(struct bitmap *bmp, int ncolors)
-{
+    int quant_error[2][320] = { 0 };
     int row;
     int col;
 
@@ -50,17 +33,25 @@ void dither(struct bitmap *bmp, int ncolors)
         }
 
         for (col = 1; col < bmp->width - 1; ++col) {
-            BYTE Y = bmp->image[INDEX(col, row)];
-            BYTE newY = (Y * ncolors / 256) * (256 / ncolors);
-            BYTE quant_error = Y - newY;
+            struct color *color_ptr;
+            BYTE old_pixel;
+            BYTE new_pixel;
+            BYTE error;
 
-            bmp->image[INDEX(col, row)] = newY;
+            color_ptr = &bmp->palette[bmp->image[INDEX(col, row)]];
+            old_pixel = color_to_luma(color_ptr) + quant_error[0][col];
+            new_pixel = (old_pixel * ncolors / 256) * (256 / ncolors);
+            bmp->image[INDEX(col, row)] = new_pixel;
 
-            bmp->image[INDEX(col + 1, row    )] += quant_error * 7 / 16;
-            bmp->image[INDEX(col - 1, row + 1)] += quant_error * 3 / 16;
-            bmp->image[INDEX(col    , row + 1)] += quant_error * 5 / 16;
-            bmp->image[INDEX(col + 1, row + 1)] += quant_error * 1 / 16;
+            error = old_pixel - new_pixel;
+            quant_error[0][col + 1] += error * 7 / 16;
+            quant_error[1][col - 1] += error * 3 / 16;
+            quant_error[1][col    ] += error * 5 / 16;
+            quant_error[1][col + 1] += error * 1 / 16;
         }
+
+        memcpy(&quant_error[0][0], &quant_error[1][0], sizeof(int) * 320);
+        memset(&quant_error[1][0], 0, sizeof(int) * 320);
     }
 }
 
@@ -103,7 +94,6 @@ static BYTE add_colors(int a, int b)
 
     return result;
 }
-
 
 struct quant_color {
     int red;
@@ -193,3 +183,4 @@ void ega_dither(struct bitmap *bmp)
         memset(&quant_error[1][0], 0, sizeof(struct quant_color) * 320);
     }
 }
+

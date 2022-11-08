@@ -44,8 +44,7 @@ static void mda_show(char *filename)
     bmp = bitmap_read(filename);
     row_offset = 174 - (bmp->height >> 1);
     col_offset = 360 - (bmp->width >> 1);
-    convert_to_grayscale(bmp);
-    dither(bmp, 2);
+    grayscale_dither(bmp, 2);
     mda_clear_screen();
 
     for (row = 0; row < bmp->height; ++row) {
@@ -68,8 +67,7 @@ static void cga_show(char *filename)
     bmp = bitmap_read(filename);
     row_offset = 100 - (bmp->height >> 1);
     col_offset = 160 - (bmp->width >> 1);
-    convert_to_grayscale(bmp);
-    dither(bmp, 4);
+    grayscale_dither(bmp, 4);
     cga_clear_screen();
 
     for (row = 0; row < bmp->height; ++row) {
@@ -106,10 +104,10 @@ static void vga_show(char *filename)
     vga_clear_screen();
     vga_set_palette(bmp->palette);
     for (row = 0; row < bmp->height; ++row) {
-        BYTE *src = bmp->image + row * bmp->width;
-        BYTE *dst = vmem + VGA_MEM_OFFSET(col_offset, row + row_offset);
+        BYTE *source = bmp->image + row * bmp->width;
+        BYTE *destination = vmem + VGA_MEM_OFFSET(col_offset, row + row_offset);
 
-        memcpy(dst, src, bmp->width);
+        memcpy(destination, source, bmp->width);
     }
 
     bitmap_free(bmp);
@@ -231,3 +229,4 @@ int main(int argc, char *argv[])
     xerror("No images found.");
 }
 
+
