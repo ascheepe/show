@@ -84,57 +84,13 @@ static void cga_show(char *filename)
     bitmap_free(bmp);
 }
 
-static int ega_match_color(struct color *color, struct color *from)
-{
-    DWORD max_distance = -1;
-    int match = 0;
-    int i;
-
-    for (i = 0; i < 16; ++i) {
-        struct color *newcolor = &from[i];
-        int red_diff = color->red - newcolor->red;
-        int green_diff = color->green - newcolor->green;
-        int blue_diff = color->blue - newcolor->blue;
-        DWORD distance = SQR(red_diff) + SQR(green_diff) + SQR(blue_diff);
-
-        if (distance < max_distance) {
-            max_distance = distance;
-            match = i;
-        }
-    }
-
-    return match;
-}
-
 static void ega_show(char *filename)
 {
     struct bitmap *bmp;
 
-#if 0
-    int row_offset, col_offset;
-    int row, col;
-
-    bmp = bitmap_read(filename);
-    row_offset = 100 - (bmp->height >> 1);
-    col_offset = 160 - (bmp->width >> 1);
-#endif
-
     bmp = bitmap_read(filename);
     ega_clear_screen();
     ega_dither(bmp);
-
-#if 0
-    for (row = 0; row < bmp->height; ++row) {
-        for (col = 0; col < bmp->width; ++col) {
-            int offset = bmp->image[row * bmp->width + col];
-            struct color *color = palette->items[offset];
-
-            ega_plot(col + col_offset, row + row_offset,
-                     ega_match_color(color, ega_palette));
-        }
-    }
-#endif
-
     bitmap_free(bmp);
 }
 
@@ -275,4 +231,3 @@ int main(int argc, char *argv[])
     xerror("No images found.");
 }
 
-

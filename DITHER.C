@@ -44,33 +44,22 @@ void dither(struct bitmap *bmp, int ncolors)
     int row;
     int col;
 
-    for (row = 0; row < bmp->height; ++row) {
+    for (row = 0; row < bmp->height - 1; ++row) {
         if (show_progress) {
             printf("D:%03d\r", row);
         }
 
-        for (col = 0; col < bmp->width; ++col) {
+        for (col = 1; col < bmp->width - 1; ++col) {
             BYTE Y = bmp->image[INDEX(col, row)];
-            BYTE newY = ((Y * ncolors) / 256) * (256 / ncolors);
-            BYTE error = Y - newY;
+            BYTE newY = (Y * ncolors / 256) * (256 / ncolors);
+            BYTE quant_error = Y - newY;
 
             bmp->image[INDEX(col, row)] = newY;
 
-            if (col + 1 < bmp->width) {
-                bmp->image[INDEX(col + 1, row)] += (error * 7) >> 4;
-            }
-
-            if (col - 1 > 0 && row + 1 < bmp->height) {
-                bmp->image[INDEX(col - 1, row + 1)] += (error * 3) >> 4;
-            }
-
-            if (row + 1 < bmp->height) {
-                bmp->image[INDEX(col, row + 1)] += (error * 5) >> 4;
-            }
-
-            if (col + 1 < bmp->width && row + 1 < bmp->height) {
-                bmp->image[INDEX(col + 1, row + 1)] += error >> 4;
-            }
+            bmp->image[INDEX(col + 1, row    )] += quant_error * 7 / 16;
+            bmp->image[INDEX(col - 1, row + 1)] += quant_error * 3 / 16;
+            bmp->image[INDEX(col    , row + 1)] += quant_error * 5 / 16;
+            bmp->image[INDEX(col + 1, row + 1)] += quant_error * 1 / 16;
         }
     }
 }
@@ -204,4 +193,3 @@ void ega_dither(struct bitmap *bmp)
         memset(&quant_error[1][0], 0, sizeof(struct quant_color) * 320);
     }
 }
-
