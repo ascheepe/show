@@ -33,8 +33,6 @@ typedef unsigned char  BYTE;
 typedef unsigned short WORD;
 typedef unsigned long  DWORD;
 
-#define SQR(n) (((DWORD)n)*((DWORD)n))
-
 void xerror(char *);
 void *xmalloc(size_t);
 void *xcalloc(size_t, size_t);
@@ -46,4 +44,3 @@ void set_mode(int);
 int file_exists(char *);
 
 #endif
-

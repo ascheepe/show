@@ -249,6 +249,8 @@ BYTE color_to_luma(struct color *color)
          + 11 * color->blue / 100;
 }
 
+#define SQR(n) (((long)n)*((long)n))
+
 int find_closest_color(const struct color *color,
                        const struct color *palette,
                        int ncolors)
