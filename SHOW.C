@@ -215,6 +215,9 @@ int main(int argc, char *argv[])
 {
     int wait_msec = DEFAULT_WAIT_MSEC;
 
+    /* clear screen */
+    set_mode(MODE_TEXT);
+
     switch (detect_graphics()) {
         case MDA_GRAPHICS:
             show = mda_show;
