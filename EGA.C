@@ -15,6 +15,7 @@
  */
 
 #include <dos.h>
+#include <string.h>
 
 #include "system.h"
 #include "ega.h"
@@ -37,17 +38,17 @@ static BYTE *vmem = (BYTE *) 0xA0000000L;
  */
 BYTE ega_make_color(struct color *color)
 {
-    BYTE red = color->red >> 6;
+    BYTE red   = color->red   >> 6;
     BYTE green = color->green >> 6;
-    BYTE blue = color->blue >> 6;
+    BYTE blue  = color->blue  >> 6;
 
-    BYTE red_msb = red >> 1;
+    BYTE red_msb   = red   >> 1;
     BYTE green_msb = green >> 1;
-    BYTE blue_msb = blue >> 1;
+    BYTE blue_msb  = blue  >> 1;
 
-    BYTE red_lsb = red & 1;
+    BYTE red_lsb   = red   & 1;
     BYTE green_lsb = green & 1;
-    BYTE blue_lsb = blue & 1;
+    BYTE blue_lsb  = blue  & 1;
 
     return (blue_msb << 0) | (green_msb << 1) | (red_msb << 2) |
            (blue_lsb << 3) | (green_lsb << 4) | (red_lsb << 5);
@@ -71,7 +72,7 @@ void ega_set_palette(struct vector *palette)
     int i;
 
     /* enable 0x3c0 flip-flop */
-    (void) inp(0x3da);
+    inp(0x3da);
 
     /* and set the palette */
     for (i = 0; i < palette->size; ++i) {
@@ -106,10 +107,33 @@ void ega_plot(int x, int y, int color)
     *pixel |= 0xff;
 }
 
+void ega_hi_plot(int x, int y, int color)
+{
+    BYTE *pixel = vmem + (y << 6) + (y << 4) + (x >> 3);
+    BYTE mask = 0x80 >> (x & 7);
+
+    /*
+     * color selects which planes to write to
+     * this is the palette index value
+     * e.g. 11 is cyan with default palette.
+     */
+    outp(0x3c4, 2);
+    outp(0x3c5, color);
+
+    /* set pixel mask */
+    outp(0x3ce, 8);
+    outp(0x3cf, mask);
+
+    /*
+     * with the mask set above we can just
+     * write all 1's
+     */
+    *pixel |= 0xff;
+}
+
 void ega_clear_screen(void)
 {
     set_mode(MODE_EGA);
     /* memset(vmem, 0, 128 * 1024); */
 }
 
-

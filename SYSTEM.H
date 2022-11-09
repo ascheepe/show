@@ -25,6 +25,7 @@ enum { false, true };
 #define MODE_CGA   0x04
 #define MODE_CGA2  0x05
 #define MODE_EGA   0x0D
+#define MODE_EGAHI 0x10
 #define MODE_VGA   0x13
 
 typedef unsigned char  BYTE;

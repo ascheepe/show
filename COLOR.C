@@ -192,7 +192,7 @@ void median_cut(struct vector *palette, int ncuts, struct vector *reduced)
 
     /* repeat for the two created buckets */
     median_cut(bottom, ncuts - 1, reduced);
-    median_cut(top, ncuts - 1, reduced);
+    median_cut(top,    ncuts - 1, reduced);
 
     vector_free(bottom);
     vector_free(top);

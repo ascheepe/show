@@ -130,6 +130,71 @@ static void ega_show(char *filename)
     bitmap_free(bmp);
 }
 
+static struct vector *reduce_palette(struct bitmap *bmp)
+{
+    struct vector *palette;
+    struct vector *reduced_palette;
+    BYTE raw_palette[256*3];
+    int i;
+
+    for (i = 0; i < bmp->ncolors; ++i) {
+        int offset = i * 3;
+
+        raw_palette[offset + 0] = bmp->palette[i].red;
+        raw_palette[offset + 1] = bmp->palette[i].green;
+        raw_palette[offset + 2] = bmp->palette[i].blue;
+    }
+
+    palette = palette_to_vector(raw_palette, bmp->ncolors);
+    reduced_palette = vector_new();
+    median_cut(palette, 4, reduced_palette);
+    vector_foreach(palette, free);
+    vector_free(palette);
+
+    return reduced_palette;
+}
+
+static void ega_hi_show(char *filename)
+{
+    struct bitmap *bmp;
+    struct vector *reduced_palette;
+    struct color palette[16];
+    int row_offset, col_offset;
+    int row, col;
+    int i;
+
+    bmp = bitmap_read(filename);
+    row_offset = 175 - (bmp->height >> 1);
+    col_offset = 320 - (bmp->width >> 1);
+
+    reduced_palette = reduce_palette(bmp);
+
+    for (i = 0; i < 16; ++i) {
+        struct color *color = reduced_palette->items[i];
+
+        palette[i].red   = color->red;
+        palette[i].green = color->green;
+        palette[i].blue  = color->blue;
+    }
+    vector_foreach(reduced_palette, free);
+    vector_free(reduced_palette);
+    dither(bmp, palette, 16);
+
+    set_mode(MODE_EGAHI);
+    ega_set_palette(reduced_palette);
+
+    for (row = 0; row < bmp->height - 1; ++row) {
+        for (col = 1; col < bmp->width - 1; ++col) {
+            BYTE color;
+
+            color = bmp->image[row * bmp->width + col];
+            ega_hi_plot(col + col_offset, row + row_offset, color);
+        }
+    }
+
+    bitmap_free(bmp);
+}
+
 static void vga_show(char *filename)
 {
     struct bitmap *bmp;
