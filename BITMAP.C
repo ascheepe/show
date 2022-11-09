@@ -77,9 +77,9 @@ struct bitmap *bitmap_read(char *filename)
     /* palette data is bgr(a) */
     fseek(bmp_file, pal_offset, SEEK_SET);
     for (i = 0; i < bmp->ncolors; ++i) {
-        bmp->palette[i].blue = read_byte(bmp_file);
+        bmp->palette[i].blue  = read_byte(bmp_file);
         bmp->palette[i].green = read_byte(bmp_file);
-        bmp->palette[i].red = read_byte(bmp_file);
+        bmp->palette[i].red   = read_byte(bmp_file);
         read_byte(bmp_file);     /* read away alpha value */
     }
 
@@ -99,9 +99,8 @@ struct bitmap *bitmap_read(char *filename)
     for (row = 0; row < bmp->height; ++row) {
         BYTE *row_ptr = bmp->image + row * bmp->width;
 
-        if (show_progress) {
-            printf("L:%03d\r", row);
-        }
+        printf("Loading.. %3d%%\r", row * 100 / bmp->height);
+        fflush(stdout);
 
         /* bitmap stores data beginning at the last line */
         fseek(bmp_file,
@@ -111,7 +110,6 @@ struct bitmap *bitmap_read(char *filename)
     }
 
     fclose(bmp_file);
-
     return bmp;
 }
 

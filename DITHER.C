@@ -45,13 +45,11 @@ void grayscale_dither(struct bitmap *bmp, int ncolors)
 
     memset(error, 0, sizeof(int) * 2 * 320);
     for (row = 0; row < bmp->height - 1; ++row) {
-        if (show_progress) {
-            printf("D:%03d\r", row);
-        }
-
+        printf("Dithering %3d%%\r", row * 100 / bmp->height);
+        fflush(stdout);
         for (col = 1; col < bmp->width - 1; ++col) {
             struct color *color_ptr;
-            int luma_error;
+	    int luma_error;
             BYTE old_pixel;
             BYTE new_pixel;
 
@@ -61,11 +59,11 @@ void grayscale_dither(struct bitmap *bmp, int ncolors)
             new_pixel = (old_pixel * ncolors / 256) * (256 / ncolors);
             bmp->image[INDEX(col, row)] = new_pixel;
 
-            luma_error = old_pixel - new_pixel;
-            error[0][col + 1] += (luma_error * 7) >> 4;
-            error[1][col - 1] += (luma_error * 3) >> 4;
-            error[1][col    ] += (luma_error * 5) >> 4;
-            error[1][col + 1] += luma_error       >> 4;
+	    luma_error = old_pixel - new_pixel;
+            error[0][col + 1] += luma_error * 7 / 16;
+            error[1][col - 1] += luma_error * 3 / 16;
+            error[1][col    ] += luma_error * 5 / 16;
+            error[1][col + 1] += luma_error * 1 / 16;
         }
 
         memcpy(&error[0][0], &error[1][0], sizeof(int) * 320);
@@ -87,18 +85,16 @@ void dither(struct bitmap *bmp, struct color *palette, int ncolors)
 
     memset(error, 0, sizeof(struct error_color) * 2 * 320);
     for (row = 0; row < bmp->height - 1; ++row) {
-        if (show_progress) {
-            printf("D:%03d\r", row);
-        }
-
+        printf("Dithering %3d%%\r", row * 100 / bmp->height);
+        fflush(stdout);
         for (col = 1; col < bmp->width - 1; ++col) {
             struct color old_pixel;
             struct color new_pixel;
             struct color *color_ptr;
             int palette_index;
-            int red_error;
-            int green_error;
-            int blue_error;
+	    int red_error;
+	    int green_error;
+	    int blue_error;
 
             color_ptr = &bmp->palette[bmp->image[INDEX(col, row)]];
 
@@ -117,25 +113,25 @@ void dither(struct bitmap *bmp, struct color *palette, int ncolors)
             new_pixel.green = color_ptr->green;
             new_pixel.blue  = color_ptr->blue;
 
-            red_error   = old_pixel.red   - new_pixel.red;
-            green_error = old_pixel.green - new_pixel.green;
-            blue_error  = old_pixel.blue  - new_pixel.blue;
+	    red_error   = old_pixel.red   - new_pixel.red;
+	    green_error = old_pixel.green - new_pixel.green;
+	    blue_error  = old_pixel.blue  - new_pixel.blue;
 
-            error[0][col + 1].red   += (red_error   * 7) >> 4;
-            error[0][col + 1].green += (green_error * 7) >> 4;
-            error[0][col + 1].blue  += (blue_error  * 7) >> 4;
+            error[0][col + 1].red   += red_error   * 7 / 16;
+            error[0][col + 1].green += green_error * 7 / 16;
+            error[0][col + 1].blue  += blue_error  * 7 / 16;
 
-            error[1][col - 1].red   += (red_error   * 3) >> 4;
-            error[1][col - 1].green += (green_error * 3) >> 4;
-            error[1][col - 1].blue  += (blue_error  * 3) >> 4;
+            error[1][col - 1].red   += red_error   * 3 / 16;
+            error[1][col - 1].green += green_error * 3 / 16;
+            error[1][col - 1].blue  += blue_error  * 3 / 16;
 
-            error[1][col    ].red   += (red_error   * 5) >> 4;
-            error[1][col    ].green += (green_error * 5) >> 4;
-            error[1][col    ].blue  += (blue_error  * 5) >> 4;
+            error[1][col    ].red   += red_error   * 5 / 16;
+            error[1][col    ].green += green_error * 5 / 16;
+            error[1][col    ].blue  += blue_error  * 5 / 16;
 
-            error[1][col + 1].red   += red_error   >> 4;
-            error[1][col + 1].green += green_error >> 4;
-            error[1][col + 1].blue  += blue_error  >> 4;
+            error[1][col + 1].red   += red_error   * 1 / 16;
+            error[1][col + 1].green += green_error * 1 / 16;
+            error[1][col + 1].blue  += blue_error  * 1 / 16;
         }
 
         memcpy(&error[0][0], &error[1][0],

@@ -18,8 +18,6 @@
 #define SYSTEM_H
 #include <stdio.h>
 
-extern int show_progress;
-
 enum { false, true };
 
 /* int10 modes */
@@ -44,3 +42,4 @@ void set_mode(int);
 int file_exists(char *);
 
 #endif
+

@@ -45,6 +45,8 @@ static void mda_show(char *filename)
     row_offset = 174 - (bmp->height >> 1);
     col_offset = 360 - (bmp->width >> 1);
     grayscale_dither(bmp, 2);
+
+    mda_set_graphics_mode(1);
     mda_clear_screen();
 
     for (row = 0; row < bmp->height; ++row) {
@@ -68,6 +70,8 @@ static void cga_show(char *filename)
     row_offset = 100 - (bmp->height >> 1);
     col_offset = 160 - (bmp->width >> 1);
     grayscale_dither(bmp, 4);
+
+    set_mode(MODE_CGA2);
     cga_clear_screen();
 
     for (row = 0; row < bmp->height; ++row) {
@@ -110,6 +114,8 @@ static void ega_show(char *filename)
     row_offset = 100 - (bmp->height >> 1);
     col_offset = 160 - (bmp->width >> 1);
     dither(bmp, palette, 16);
+
+    set_mode(MODE_EGA);
     ega_clear_screen();
 
     for (row = 0; row < bmp->height - 1; ++row) {
@@ -133,6 +139,8 @@ static void vga_show(char *filename)
     bmp = bitmap_read(filename);
     row_offset = 100 - (bmp->height >> 1);
     col_offset = 160 - (bmp->width >> 1);
+
+    set_mode(MODE_VGA);
     vga_clear_screen();
     vga_set_palette(bmp->palette);
     for (row = 0; row < bmp->height; ++row) {
@@ -191,11 +199,13 @@ static int slideshow(int wait_msec)
         }
 
         has_images = true;
+        set_mode(MODE_TEXT);
         show(ffblk.ff_name);
         while (!next_or_exit() && (ndelays < total_delays)) {
             delay(DELAY);
             ++ndelays;
         }
+
     }
 
     return has_images;
@@ -205,30 +215,21 @@ int main(int argc, char *argv[])
 {
     int wait_msec = DEFAULT_WAIT_MSEC;
 
-    show_progress = true;
-
     switch (detect_graphics()) {
         case MDA_GRAPHICS:
             show = mda_show;
-            show_progress = false;
-            mda_set_graphics_mode(1);
-            mda_clear_screen();
             break;
 
         case CGA_GRAPHICS:
             show = cga_show;
-            set_mode(MODE_CGA2);
             break;
 
         case EGA_GRAPHICS:
             show = ega_show;
-            set_mode(MODE_EGA);
             break;
 
         case VGA_GRAPHICS:
             show = vga_show;
-            show_progress = false;
-            set_mode(MODE_VGA);
             break;
 
         default:
@@ -257,8 +258,6 @@ int main(int argc, char *argv[])
         /* loop over found images until user quits */
     }
 
-    set_mode(MODE_TEXT);
     xerror("No images found.");
 }
-
 

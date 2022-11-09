@@ -20,8 +20,6 @@
 
 #include "system.h"
 
-int show_progress = false;
-
 void xerror(char *message)
 {
     set_mode(MODE_TEXT);
