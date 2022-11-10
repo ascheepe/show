@@ -245,9 +245,9 @@ void write_palette(struct vector *palette, char *filename)
 
 BYTE color_to_luma(struct color *color)
 {
-    return  3 * color->red   /  10
-         + 59 * color->green / 100
-         + 11 * color->blue  / 100;
+    return color->red   *  3 /  10
+         + color->green * 59 / 100
+         + color->blue  * 11 / 100;
 }
 
 #define SQR(n) ((DWORD)((n)*(n)))
@@ -277,3 +277,4 @@ int find_closest_color(const struct color *color,
     return match;
 }
 
+

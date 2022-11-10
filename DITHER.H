@@ -26,3 +26,4 @@ void dither(struct bitmap *, struct color *, int);
 
 #endif
 
+

@@ -29,3 +29,4 @@ void ega_clear_screen(void);
 void ega_set_palette(struct vector *);
 #endif
 
+

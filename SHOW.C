@@ -71,7 +71,6 @@ static void cga_show(char *filename)
     grayscale_dither(bmp, 4);
 
     set_mode(MODE_CGA2);
-    cga_clear_screen();
 
     for (row = 0; row < bmp->height; ++row) {
         for (col = 0; col < bmp->width; ++col) {
@@ -115,7 +114,6 @@ static void ega_show(char *filename)
     dither(bmp, palette, 16);
 
     set_mode(MODE_EGA);
-    ega_clear_screen();
 
     for (row = 0; row < bmp->height - 1; ++row) {
         for (col = 1; col < bmp->width - 1; ++col) {
@@ -205,7 +203,6 @@ static void vga_show(char *filename)
     col_offset = 160 - (bmp->width >> 1);
 
     set_mode(MODE_VGA);
-    vga_clear_screen();
     vga_set_palette(bmp->palette);
     for (row = 0; row < bmp->height; ++row) {
         BYTE *source = bmp->image + row * bmp->width;
@@ -283,3 +280,4 @@ int main(int argc, char *argv[])
     return 0;
 }
 
+
