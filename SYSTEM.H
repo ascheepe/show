@@ -43,4 +43,4 @@ void set_mode(int);
 int file_exists(char *);
 
 #endif
-
+

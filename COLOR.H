@@ -40,4 +40,4 @@ int find_closest_color(const struct color *,
                        const struct color *,
                        int ncolors);
 #endif
-
+

@@ -19,7 +19,6 @@
 #include <string.h>
 #include <time.h>
 #include <conio.h>
-#include <dir.h>
 #include <dos.h>
 
 #include "system.h"
@@ -283,4 +282,4 @@ int main(int argc, char *argv[])
     set_mode(MODE_TEXT);
     return 0;
 }
-
+

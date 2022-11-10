@@ -31,4 +31,4 @@ void vector_add(struct vector *, void *);
 void vector_foreach(struct vector *, void (*)(void *));
 
 #endif
-
+
