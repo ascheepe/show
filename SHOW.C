@@ -219,20 +219,16 @@ static void vga_show(char *filename)
 }
 
 #define KEY_ESC 27
-static int next_or_exit(void)
+static int quit(void)
 {
-    int key_pressed = false;
-
     if (kbhit()) {
-        key_pressed = true;
         switch (getch()) {
             case 'q':
             case 'Q':
             case KEY_ESC:
-                set_mode(MODE_TEXT);
-                exit(EXIT_SUCCESS);
+                return 1;
 
-                /* read away special key */
+            /* read away special key */
             case 0:
             case 224:
                 getch();
@@ -240,46 +236,11 @@ static int next_or_exit(void)
         }
     }
 
-    return key_pressed;
-}
-
-#define DEFAULT_WAIT_MSEC 10000
-#define DELAY 100
-
-static int slideshow(int wait_msec)
-{
-    struct ffblk ffblk;
-    int has_images = false;
-    int status;
-
-    for (status = findfirst("*.bmp", &ffblk, 0);
-         status == 0;
-         status = findnext(&ffblk)) {
-
-        int total_delays = wait_msec / DELAY;
-        int ndelays = 0;
-
-        if (ffblk.ff_attrib & FA_DIREC) {
-            continue;
-        }
-
-        has_images = true;
-        set_mode(MODE_TEXT);
-        show(ffblk.ff_name);
-        while (!next_or_exit() && (ndelays < total_delays)) {
-            delay(DELAY);
-            ++ndelays;
-        }
-
-    }
-
-    return has_images;
+    return 0;
 }
 
 int main(int argc, char *argv[])
 {
-    int wait_msec = DEFAULT_WAIT_MSEC;
-
     /* clear screen */
     set_mode(MODE_TEXT);
 
@@ -304,28 +265,22 @@ int main(int argc, char *argv[])
             xerror("Error detecting graphics card.");
     }
 
-    /*
-     * If we have an argument it's either a file to show
-     * or a delay for a slideshow (and the images will be
-     * read from the current directory).
-     */
-    if (argc == 2) {
-        if (file_exists(argv[1])) {
-            show(argv[1]);
-            while (!next_or_exit());
-        } else {
-            wait_msec = atoi(argv[1]) * 1000;
-
-            if (wait_msec <= 0) {
-                wait_msec = DEFAULT_WAIT_MSEC;
-            }
-        }
+    if (argc != 2) {
+        printf("usage: show imagefile\n");
+        return 1;
     }
 
-    while (slideshow(wait_msec)) {
-        /* loop over found images until user quits */
+    if (!file_exists(argv[1])) {
+        printf("file does not exist.\n");
+        return 1;
     }
 
-    xerror("No images found.");
+    show(argv[1]);
+    while (!quit()) {
+        /* wait */
+    }
+
+    set_mode(MODE_TEXT);
+    return 0;
 }
 
