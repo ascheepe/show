@@ -217,8 +217,8 @@ void median_cut(struct color *palette, int ncolors, int ncuts,
     /*
      * 4. split into colors above the median color and below.
      */
-    above_median = calloc(ncolors, sizeof(struct color));
-    below_median = calloc(ncolors, sizeof(struct color));
+    above_median = xcalloc(ncolors, sizeof(struct color));
+    below_median = xcalloc(ncolors, sizeof(struct color));
     nbelow = 0;
     nabove = 0;
 
