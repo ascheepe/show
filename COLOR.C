@@ -23,7 +23,6 @@
 #include "system.h"
 #include "color.h"
 
-#if 0
 /* which channel has the greatest range? */
 static int max_range(struct color *palette, int ncolors)
 {
@@ -147,44 +146,62 @@ static void palette_average(struct color *palette, int ncolors,
 }
 
 void median_cut(struct color *palette, int ncolors, int ncuts,
-                struct color *reduced)
+                struct color *reduced, int *nreduced)
 {
-    /* 1. find the greatest range of each channel
-     * 2. sort palette by that channel
-     * 3. take the color at the median of it
-     * 4. split into colors above the median color and below.
-     *    above means where the largest range channel is higher/lower than it.
-     * 5. repeat for these two buckets
-     *
-     * XXX: below is not working code!
-     */
-
     struct color *above_median;
     struct color *below_median;
-    size_t median_index;
-    size_t i;
-    BYTE median;
+    struct color median;
+    int greatest_range;
+    int median_index;
+    int nbelow;
+    int nabove;
+    int i;
+
+    /* There might be no colors in a bucket */
+    if (ncolors == 0) {
+        return;
+    }
 
     /*
      * if done add the average color of the bucket
      * to the reduced palette.
      */
     if (ncuts == 0) {
-        palette_average(palette, ncolors, reduced);
-        printf("#%02x%02x%02x\n", reduced->red,
-                                  reduced->green,
-                                  reduced->blue);
-        ++reduced;
+        struct color *average_color = &reduced[*nreduced];
+
+        palette_average(palette, ncolors, average_color);
+#if 0
+        printf("reduced[%3d] = #%02x%02x%02x\n",
+               *nreduced,
+               average_color->red,
+               average_color->green,
+               average_color->blue);
+#endif
         free(palette);
+        ++(*nreduced);
         return;
     }
-
-    /* sort palette by highest channel range */
-    sort_palette(palette, ncolors, max_range(palette, ncolors));
-
-    /* split into top and bottom part */
+#if 0
+    printf("median_cut(%p, %3d, %d, %p, %3d)\n",
+           palette, ncolors, ncuts, reduced, *nreduced);
+#endif
+    /*
+     * 1. find the greatest range of each channel
+     * 2. sort palette by that channel
+     */
+    greatest_range = max_range(palette, ncolors);
+    sort_palette(palette, ncolors, greatest_range);
+#if 0
+    printf("  greatest_range = %d\n", greatest_range);
+#endif
+    /*
+     * 3. take the color at the median of it
+     */
     median_index = (ncolors + 1) / 2;
-    if ((median_index & 1) == 0) {
+#if 0
+    printf("  median_index   = %d\n", median_index);
+#endif
+    if ((median_index % 2) == 0) {
         median.red   = (palette[median_index - 1].red +
                         palette[median_index].red) / 2;
         median.green = (palette[median_index - 1].green +
@@ -197,26 +214,74 @@ void median_cut(struct color *palette, int ncolors, int ncuts,
         median.blue  = palette[median_index].blue;
     }
 
-    above_median = calloc(ncolors / 2, sizeof(struct color));
-    below_median = calloc(ncolors / 2, sizeof(struct color));
+    /*
+     * 4. split into colors above the median color and below.
+     */
+    above_median = calloc(ncolors, sizeof(struct color));
+    below_median = calloc(ncolors, sizeof(struct color));
+    nbelow = 0;
+    nabove = 0;
 
-    for (i = 0; i < median; ++i) {
-        below_median[i].red   = palette[i].red;
-        below_median[i].green = palette[i].green;
-        below_median[i].blue  = palette[i].blue;
-    }
+    for (i = 0; i < ncolors; ++i) {
+        switch (greatest_range) {
+            case MAX_RANGE_RED:
+                if (palette[i].red < median.red) {
+                    below_median[nbelow].red   = palette[i].red;
+                    below_median[nbelow].green = palette[i].green;
+                    below_median[nbelow].blue  = palette[i].blue;
+                    ++nbelow;
+                } else {
+                    above_median[nabove].red   = palette[i].red;
+                    above_median[nabove].green = palette[i].green;
+                    above_median[nabove].blue  = palette[i].blue;
+                    ++nabove;
+                }
+                break;
 
-    for (i = median; i < ncolors; ++i) {
-        above_median[i - median].red   = palette[i].red;
-        above_median[i - median].green = palette[i].green;
-        above_median[i - median].blue  = palette[i].blue;
+            case MAX_RANGE_GREEN:
+                if (palette[i].green < median.green) {
+                    below_median[nbelow].red   = palette[i].red;
+                    below_median[nbelow].green = palette[i].green;
+                    below_median[nbelow].blue  = palette[i].blue;
+                    ++nbelow;
+                } else {
+                    above_median[nabove].red   = palette[i].red;
+                    above_median[nabove].green = palette[i].green;
+                    above_median[nabove].blue  = palette[i].blue;
+                    ++nabove;
+                }
+                break;
+
+            case MAX_RANGE_BLUE:
+                if (palette[i].blue < median.blue) {
+                    below_median[nbelow].red   = palette[i].red;
+                    below_median[nbelow].green = palette[i].green;
+                    below_median[nbelow].blue  = palette[i].blue;
+                    ++nbelow;
+                } else {
+                    above_median[nabove].red   = palette[i].red;
+                    above_median[nabove].green = palette[i].green;
+                    above_median[nabove].blue  = palette[i].blue;
+                    ++nabove;
+                }
+                break;
+        }
     }
+#if 0
+    printf("  nabove         = %d\n", nabove);
+    printf("  nbelow         = %d\n", nbelow);
+#endif
+    below_median = xrealloc(below_median, sizeof(struct color) * nbelow);
+    above_median = xrealloc(above_median, sizeof(struct color) * nabove);
 
     /* repeat for the two buckets */
-    median_cut(below_median, ncolors - median, ncuts - 1, reduced);
-    median_cut(above_median, ncolors - median, ncuts - 1, reduced);
-}
+#if 0
+    printf("  above_median   = %p\n", above_median);
+    printf("  below_median   = %p\n", below_median);
 #endif
+    median_cut(below_median, nbelow, ncuts - 1, reduced, nreduced);
+    median_cut(above_median, nabove, ncuts - 1, reduced, nreduced);
+}
 
 BYTE color_to_luma(struct color *color)
 {

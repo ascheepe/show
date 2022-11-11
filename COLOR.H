@@ -31,7 +31,7 @@ struct color {
     BYTE blue;
 };
 
-void median_cut(struct color *, int, int, struct color *);
+void median_cut(struct color *, int, int, struct color *, int *);
 BYTE color_to_luma(struct color *);
 int find_closest_color(const struct color *, const struct color *,
                        int ncolors);
