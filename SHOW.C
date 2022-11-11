@@ -164,10 +164,10 @@ static void ega_hi_show(char *filename)
 
         closest_color = find_closest_color(&palette[i], ega_palette, 64);
         ega_color = &ega_palette[closest_color];
-        printf("%02x #%02x%02x%02x => #%02x%02x%02x\n",
-               closest_color,
+        printf("#%02x%02x%02x => #%02x%02x%02x (%02x)\n",
                palette[i].red, palette[i].green, palette[i].blue,
-               ega_color->red, ega_color->green, ega_color->blue);
+               ega_color->red, ega_color->green, ega_color->blue,
+               closest_color);
 
         palette[i].red   = ega_color->red;
         palette[i].green = ega_color->green;
@@ -179,7 +179,7 @@ static void ega_hi_show(char *filename)
         palette[i].green = 0x00;
         palette[i].blue  = 0x00;
     }
-    fgetc(stdin);
+
     dither(bmp, palette, 16);
 
     set_mode(MODE_EGAHI);
