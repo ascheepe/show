@@ -255,7 +255,7 @@ int main(int argc, char *argv[])
             break;
 
         case EGA_GRAPHICS:
-            show = ega_hi_show;
+            show = ega_show;
             break;
 
         case VGA_GRAPHICS:
