@@ -95,7 +95,7 @@ DWORD read_dword(FILE *input_file)
     }
 
     return (bytes[0] <<  0) | (bytes[1] << 8)
-         | (bytes[1] << 16) | (bytes[2] << 24);
+         | (bytes[2] << 16) | (bytes[3] << 24);
 }
 
 void set_mode(int mode)
