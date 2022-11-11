@@ -7,6 +7,5 @@ ega.c
 mda.c
 show.c
 system.c
-vector.c
 vga.c
 

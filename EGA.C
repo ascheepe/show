@@ -19,7 +19,6 @@
 
 #include "system.h"
 #include "ega.h"
-#include "vector.h"
 #include "color.h"
 
 static BYTE *vmem = (BYTE *) 0xA0000000L;
@@ -67,7 +66,7 @@ BYTE ega_make_color(struct color *color)
  * Attributes 0x00 - 0x0F specify the 16 color palette in
  * the format as the make_color function provides.
  */
-void ega_set_palette(struct vector *palette)
+void ega_set_palette(struct color *palette, int ncolors)
 {
     int i;
 
@@ -75,11 +74,9 @@ void ega_set_palette(struct vector *palette)
     inp(0x3da);
 
     /* and set the palette */
-    for (i = 0; i < palette->size; ++i) {
-        struct color *color = palette->items[i];
-
+    for (i = 0; i < ncolors; ++i) {
         outp(0x3c0, i);
-        outp(0x3c0, ega_make_color(color));
+        outp(0x3c0, ega_make_color(&palette[i]));
     }
 }
 

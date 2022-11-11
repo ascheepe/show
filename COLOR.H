@@ -18,12 +18,11 @@
 #define COLOR_H
 
 #include "system.h"
-#include "vector.h"
 
 enum {
-    MAX_COLOR_RED,
-    MAX_COLOR_GREEN,
-    MAX_COLOR_BLUE
+    MAX_RANGE_RED,
+    MAX_RANGE_GREEN,
+    MAX_RANGE_BLUE
 };
 
 struct color {
@@ -32,12 +31,9 @@ struct color {
     BYTE blue;
 };
 
-struct vector *palette_to_vector(BYTE *, int);
-void median_cut(struct vector *, int, struct vector *);
-void write_palette(struct vector *, char *);
+void median_cut(struct color *, int, int, struct color *);
 BYTE color_to_luma(struct color *);
-int find_closest_color(const struct color *,
-                       const struct color *,
+int find_closest_color(const struct color *, const struct color *,
                        int ncolors);
 #endif
 

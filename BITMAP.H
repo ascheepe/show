@@ -24,15 +24,15 @@
  * .BMP file structure
  */
 struct bitmap {
-    WORD file_type;
+    WORD  file_type;
     DWORD file_size;
     DWORD reserved;
     DWORD pixel_offset;
     DWORD header_size;
     DWORD width;
     DWORD height;
-    WORD planes;
-    WORD bpp;
+    WORD  planes;
+    WORD  bpp;
     DWORD compression;
     DWORD image_size;
     DWORD x_ppm;
