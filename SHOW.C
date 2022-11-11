@@ -126,6 +126,49 @@ static void ega_show(char *filename)
     bitmap_free(bmp);
 }
 
+static void ega_hi_show1(char *filename)
+{
+    struct color palette[] = {
+        { 0x00, 0x00, 0x00 },
+        { 0x55, 0x55, 0x55 },
+        { 0xAA, 0xAA, 0xAA },
+        { 0xFF, 0xFF, 0xFF },
+        { 0x55, 0x00, 0x00 },
+        { 0xAA, 0x00, 0x00 },
+        { 0xFF, 0x00, 0x00 },
+        { 0x00, 0x55, 0x00 },
+        { 0x00, 0xAA, 0x00 },
+        { 0x00, 0xFF, 0x00 },
+        { 0x00, 0x00, 0x55 },
+        { 0x00, 0x00, 0xAA },
+        { 0xAA, 0x55, 0x00 },
+        { 0xFF, 0xAA, 0x00 },
+        { 0x55, 0xFF, 0xFF },
+        { 0xFF, 0x55, 0xFF }
+    };
+    struct bitmap *bmp;
+    int row_offset, col_offset;
+    int row, col;
+
+    bmp = bitmap_read(filename);
+    row_offset = 175 - (bmp->height >> 1);
+    col_offset = 320 - (bmp->width >> 1);
+    dither(bmp, palette, 16);
+
+    set_mode(MODE_EGAHI);
+    ega_set_palette(palette, 16);
+
+    for (row = 0; row < bmp->height - 1; ++row) {
+        for (col = 1; col < bmp->width - 1; ++col) {
+            BYTE color;
+
+            color = bmp->image[row * bmp->width + col];
+            ega_hi_plot(col + col_offset, row + row_offset, color);
+        }
+    }
+
+    bitmap_free(bmp);
+}
 static void ega_hi_show(char *filename)
 {
     struct color ega_palette[64];
@@ -255,7 +298,7 @@ int main(int argc, char *argv[])
             break;
 
         case EGA_GRAPHICS:
-            show = ega_show;
+            show = ega_hi_show1;
             break;
 
         case VGA_GRAPHICS:
