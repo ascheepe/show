@@ -14,12 +14,9 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include <dos.h>
-#include <dir.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <assert.h>
 
 #include "system.h"
 #include "color.h"
@@ -145,6 +142,7 @@ void median_cut(struct color *palette, int ncolors, int ncuts,
 
         palette_average(palette, ncolors, average_color);
         ++(*nreduced);
+
         return;
     }
 
@@ -191,4 +189,43 @@ int find_closest_color(const struct color *color,
     return match;
 }
 
+void dump_palette(struct color *palette, int ncolors)
+{
+    char filename[16];
+    static int version;
+    FILE *fp;
+    int i;
+
+    sprintf(filename, "pal-%03d.htm", ++version);
+    fp = fopen(filename, "w");
+    if (fp == NULL) {
+        xerror("dump_palette: can't open dumpfile.");
+    }
+
+    fputs("<!DOCTYPE html>", fp);
+    fputs("<html lang=\"en\">", fp);
+    fputs("  <head>", fp);
+    fprintf(fp, "    <title>%s</title>\n", filename);
+    fputs("    <meta charset=\"utf-8\">", fp);
+    fputs("  </head>", fp);
+    fputs("  <body>", fp);
+    fputs("    <table>", fp);
+    fputs("      <tr height=\"16px\">", fp);
+
+    for (i = 0; i < ncolors; ++i) {
+        if ((i > 0) && (i % 16 == 0)) {
+            fprintf(fp,"      </tr>\n<tr height=\"16px\">", fp);
+        }
+        fprintf(fp, "        ");
+        fprintf(fp, "<td width=\"16px\" bgcolor=\"#%02x%02x%02x\"></td>\n",
+                palette[i].red, palette[i].green, palette[i].blue,
+                palette[i].red, palette[i].green, palette[i].blue);
+    }
+
+    fputs("      </tr>", fp);
+    fputs("    </table>", fp);
+    fputs("  </body>", fp);
+    fputs("</html>", fp);
+    fclose(fp);
+}
 
