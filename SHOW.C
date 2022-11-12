@@ -207,8 +207,12 @@ static void ega_hi_show(char *filename)
     if (log == NULL) {
         xerror("can't open log.html");
     }
-    fputs("<DOCTYPE html>", log);
-    fputs("<html>", log);
+    fputs("<!DOCTYPE html>", log);
+    fputs("<html lang=\"en\">", log);
+    fputs("<head>", log);
+    fputs("  <title>palette log</title>", log);
+    fputs("  <meta charset=\"utf-8\">", log);
+    fputs("</head>", log);
     fputs("<body>", log);
     fputs("<table width=\"100%\">", log);
     fputs("  <tr>", log);
@@ -235,8 +239,8 @@ static void ega_hi_show(char *filename)
         palette[i].blue  = ega_color->blue;
 
     }
-    fputs("</body>", log);
     fputs("</table>", log);
+    fputs("</body>", log);
     fputs("</html>", log);
     fclose(log);
     for (i = nreduced; i < 16; ++i) {
