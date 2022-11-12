@@ -31,8 +31,6 @@
 #include "ega.h"
 #include "vga.h"
 
-static void (*show)(char *);
-
 static void mda_show(char *filename)
 {
     struct bitmap *bmp;
@@ -179,20 +177,18 @@ static void ega_hi_show(char *filename)
     int row, col;
     int i;
 
-    FILE *log;
-
     bmp = bitmap_read(filename);
     row_offset = 175 - (bmp->height >> 1);
     col_offset = 320 - (bmp->width >> 1);
 
     /* generate full 64 color ega palette */
     for (i = 0; i < 64; ++i) {
-        BYTE  blue_msb  = (((BYTE)i >> 0) & 1);
-        BYTE  green_msb = (((BYTE)i >> 1) & 1);
-        BYTE  red_msb   = (((BYTE)i >> 2) & 1);
-        BYTE  blue_lsb  = (((BYTE)i >> 3) & 1);
-        BYTE  green_lsb = (((BYTE)i >> 4) & 1);
-        BYTE  red_lsb   = (((BYTE)i >> 5) & 1);
+        BYTE blue_msb  = (((BYTE)i >> 0) & 1);
+        BYTE green_msb = (((BYTE)i >> 1) & 1);
+        BYTE red_msb   = (((BYTE)i >> 2) & 1);
+        BYTE blue_lsb  = (((BYTE)i >> 3) & 1);
+        BYTE green_lsb = (((BYTE)i >> 4) & 1);
+        BYTE red_lsb   = (((BYTE)i >> 5) & 1);
 
         ega_palette[i].red   = red_msb   * 0xAA + red_lsb   * 0x55;
         ega_palette[i].green = green_msb * 0xAA + green_lsb * 0x55;
@@ -201,52 +197,21 @@ static void ega_hi_show(char *filename)
 
     nreduced = 0;
     median_cut(bmp->palette, bmp->ncolors, 4, palette, &nreduced);
+    if (nreduced != 16) {
+        xerror("median cut should return 16 colors");
+    }
 
     /* Convert optimal colors to ega colors */
-    log = fopen("log.html", "w");
-    if (log == NULL) {
-        xerror("can't open log.html");
-    }
-    fputs("<!DOCTYPE html>", log);
-    fputs("<html lang=\"en\">", log);
-    fputs("<head>", log);
-    fputs("  <title>palette log</title>", log);
-    fputs("  <meta charset=\"utf-8\">", log);
-    fputs("</head>", log);
-    fputs("<body>", log);
-    fputs("<table width=\"100%\">", log);
-    fputs("  <tr>", log);
-    fputs("    <th>ideal</th>", log);
-    fputs("    <th>ega</th>",   log);
-    fputs("    <th>index</th>", log);
-    for (i = 0; i < nreduced; ++i) {
+    for (i = 0; i < 16; ++i) {
         struct color *ega_color;
         int closest_color;
 
         closest_color = find_closest_color(&palette[i], ega_palette, 64);
         ega_color = &ega_palette[closest_color];
-        fputs("  <tr>", log);
-        fprintf(log, "    <td bgcolor=\"#%02x%02x%02x\">#%02x%02x%02x</td>\n",
-                palette[i].red, palette[i].green, palette[i].blue,
-                palette[i].red, palette[i].green, palette[i].blue);
-        fprintf(log, "    <td bgcolor=\"#%02x%02x%02x\">#%02x%02x%02x</td>\n",
-                ega_color->red, ega_color->green, ega_color->blue,
-                ega_color->red, ega_color->green, ega_color->blue);
-        fprintf(log, "    <td>%d</td>\n  </tr>\n", closest_color);
 
         palette[i].red   = ega_color->red;
         palette[i].green = ega_color->green;
         palette[i].blue  = ega_color->blue;
-
-    }
-    fputs("</table>", log);
-    fputs("</body>", log);
-    fputs("</html>", log);
-    fclose(log);
-    for (i = nreduced; i < 16; ++i) {
-        palette[i].red   = 0x00;
-        palette[i].green = 0x00;
-        palette[i].blue  = 0x00;
     }
 
     dither(bmp, palette, 16);
@@ -311,30 +276,6 @@ static int quit(void)
 
 int main(int argc, char *argv[])
 {
-    /* clear screen */
-    set_mode(MODE_TEXT);
-
-    switch (detect_graphics()) {
-        case MDA_GRAPHICS:
-            show = mda_show;
-            break;
-
-        case CGA_GRAPHICS:
-            show = cga_show;
-            break;
-
-        case EGA_GRAPHICS:
-            show = ega_hi_show;
-            break;
-
-        case VGA_GRAPHICS:
-            show = vga_show;
-            break;
-
-        default:
-            xerror("Error detecting graphics card.");
-    }
-
     if (argc != 2) {
         printf("usage: show imagefile\n");
         return 1;
@@ -345,7 +286,30 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    show(argv[1]);
+    /* clear screen */
+    set_mode(MODE_TEXT);
+
+    switch (detect_graphics()) {
+        case MDA_GRAPHICS:
+            mda_show(argv[1]);
+            break;
+
+        case CGA_GRAPHICS:
+            cga_show(argv[1]);
+            break;
+
+        case EGA_GRAPHICS:
+            ega_hi_show1(argv[1]);
+            break;
+
+        case VGA_GRAPHICS:
+            vga_show(argv[1]);
+            break;
+
+        default:
+            xerror("Error detecting graphics card.");
+    }
+
     while (!quit()) {
         /* wait */
     }
@@ -354,4 +318,3 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-

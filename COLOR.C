@@ -15,6 +15,7 @@
  */
 
 #include <dos.h>
+#include <dir.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -103,17 +104,14 @@ static int sort_by_blue(const void *color_a, const void *color_b)
 
 static void sort_palette(struct color *palette, int ncolors, int by)
 {
-    int (*compare)(const void *, const void *) = NULL;
-
     if (by == MAX_RANGE_RED) {
-        compare = sort_by_red;
+        qsort(palette, ncolors, sizeof(struct color), sort_by_red);
     } else if (by == MAX_RANGE_GREEN) {
-        compare = sort_by_green;
+        qsort(palette, ncolors, sizeof(struct color), sort_by_green);
     } else {
-        compare = sort_by_blue;
+        qsort(palette, ncolors, sizeof(struct color), sort_by_blue);
     }
 
-    qsort(palette, ncolors, sizeof(struct color), compare);
 }
 
 /* average color of palette */
@@ -142,10 +140,6 @@ void median_cut(struct color *palette, int ncolors, int ncuts,
     struct color *new_bucket;
     int median;
 
-    /*
-     * if done add the average color of the bucket
-     * to the reduced palette.
-     */
     if (ncuts == 0) {
         struct color *average_color = &reduced[*nreduced];
 
