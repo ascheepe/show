@@ -179,6 +179,8 @@ static void ega_hi_show(char *filename)
     int row, col;
     int i;
 
+    FILE *log;
+
     bmp = bitmap_read(filename);
     row_offset = 175 - (bmp->height >> 1);
     col_offset = 320 - (bmp->width >> 1);
@@ -201,22 +203,42 @@ static void ega_hi_show(char *filename)
     median_cut(bmp->palette, bmp->ncolors, 4, palette, &nreduced);
 
     /* Convert optimal colors to ega colors */
+    log = fopen("log.html", "w");
+    if (log == NULL) {
+        xerror("can't open log.html");
+    }
+    fputs("<DOCTYPE html>", log);
+    fputs("<html>", log);
+    fputs("<body>", log);
+    fputs("<table width=\"100%\">", log);
+    fputs("  <tr>", log);
+    fputs("    <th>ideal</th>", log);
+    fputs("    <th>ega</th>",   log);
+    fputs("    <th>index</th>", log);
     for (i = 0; i < nreduced; ++i) {
         struct color *ega_color;
         int closest_color;
 
         closest_color = find_closest_color(&palette[i], ega_palette, 64);
         ega_color = &ega_palette[closest_color];
-        printf("#%02x%02x%02x => #%02x%02x%02x (%02x)\n",
-               palette[i].red, palette[i].green, palette[i].blue,
-               ega_color->red, ega_color->green, ega_color->blue,
-               closest_color);
+        fputs("  <tr>", log);
+        fprintf(log, "    <td bgcolor=\"#%02x%02x%02x\">#%02x%02x%02x</td>\n",
+                palette[i].red, palette[i].green, palette[i].blue,
+                palette[i].red, palette[i].green, palette[i].blue);
+        fprintf(log, "    <td bgcolor=\"#%02x%02x%02x\">#%02x%02x%02x</td>\n",
+                ega_color->red, ega_color->green, ega_color->blue,
+                ega_color->red, ega_color->green, ega_color->blue);
+        fprintf(log, "    <td>%d</td>\n  </tr>\n", closest_color);
 
         palette[i].red   = ega_color->red;
         palette[i].green = ega_color->green;
         palette[i].blue  = ega_color->blue;
 
     }
+    fputs("</body>", log);
+    fputs("</table>", log);
+    fputs("</html>", log);
+    fclose(log);
     for (i = nreduced; i < 16; ++i) {
         palette[i].red   = 0x00;
         palette[i].green = 0x00;
@@ -298,7 +320,7 @@ int main(int argc, char *argv[])
             break;
 
         case EGA_GRAPHICS:
-            show = ega_hi_show1;
+            show = ega_hi_show;
             break;
 
         case VGA_GRAPHICS:
