@@ -124,7 +124,7 @@ static void ega_show(char *filename)
     bitmap_free(bmp);
 }
 
-static void ega_hi_show1(char *filename)
+static void ega_hi_show(char *filename)
 {
     struct color palette[] = {
         { 0x00, 0x00, 0x00 },
@@ -167,11 +167,24 @@ static void ega_hi_show1(char *filename)
 
     bitmap_free(bmp);
 }
-static void ega_hi_show(char *filename)
+
+#if 0
+struct histogram {
+    BYTE index;
+    DWORD count;
+};
+
+static int descending(const void *histogram_a, const void *histogram_b) {
+    struct histogram *a = histogram_a;
+    struct histogram *b = histogram_b;
+
+    return b->count - a->count;
+}
+
+static void ega_hi_show_custom(char *filename)
 {
-    struct color ega_palette[64];
+    struct histogram histogram[256];
     struct color palette[16];
-    int nreduced;
     struct bitmap *bmp;
     int row_offset, col_offset;
     int row, col;
@@ -181,37 +194,25 @@ static void ega_hi_show(char *filename)
     row_offset = 175 - (bmp->height >> 1);
     col_offset = 320 - (bmp->width >> 1);
 
-    /* generate full 64 color ega palette */
-    for (i = 0; i < 64; ++i) {
-        BYTE blue_msb  = (((BYTE)i >> 0) & 1);
-        BYTE green_msb = (((BYTE)i >> 1) & 1);
-        BYTE red_msb   = (((BYTE)i >> 2) & 1);
-        BYTE blue_lsb  = (((BYTE)i >> 3) & 1);
-        BYTE green_lsb = (((BYTE)i >> 4) & 1);
-        BYTE red_lsb   = (((BYTE)i >> 5) & 1);
+    /* take the 16 most used colors for palette */
+    memset(histogram, 0, sizeof(histogram));
+    for (row = 0; row < bmp->height; ++row) {
+        for (col = 0; col < bmp->width; ++col) {
+            BYTE index = bmp->image[row * bmp->width + col];
 
-        ega_palette[i].red   = red_msb   * 0xAA + red_lsb   * 0x55;
-        ega_palette[i].green = green_msb * 0xAA + green_lsb * 0x55;
-        ega_palette[i].blue  = blue_msb  * 0xAA + blue_lsb  * 0x55;
+            histogram[index].index = index;
+            ++histogram[index].count;
+        }
     }
 
-    nreduced = 0;
-    median_cut(bmp->palette, bmp->ncolors, 4, palette, &nreduced);
-    if (nreduced != 16) {
-        xerror("median cut should return 16 colors");
-    }
+    qsort(histogram, 256, sizeof(struct histogram), descending);
 
-    /* Convert optimal colors to ega colors */
     for (i = 0; i < 16; ++i) {
-        struct color *ega_color;
-        int closest_color;
+        struct color *color = &bmp->palette[histogram[i].index];
 
-        closest_color = find_closest_color(&palette[i], ega_palette, 64);
-        ega_color = &ega_palette[closest_color];
-
-        palette[i].red   = ega_color->red;
-        palette[i].green = ega_color->green;
-        palette[i].blue  = ega_color->blue;
+        palette[i].red   = color->red;
+        palette[i].green = color->green;
+        palette[i].blue  = color->blue;
     }
 
     dither(bmp, palette, 16);
@@ -230,6 +231,7 @@ static void ega_hi_show(char *filename)
 
     bitmap_free(bmp);
 }
+#endif
 
 static void vga_show(char *filename)
 {
@@ -299,7 +301,7 @@ int main(int argc, char *argv[])
             break;
 
         case EGA_GRAPHICS:
-            ega_hi_show1(argv[1]);
+            ega_hi_show(argv[1]);
             break;
 
         case VGA_GRAPHICS:
