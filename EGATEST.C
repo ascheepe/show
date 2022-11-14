@@ -15,51 +15,7 @@ struct color {
     BYTE blue;
 };
 
-void set_mode(int mode);
-
-void xerror(char *message)
-{
-    set_mode(0x03);
-    fprintf(stderr, "%s\n", message);
-    exit(1);
-}
-
-
-void *xmalloc(size_t size)
-{
-    void *ptr;
-
-    ptr = malloc(size);
-    if (ptr == NULL) {
-        xerror("malloc: no more memory.");
-    }
-
-    return ptr;
-}
-
-void *xcalloc(size_t nmemb, size_t size)
-{
-    void *ptr;
-
-    ptr = calloc(nmemb, size);
-    if (ptr == NULL) {
-        xerror("xcalloc: no more memory.");
-    }
-
-    return ptr;
-}
-
-void *xrealloc(void *ptr, size_t size)
-{
-    void *new_ptr;
-
-    new_ptr = realloc(ptr, size);
-    if (new_ptr == NULL) {
-        xerror("xrealloc: no more memory.");
-    }
-
-    return new_ptr;
-}
+static BYTE *vmem = (BYTE *) 0xA0000000L;
 
 void set_mode(int mode)
 {
@@ -69,8 +25,6 @@ void set_mode(int mode)
     regs.h.al = mode;
     int86(0x10, &regs, &regs);
 }
-
-static BYTE *vmem = (BYTE *) 0xA0000000L;
 
 /*
  * EGA stores colors as
@@ -129,34 +83,10 @@ void ega_set_palette(struct color *palette, int ncolors)
     }
 }
 
-void ega_plot(int x, int y, int color)
-{
-    BYTE *pixel = vmem + (y << 5) + (y << 3) + (x >> 3);
-    BYTE mask = 0x80 >> (x & 7);
-
-    /*
-     * color selects which planes to write to
-     * this is the palette index value
-     * e.g. 11 is cyan with default palette.
-     */
-    outp(0x3c4, 2);
-    outp(0x3c5, color);
-
-    /* set pixel mask */
-    outp(0x3ce, 8);
-    outp(0x3cf, mask);
-
-    /*
-     * with the mask set above we can just
-     * write all 1's
-     */
-    *pixel |= 0xff;
-}
-
 void ega_hi_plot(int x, int y, int color)
 {
     BYTE *pixel = vmem + (y << 6) + (y << 4) + (x >> 3);
-    BYTE mask = 0x80 >> (x & 7);
+    BYTE  mask  = 0x80 >> (x & 7);
 
     /*
      * color selects which planes to write to
@@ -175,12 +105,6 @@ void ega_hi_plot(int x, int y, int color)
      * write all 1's
      */
     *pixel |= 0xff;
-}
-
-void ega_clear_screen(void)
-{
-    set_mode(0x10);
-    /* memset(vmem, 0, 128 * 1024); */
 }
 
 static void ega_hi_show(void)
@@ -214,6 +138,7 @@ static void ega_hi_show(void)
         if ((row > 0) && (row % (350/16) == 0)) {
             ++color;
         }
+
         for (col = 0; col < 640; ++col) {
             ega_hi_plot(col, row, color);
         }
