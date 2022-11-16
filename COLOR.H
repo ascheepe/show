@@ -19,22 +19,16 @@
 
 #include "system.h"
 
-enum {
-    MAX_RANGE_RED,
-    MAX_RANGE_GREEN,
-    MAX_RANGE_BLUE
-};
-
 struct color {
     BYTE red;
     BYTE green;
     BYTE blue;
 };
 
-BYTE color_to_luma(struct color *);
-int find_closest_color(const struct color *,
-                       const struct color *,
-                       int ncolors);
+BYTE color_to_luma      (struct color *);
+int  find_closest_color (const struct color *,
+                         const struct color *,
+                         int);
 #endif
 
 

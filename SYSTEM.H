@@ -32,15 +32,15 @@ typedef unsigned char  BYTE;
 typedef unsigned short WORD;
 typedef unsigned long  DWORD;
 
-void xerror(char *);
-void *xmalloc(size_t);
-void *xcalloc(size_t, size_t);
-void *xrealloc(void *, size_t);
-BYTE read_byte(FILE *);
-WORD read_word(FILE *);
-DWORD read_dword(FILE *);
-void set_mode(int);
-int file_exists(char *);
+void   xerror      (char *);
+void  *xmalloc     (size_t);
+void  *xcalloc     (size_t, size_t);
+void  *xrealloc    (void *, size_t);
+BYTE   read_byte   (FILE *);
+WORD   read_word   (FILE *);
+DWORD  read_dword  (FILE *);
+void   set_mode    (int);
+int    file_exists (char *);
 
 #endif
 

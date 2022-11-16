@@ -19,9 +19,9 @@
 
 #include "system.h"
 
-void mda_set_graphics_mode(int);
-void mda_plot(int, int, int);
-void mda_clear_screen(void);
+void mda_set_graphics_mode (int);
+void mda_plot              (int, int, int);
+void mda_clear_screen      (void);
 
 #endif
 

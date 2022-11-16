@@ -23,11 +23,11 @@
 extern BYTE *vmem;
 #define VGA_MEM_OFFSET(x, y) (((y) << 8) + ((y << 6)) + (x))
 
-void vga_plot(int, int, int);
-void vga_clear_screen(void);
-void vga_set_color(BYTE, BYTE, BYTE, BYTE);
-void vga_set_palette(struct color *);
-void vga_wait_vblank(void);
+void vga_plot         (int, int, int);
+void vga_clear_screen (void);
+void vga_set_color    (BYTE, BYTE, BYTE, BYTE);
+void vga_set_palette  (struct color *);
+void vga_wait_vblank  (void);
 
 #endif
 
