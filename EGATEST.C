@@ -135,7 +135,7 @@ static void ega_hi_show(void)
 
     color = 0;
     for (row = 0; row < 350; ++row) {
-        if ((row > 0) && (row % (350/16) == 0)) {
+        if ((row + 1) % (350 / 16) == 0) {
             ++color;
         }
 
