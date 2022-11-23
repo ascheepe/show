@@ -21,13 +21,14 @@
 #include "bitmap.h"
 #include "color.h"
 
+#define FILEHEADERSIZE 14
+
 struct bitmap *bitmap_read(char *filename)
 {
     struct bitmap *bmp = NULL;
     FILE *bmp_file = NULL;
     DWORD width;
     DWORD row;
-    DWORD pal_offset;
     int i;
 
     bmp_file = fopen(filename, "rb");
@@ -49,7 +50,6 @@ struct bitmap *bitmap_read(char *filename)
     bmp->reserved     = read_dword(bmp_file);
     bmp->pixel_offset = read_dword(bmp_file);
     bmp->header_size  = read_dword(bmp_file);
-    pal_offset        = 14 + bmp->header_size;
     bmp->width        = read_dword(bmp_file);
     bmp->height       = read_dword(bmp_file);
 
@@ -78,8 +78,8 @@ struct bitmap *bitmap_read(char *filename)
     }
     bmp->ncolors_important = read_dword(bmp_file);
 
-    /* palette data is bgr(a) */
-    fseek(bmp_file, pal_offset, SEEK_SET);
+    /* palette data is bgr(a), located after all the headers */
+    fseek(bmp_file, bmp->header_size + FILEHEADERSIZE, SEEK_SET);
     for (i = 0; i < bmp->ncolors; ++i) {
         bmp->palette[i].blue  = read_byte(bmp_file);
         bmp->palette[i].green = read_byte(bmp_file);
