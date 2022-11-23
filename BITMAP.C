@@ -101,17 +101,16 @@ struct bitmap *bitmap_read(char *filename)
 
     /* pad width to multiple of 4 with formula (x + 4-1) & (-4) */
     width = (bmp->width + 4 - 1) & -4;
-    for (row = 0; row < bmp->height; ++row) {
-        BYTE *row_ptr = bmp->image + row * bmp->width;
 
-        printf("Loading.. %3d%%\r", row * 100 / bmp->height);
-        fflush(stdout);
+    fseek(bmp_file, bmp->pixel_offset, SEEK_SET);
+    for (row = bmp->height; row > 0; --row) {
+        BYTE *row_ptr = bmp->image + (row - 1) * bmp->width;
+        int   to_skip = width - bmp->width;
 
-        /* bitmap stores data beginning at the last line */
-        fseek(bmp_file,
-              bmp->pixel_offset + (bmp->height - row - 1) * width,
-              SEEK_SET);
         fread(row_ptr, bmp->width, 1, bmp_file);
+        if (to_skip > 0) {
+            fseek(bmp_file, to_skip, SEEK_CUR);
+        }
     }
 
     fclose(bmp_file);
