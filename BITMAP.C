@@ -29,6 +29,7 @@ struct bitmap *bitmap_read(char *filename)
     FILE *bmp_file = NULL;
     DWORD width;
     DWORD row;
+    int to_skip;
     int i;
 
     bmp_file = fopen(filename, "rb");
@@ -101,12 +102,12 @@ struct bitmap *bitmap_read(char *filename)
 
     /* pad width to multiple of 4 with formula (x + 4-1) & (-4) */
     width = (bmp->width + 4 - 1) & -4;
+    to_skip = width - bmp->width;
 
     /* read the image data */
     fseek(bmp_file, bmp->pixel_offset, SEEK_SET);
     for (row = bmp->height; row > 0; --row) {
         BYTE *row_ptr = bmp->image + (row - 1) * bmp->width;
-        int   to_skip = width - bmp->width;
 
         if (fread(row_ptr, bmp->width, 1, bmp_file) != 1) {
             xerror("error reading file.");
