@@ -60,6 +60,7 @@ static void mda_show(char *filename)
 
 static void cga_show(char *filename)
 {
+    BYTE palette[4] = { 0, 2, 1, 3 };
     struct bitmap *bmp;
     int row_offset;
     int col_offset;
@@ -75,10 +76,9 @@ static void cga_show(char *filename)
 
     for (row = 0; row < bmp->height; ++row) {
         for (col = 0; col < bmp->width; ++col) {
-            BYTE pal[4] = { 0, 2, 1, 3 };
             BYTE luma = bmp->image[row * bmp->width + col] >> 6;
 
-            cga_plot(col + col_offset, row + row_offset, pal[luma]);
+            cga_plot(col + col_offset, row + row_offset, palette[luma]);
         }
     }
 
