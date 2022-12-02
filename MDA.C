@@ -22,15 +22,15 @@
 
 static BYTE *vmem = (BYTE *) 0xB0000000L;
 
-#define PORT_INDEX 0x3b4
-#define PORT_DATA (PORT_INDEX + 1)
+#define PORT_INDEX   0x3b4
+#define PORT_DATA    (PORT_INDEX + 1)
 #define PORT_CONTROL 0x3b8
-#define PORT_CONFIG 0x3bf
+#define PORT_CONFIG  0x3bf
 
 #define CONFIG_HALF 1
 
 #define MDA_MODE_GRAPHICS 2
-#define MDA_MODE_TEXT 0x20
+#define MDA_MODE_TEXT     0x20
 
 #define TABLE_SIZE 12
 
@@ -98,4 +98,3 @@ void mda_clear_screen(void)
     memset(vmem, 0, 32 * 1024);
 }
 
-

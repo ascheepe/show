@@ -23,6 +23,11 @@
 
 #define FILEHEADERSIZE 14
 
+/*
+ * Read a .BMP file into a bitmap struct.
+ * Also checks if it's a valid file
+ * (320x200, 256c + alpha, uncompressed).
+ */
 struct bitmap *bitmap_read(char *filename)
 {
     struct bitmap *bmp = NULL;
@@ -129,4 +134,3 @@ void bitmap_free(struct bitmap *bmp)
     free(bmp);
 }
 
-

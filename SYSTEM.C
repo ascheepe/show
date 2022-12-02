@@ -20,6 +20,10 @@
 
 #include "system.h"
 
+/*
+ * Return to text mode, print a message and
+ * exit with error.
+ */
 void xerror(char *message)
 {
     set_mode(MODE_TEXT);
@@ -27,7 +31,9 @@ void xerror(char *message)
     exit(1);
 }
 
-
+/*
+ * Allocate memory with error checking.
+ */
 void *xmalloc(size_t size)
 {
     void *ptr;
@@ -40,6 +46,9 @@ void *xmalloc(size_t size)
     return ptr;
 }
 
+/*
+ * Allocate and clear memory with error checking.
+ */
 void *xcalloc(size_t nmemb, size_t size)
 {
     void *ptr;
@@ -52,6 +61,9 @@ void *xcalloc(size_t nmemb, size_t size)
     return ptr;
 }
 
+/*
+ * Reallocate memory with error checking.
+ */
 void *xrealloc(void *ptr, size_t size)
 {
     void *new_ptr;
@@ -64,6 +76,9 @@ void *xrealloc(void *ptr, size_t size)
     return new_ptr;
 }
 
+/*
+ * Read a byte with error checking.
+ */
 BYTE read_byte(FILE *input_file)
 {
     int ch;
@@ -75,6 +90,9 @@ BYTE read_byte(FILE *input_file)
     return ch;
 }
 
+/*
+ * Read a word with error checking.
+ */
 WORD read_word(FILE *input_file)
 {
     BYTE bytes[2];
@@ -86,6 +104,9 @@ WORD read_word(FILE *input_file)
     return (bytes[0] << 0) | (bytes[1] << 8);
 }
 
+/*
+ * Read a double word with error checking.
+ */
 DWORD read_dword(FILE *input_file)
 {
     BYTE bytes[4];
@@ -98,6 +119,9 @@ DWORD read_dword(FILE *input_file)
          | (bytes[2] << 16) | (bytes[3] << 24);
 }
 
+/*
+ * Set mode via bios call.
+ */
 void set_mode(int mode)
 {
     union REGS regs = { 0 };
@@ -107,6 +131,9 @@ void set_mode(int mode)
     int86(0x10, &regs, &regs);
 }
 
+/*
+ * Test if a file exists.
+ */
 int file_exists(char *filename)
 {
     FILE *test = fopen(filename, "rb");
@@ -119,4 +146,3 @@ int file_exists(char *filename)
     return true;
 }
 
-

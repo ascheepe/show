@@ -34,8 +34,10 @@
 static void mda_show(char *filename)
 {
     struct bitmap *bmp;
-    int row_offset, col_offset;
-    int row, col;
+    int row_offset;
+    int col_offset;
+    int row;
+    int col;
 
     bmp = bitmap_read(filename);
     row_offset = 174 - (bmp->height >> 1);
@@ -59,8 +61,10 @@ static void mda_show(char *filename)
 static void cga_show(char *filename)
 {
     struct bitmap *bmp;
-    int row_offset, col_offset;
-    int row, col;
+    int row_offset;
+    int col_offset;
+    int row;
+    int col;
 
     bmp = bitmap_read(filename);
     row_offset = 100 - (bmp->height >> 1);
@@ -102,8 +106,10 @@ static void ega_show(char *filename)
         { 0x00, 0x55, 0x55 }
     };
     struct bitmap *bmp;
-    int row_offset, col_offset;
-    int row, col;
+    int row_offset;
+    int col_offset;
+    int row;
+    int col;
 
     bmp = bitmap_read(filename);
     row_offset = 100 - (bmp->height >> 1);
@@ -145,8 +151,10 @@ static void ega_hi_show(char *filename)
         { 0xFF, 0x55, 0xFF }
     };
     struct bitmap *bmp;
-    int row_offset, col_offset;
-    int row, col;
+    int row_offset;
+    int col_offset;
+    int row;
+    int col;
 
     bmp = bitmap_read(filename);
     row_offset = 175 - (bmp->height >> 1);
@@ -186,8 +194,10 @@ static void ega_hi_show_custom(char *filename)
     struct histogram histogram[256];
     struct color palette[16];
     struct bitmap *bmp;
-    int row_offset, col_offset;
-    int row, col;
+    int row_offset;
+    int col_offset;
+    int row;
+    int col;
     int i;
 
     bmp = bitmap_read(filename);
@@ -236,7 +246,8 @@ static void ega_hi_show_custom(char *filename)
 static void vga_show(char *filename)
 {
     struct bitmap *bmp;
-    int row_offset, col_offset;
+    int row_offset;
+    int col_offset;
     int row;
 
     bmp = bitmap_read(filename);
@@ -320,4 +331,3 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-

@@ -25,6 +25,10 @@
 #include "system.h"
 #include "vga.h"
 
+#define VGA_DAC_PEL_ADDRESS   0x3c8
+#define VGA_DAC               0x3c9
+#define VIDEO_STATUS_REGISTER 0x3da
+
 BYTE *vmem = (BYTE *) 0xA0000000L;
 
 void vga_plot(int x, int y, int color)
@@ -34,17 +38,20 @@ void vga_plot(int x, int y, int color)
 
 void vga_wait_vblank(void)
 {
-    while ((inp(0x03da) & 0x08));
-    while (!(inp(0x03da) & 0x08));
+    while ( (inp(VIDEO_STATUS_REGISTER) & 0x08))
+        ;
+
+    while (!(inp(VIDEO_STATUS_REGISTER) & 0x08))
+        ;
 }
 
-void vga_set_color(BYTE index, BYTE r, BYTE g, BYTE b)
+void vga_set_color(BYTE index, BYTE red, BYTE green, BYTE blue)
 {
     vga_wait_vblank();
-    outp(0x03C8, index);
-    outp(0x03C9, r >> 2);
-    outp(0x03C9, g >> 2);
-    outp(0x03C9, b >> 2);
+    outp(VGA_DAC_PEL_ADDRESS, index);
+    outp(VGA_DAC, red   >> 2);
+    outp(VGA_DAC, green >> 2);
+    outp(VGA_DAC, blue  >> 2);
 }
 
 void vga_clear_screen(void)
@@ -58,12 +65,11 @@ void vga_set_palette(struct color *palette)
     int i;
 
     vga_wait_vblank();
-    outp(0x03C8, 0);
+    outp(VGA_DAC_PEL_ADDRESS, 0);
     for (i = 0; i < 256; ++i) {
-        outp(0x03C9, palette[i].red >> 2);
-        outp(0x03C9, palette[i].green >> 2);
-        outp(0x03C9, palette[i].blue >> 2);
+        outp(VGA_DAC, palette[i].red >> 2);
+        outp(VGA_DAC, palette[i].green >> 2);
+        outp(VGA_DAC, palette[i].blue >> 2);
     }
 }
 
-

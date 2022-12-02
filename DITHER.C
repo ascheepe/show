@@ -22,6 +22,10 @@
 
 #define INDEX(x, y) ((y) * bmp->width + (x))
 
+/*
+ * Add two color values (0 .. 255), clamping them
+ * to the range 0 .. 255.
+ */
 static BYTE add_colors(int a, int b)
 {
     int result = a + b;
@@ -37,6 +41,9 @@ static BYTE add_colors(int a, int b)
     return result;
 }
 
+/*
+ * Convert bitmap to grayscale with dithering in place.
+ */ 
 void grayscale_dither(struct bitmap *bmp, int ncolors)
 {
     int error[2][MAX_BMP_WIDTH];
@@ -71,6 +78,9 @@ void grayscale_dither(struct bitmap *bmp, int ncolors)
     }
 }
 
+/*
+ * Dither a bitmap in place
+ */
 struct error_color {
     int red;
     int green;
@@ -97,13 +107,9 @@ void dither(struct bitmap *bmp, struct color *palette, int ncolors)
 	    int blue_error;
 
             color_ptr = &bmp->palette[bmp->image[INDEX(col, row)]];
-
-            old_pixel.red   = add_colors(color_ptr->red,
-                                         error[0][col].red);
-            old_pixel.green = add_colors(color_ptr->green,
-                                         error[0][col].green);
-            old_pixel.blue  = add_colors(color_ptr->blue,
-                                         error[0][col].blue);
+            old_pixel.red   = add_colors(color_ptr->red, error[0][col].red);
+            old_pixel.green = add_colors(color_ptr->green, error[0][col].green);
+            old_pixel.blue  = add_colors(color_ptr->blue, error[0][col].blue);
 
             palette_index = find_closest_color(&old_pixel, palette, ncolors);
             bmp->image[INDEX(col, row)] = palette_index;
@@ -140,4 +146,3 @@ void dither(struct bitmap *bmp, struct color *palette, int ncolors)
     }
 }
 
-

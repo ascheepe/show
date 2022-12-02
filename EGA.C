@@ -49,8 +49,8 @@ BYTE ega_make_color(struct color *color)
     BYTE green_lsb = green & 1;
     BYTE blue_lsb  = blue  & 1;
 
-    return (blue_msb << 0) | (green_msb << 1) | (red_msb << 2) |
-           (blue_lsb << 3) | (green_lsb << 4) | (red_lsb << 5);
+    return (blue_msb << 0) | (green_msb << 1) | (red_msb << 2)
+         | (blue_lsb << 3) | (green_lsb << 4) | (red_lsb << 5);
 }
 
 /*
@@ -134,4 +134,3 @@ void ega_clear_screen(void)
     /* memset(vmem, 0, 128 * 1024); */
 }
 
-

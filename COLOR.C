@@ -21,6 +21,9 @@
 #include "system.h"
 #include "color.h"
 
+/*
+ * Convert a color to grayscale
+ */
 BYTE color_to_luma(struct color *color)
 {
     return color->red   *  3 /  10
@@ -30,6 +33,10 @@ BYTE color_to_luma(struct color *color)
 
 #define SQR(n) ((DWORD)((n)*(n)))
 
+/*
+ * Finds the closest color to 'color' in palette
+ * 'palette', returning the index of it.
+ */
 int find_closest_color(const struct color *color,
                        const struct color *palette,
                        int ncolors)
@@ -54,4 +61,3 @@ int find_closest_color(const struct color *color,
 
     return match;
 }
-

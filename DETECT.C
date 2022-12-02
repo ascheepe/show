@@ -18,6 +18,13 @@
 
 #include "detect.h"
 
+/*
+ * Try to detect the used graphics card;
+ * MDA, CGA, EGA or VGA.
+ * XXX: instead of returning CGA if all else
+ * fails try better detection of CGA instead
+ * and default to MDA instead.
+ */
 enum graphics_type detect_graphics(void)
 {
     union REGS regs = { 0 };
@@ -71,4 +78,3 @@ enum graphics_type detect_graphics(void)
     return CGA_GRAPHICS;
 }
 
-
