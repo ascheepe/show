@@ -26,7 +26,7 @@
  */
 BYTE color_to_luma(struct color *color)
 {
-    return color->red   *  3 /  10
+    return color->red   * 30 / 100
          + color->green * 59 / 100
          + color->blue  * 11 / 100;
 }
