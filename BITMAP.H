@@ -20,8 +20,8 @@
 #include "color.h"
 #include "system.h"
 
-#define MAX_BMP_WIDTH  320
-#define MAX_BMP_HEIGHT 200
+#define MAX_IMAGE_WIDTH  320
+#define MAX_IMAGE_HEIGHT 200
 
 /*
  * .BMP file structure

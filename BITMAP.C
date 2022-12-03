@@ -60,7 +60,7 @@ struct bitmap *bitmap_read(char *filename)
     bmp->height       = read_dword(bmp_file);
 
     if (bmp->width == 0 || bmp->height == 0
-        || bmp->width > MAX_BMP_WIDTH || bmp->height > MAX_BMP_HEIGHT) {
+        || bmp->width > MAX_IMAGE_WIDTH || bmp->height > MAX_IMAGE_HEIGHT) {
         xerror("image must be 320x200 or less");
     }
 
@@ -113,6 +113,9 @@ struct bitmap *bitmap_read(char *filename)
     fseek(bmp_file, bmp->pixel_offset, SEEK_SET);
     for (row = bmp->height; row > 0; --row) {
         BYTE *row_ptr = bmp->image + (row - 1) * bmp->width;
+
+        printf("Loading %3d%%\r", row * 100 / bmp->height);
+        fflush(stdout);
 
         if (fread(row_ptr, bmp->width, 1, bmp_file) != 1) {
             xerror("error reading file.");
