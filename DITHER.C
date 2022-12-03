@@ -103,9 +103,9 @@ void dither(struct bitmap *bmp, struct color *palette, int ncolors)
 	    int blue_error;
 
             color_ptr = &bmp->palette[bmp->image[INDEX(col, row)]];
-            old_pixel.red   = clamp(color_ptr->red + error[0][col].red);
+            old_pixel.red   = clamp(color_ptr->red   + error[0][col].red);
             old_pixel.green = clamp(color_ptr->green + error[0][col].green);
-            old_pixel.blue  = clamp(color_ptr->blue + error[0][col].blue);
+            old_pixel.blue  = clamp(color_ptr->blue  + error[0][col].blue);
 
             palette_index = find_closest_color(&old_pixel, palette, ncolors);
             bmp->image[INDEX(col, row)] = palette_index;
@@ -142,4 +142,3 @@ void dither(struct bitmap *bmp, struct color *palette, int ncolors)
     }
 }
 
-
