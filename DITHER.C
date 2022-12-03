@@ -44,11 +44,10 @@ static BYTE clamp(int value)
 void grayscale_dither(struct bitmap *bmp, int ncolors)
 {
     int error[2][MAX_IMAGE_WIDTH];
-    size_t error_size = sizeof(int) * 2 * MAX_IMAGE_WIDTH;
     int row;
     int col;
 
-    memset(error, 0, error_size);
+    memset(error, 0, sizeof(error));
     for (row = 0; row < bmp->height - 1; ++row) {
         printf("Dithering %3d%%\r", row * 100 / bmp->height);
         fflush(stdout);
@@ -70,8 +69,8 @@ void grayscale_dither(struct bitmap *bmp, int ncolors)
             error[1][col + 1] += luma_error * 1 / 16;
         }
 
-        memcpy(&error[0][0], &error[1][0], error_size / 2);
-        memset(&error[1][0], 0, error_size / 2);
+	memcpy(&error[0][0], &error[1][0], sizeof(error) / 2);
+	memset(&error[1][0], 0, sizeof(error) / 2);
     }
 }
 
@@ -87,11 +86,10 @@ struct error_color {
 void dither(struct bitmap *bmp, struct color *palette, int ncolors)
 {
     struct error_color error[2][MAX_IMAGE_WIDTH];
-    size_t error_size = sizeof(struct error_color) * 2 * MAX_IMAGE_WIDTH;
     int row;
     int col;
 
-    memset(error, 0, error_size);
+    memset(error, 0, sizeof(error));
     for (row = 0; row < bmp->height - 1; ++row) {
         printf("Dithering %3d%%\r", row * 100 / bmp->height);
         fflush(stdout);
@@ -138,8 +136,9 @@ void dither(struct bitmap *bmp, struct color *palette, int ncolors)
             error[1][col + 1].blue  += blue_error  * 1 / 16;
         }
 
-        memcpy(&error[0][0], &error[1][0], error_size / 2);
-        memset(&error[1][0], 0, error_size / 2);
+	memcpy(&error[0][0], &error[1][0], sizeof(error) / 2);
+	memset(&error[1][0], 0, sizeof(error) / 2);
     }
 }
 
+
