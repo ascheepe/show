@@ -69,8 +69,8 @@ void grayscale_dither(struct bitmap *bmp, int ncolors)
             error[1][col + 1] += luma_error * 1 / 16;
         }
 
-	memcpy(&error[0][0], &error[1][0], sizeof(error) / 2);
-	memset(&error[1][0], 0, sizeof(error) / 2);
+	memcpy(&error[0][0], &error[1][0], sizeof(error[0]));
+	memset(&error[1][0], 0, sizeof(error[1]));
     }
 }
 
@@ -136,9 +136,8 @@ void dither(struct bitmap *bmp, struct color *palette, int ncolors)
             error[1][col + 1].blue  += blue_error  * 1 / 16;
         }
 
-	memcpy(&error[0][0], &error[1][0], sizeof(error) / 2);
-	memset(&error[1][0], 0, sizeof(error) / 2);
+	memcpy(&error[0][0], &error[1][0], sizeof(error[0]));
+	memset(&error[1][0], 0, sizeof(error[1]));
     }
 }
 
-
