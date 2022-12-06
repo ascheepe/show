@@ -199,6 +199,7 @@ static void ega_hi_show_custom(char *filename)
     int row;
     int col;
     int i;
+    FILE *f;
 
     bmp = bitmap_read(filename);
     row_offset = 175 - (bmp->height >> 1);
@@ -217,15 +218,50 @@ static void ega_hi_show_custom(char *filename)
 
     qsort(histogram, 256, sizeof(struct histogram), descending);
 
+    f = fopen("debug.log", "w");
+    if (!f) {
+        xerror("can't open debug.log!");
+    }
+
     for (i = 0; i < 16; ++i) {
         struct color *color = &bmp->palette[histogram[i].index];
 
-        palette[i].red   = color->red;
-        palette[i].green = color->green;
-        palette[i].blue  = color->blue;
+        if (color->red < 0x03) {
+            palette[i].red = 0x00;
+        } else if (color->red < 0x08) {
+            palette[i].red = 0x55;
+        } else if (color->red < 0x0d) {
+            palette[i].red = 0xAA;
+        } else {
+            palette[i].red = 0xFF;
+        }
+
+        if (color->green < 0x03) {
+            palette[i].green = 0x00;
+        } else if (color->green < 0x08) {
+            palette[i].green = 0x55;
+        } else if (color->green < 0x0d) {
+            palette[i].green = 0xAA;
+        } else {
+            palette[i].green = 0xFF;
+        }
+
+        if (color->blue < 0x03) {
+            palette[i].blue = 0x00;
+        } else if (color->blue < 0x08) {
+            palette[i].blue = 0x55;
+        } else if (color->blue < 0x0d) {
+            palette[i].blue = 0xAA;
+        } else {
+            palette[i].blue = 0xFF;
+        }
+        fprintf(f, "%02x%02x%02x\n", palette[i].red, palette[i].green,
+                palette[i].blue);
     }
 
     dither(bmp, palette, 16);
+
+    fclose(f);
 
     set_mode(MODE_EGAHI);
     ega_set_palette(palette, 16);
@@ -331,3 +367,4 @@ int main(int argc, char *argv[])
     return 0;
 }
 
+
