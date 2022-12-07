@@ -20,6 +20,9 @@
 #include "color.h"
 #include "system.h"
 
+#define VGA_WIDTH  320
+#define VGA_HEIGHT 200
+
 extern BYTE *vmem;
 #define VGA_MEM_OFFSET(x, y) (((y) << 8) + ((y << 6)) + (x))
 

@@ -40,8 +40,8 @@ static void mda_show(char *filename)
     int col;
 
     bmp = bitmap_read(filename);
-    row_offset = 174 - (bmp->height >> 1);
-    col_offset = 360 - (bmp->width >> 1);
+    col_offset = MDA_WIDTH  / 2 - bmp->width  / 2;
+    row_offset = MDA_HEIGHT / 2 - bmp->height / 2;
     grayscale_dither(bmp, 2);
 
     mda_set_graphics_mode(1);
@@ -68,8 +68,8 @@ static void cga_show(char *filename)
     int col;
 
     bmp = bitmap_read(filename);
-    row_offset = 100 - (bmp->height >> 1);
-    col_offset = 160 - (bmp->width >> 1);
+    col_offset = CGA_WIDTH  / 2 - bmp->width  / 2;
+    row_offset = CGA_HEIGHT / 2 - bmp->height / 2;
     grayscale_dither(bmp, 4);
 
     set_mode(MODE_CGA2);
@@ -86,51 +86,6 @@ static void cga_show(char *filename)
 }
 
 static void ega_show(char *filename)
-{
-    struct color palette[] = {
-        { 0x00, 0x00, 0x00 },
-        { 0xFF, 0xFF, 0xFF },
-        { 0x55, 0x00, 0x00 },
-        { 0x55, 0xAA, 0xAA },
-        { 0xAA, 0x55, 0xAA },
-        { 0x55, 0xAA, 0x55 },
-        { 0x00, 0x00, 0x55 },
-        { 0xAA, 0xAA, 0x00 },
-        { 0xAA, 0x55, 0x00 },
-        { 0x55, 0x55, 0x00 },
-        { 0xAA, 0x55, 0x55 },
-        { 0x55, 0x55, 0x55 },
-        { 0xAA, 0xAA, 0xAA },
-        { 0xAA, 0xFF, 0xAA },
-        { 0xAA, 0xAA, 0xFF },
-        { 0x00, 0x55, 0x55 }
-    };
-    struct bitmap *bmp;
-    int row_offset;
-    int col_offset;
-    int row;
-    int col;
-
-    bmp = bitmap_read(filename);
-    row_offset = 100 - (bmp->height >> 1);
-    col_offset = 160 - (bmp->width >> 1);
-    dither(bmp, palette, 16);
-
-    set_mode(MODE_EGA);
-
-    for (row = 0; row < bmp->height - 1; ++row) {
-        for (col = 1; col < bmp->width - 1; ++col) {
-            BYTE color;
-
-            color = bmp->image[row * bmp->width + col];
-            ega_plot(col + col_offset, row + row_offset, color);
-        }
-    }
-
-    bitmap_free(bmp);
-}
-
-static void ega_hi_show(char *filename)
 {
     struct color palette[] = {
         { 0x00, 0x00, 0x00 },
@@ -157,8 +112,8 @@ static void ega_hi_show(char *filename)
     int col;
 
     bmp = bitmap_read(filename);
-    row_offset = 175 - (bmp->height >> 1);
-    col_offset = 320 - (bmp->width >> 1);
+    col_offset = EGA_WIDTH  / 2 - bmp->width  / 2;
+    row_offset = EGA_HEIGHT / 2 - bmp->height / 2;
     dither(bmp, palette, 16);
 
     set_mode(MODE_EGAHI);
@@ -178,7 +133,7 @@ static void ega_hi_show(char *filename)
 
 #if 0
 struct histogram {
-    BYTE index;
+    BYTE  index;
     DWORD count;
 };
 
@@ -202,8 +157,8 @@ static void ega_hi_show_custom(char *filename)
     FILE *f;
 
     bmp = bitmap_read(filename);
-    row_offset = 175 - (bmp->height >> 1);
-    col_offset = 320 - (bmp->width >> 1);
+    col_offset = EGA_WIDTH  / 2 - bmp->width  / 2;
+    row_offset = EGA_HEIGHT / 2 - bmp->height / 2;
 
     /* take the 16 most used colors for palette */
     memset(histogram, 0, sizeof(histogram));
@@ -225,38 +180,17 @@ static void ega_hi_show_custom(char *filename)
 
     for (i = 0; i < 16; ++i) {
         struct color *color = &bmp->palette[histogram[i].index];
+	int ega_index;
 
-        if (color->red < 0x03) {
-            palette[i].red = 0x00;
-        } else if (color->red < 0x08) {
-            palette[i].red = 0x55;
-        } else if (color->red < 0x0d) {
-            palette[i].red = 0xAA;
-        } else {
-            palette[i].red = 0xFF;
-        }
+	ega_index = find_closest_color(color, ega_palette, EGA_PALETTE_SIZE);
+	palette[i].red   = ega_palette[ega_index].red;
+	palette[i].green = ega_palette[ega_index].green;
+	palette[i].blue  = ega_palette[ega_index].blue;
 
-        if (color->green < 0x03) {
-            palette[i].green = 0x00;
-        } else if (color->green < 0x08) {
-            palette[i].green = 0x55;
-        } else if (color->green < 0x0d) {
-            palette[i].green = 0xAA;
-        } else {
-            palette[i].green = 0xFF;
-        }
-
-        if (color->blue < 0x03) {
-            palette[i].blue = 0x00;
-        } else if (color->blue < 0x08) {
-            palette[i].blue = 0x55;
-        } else if (color->blue < 0x0d) {
-            palette[i].blue = 0xAA;
-        } else {
-            palette[i].blue = 0xFF;
-        }
-        fprintf(f, "%02x%02x%02x\n", palette[i].red, palette[i].green,
-                palette[i].blue);
+        fprintf(f, "%02x%02x%02x -> %02x%02x%02x %d\n",
+                color->red, color->green, color->blue,
+                palette[i].red, palette[i].green, palette[i].blue,
+                histogram[i].count);
     }
 
     dither(bmp, palette, 16);
@@ -287,14 +221,15 @@ static void vga_show(char *filename)
     int row;
 
     bmp = bitmap_read(filename);
-    row_offset = 100 - (bmp->height >> 1);
-    col_offset = 160 - (bmp->width >> 1);
+    col_offset = VGA_WIDTH  / 2 - bmp->width  / 2;
+    row_offset = VGA_HEIGHT / 2 - bmp->height / 2;
 
     set_mode(MODE_VGA);
     vga_set_palette(bmp->palette);
     for (row = 0; row < bmp->height; ++row) {
-        BYTE *source = bmp->image + row * bmp->width;
-        BYTE *destination = vmem + VGA_MEM_OFFSET(col_offset, row + row_offset);
+        BYTE *source      = bmp->image + row * bmp->width;
+        BYTE *destination = vmem
+                          + VGA_MEM_OFFSET(col_offset, row + row_offset);
 
         memcpy(destination, source, bmp->width);
     }
@@ -348,7 +283,7 @@ int main(int argc, char *argv[])
             break;
 
         case EGA_GRAPHICS:
-            ega_hi_show(argv[1]);
+	    ega_show(argv[1]);
             break;
 
         case VGA_GRAPHICS:

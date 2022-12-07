@@ -20,6 +20,9 @@
 #include "system.h"
 #include "color.h"
 
+#define EGA_WIDTH  640
+#define EGA_HEIGHT 350
+
 void ega_plot         (int, int, int);
 BYTE ega_make_color   (struct color *);
 void ega_plot         (int, int, int);

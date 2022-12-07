@@ -25,10 +25,15 @@ struct color {
     BYTE blue;
 };
 
+#define DEFAULT_PALETTE_SIZE 16
+#define EGA_PALETTE_SIZE     64
+
+extern struct color default_palette[DEFAULT_PALETTE_SIZE];
+extern struct color ega_palette[EGA_PALETTE_SIZE];
+
 BYTE color_to_luma      (struct color *);
 int  find_closest_color (const struct color *,
                          const struct color *,
                          int);
 #endif
 
-
