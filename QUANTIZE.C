@@ -122,36 +122,38 @@ static int by_blue(const void *index_a_ptr, const void *index_b_ptr)
     return a->blue - b->blue;
 }
 
-struct color *median_cut(int row_start, int row_end, int ncuts)
+struct color *median_cut(int row_start, int row_end, int ncuts,
+                         struct color *palette, int *ncolors)
 {
     BYTE *image_offset;
-    size_t image_length;
-    static struct color *palette;
-    static int ncolors;
+    DWORD image_length;
     int max_range;
     int median;
 
     printf("                                                                               \r");
-    printf("Quantize %3d - %3d - %3d: ", row_start, row_end, ncuts);
+    printf("Quantize %3d - %3d: ", row_start, row_end);
 
     if (ncuts == 0) {
         struct color *average_color;
+        int i;
 
-        ++ncolors;
-        palette = xrealloc(palette, sizeof(struct color) * ncolors);
+        i = *ncolors;
+        ++(*ncolors);
+        palette = xrealloc(palette, sizeof(struct color) * *ncolors);
         average_color = get_average_color(row_start, row_end);
-        palette[ncolors - 1].red   = average_color->red;
-        palette[ncolors - 1].green = average_color->green;
-        palette[ncolors - 1].blue  = average_color->blue;
+        palette[i].red   = average_color->red;
+        palette[i].green = average_color->green;
+        palette[i].blue  = average_color->blue;
 
+        printf("#%02x%02x%02x\n", palette[i].red, palette[i].green, palette[i].blue);
         return palette;
     }
 
     max_range = get_max_range(row_start, row_end);
-    printf("MR=%d, sorting.", max_range);
 
     image_offset = bmp->image + bmp->width * row_start;
     image_length = bmp->width * (row_end - row_start);
+    printf("NC=%d, MR=%d, IO=%p, IL=%lu.\r", ncuts, max_range, image_offset, image_length);
 
     if (max_range == MAX_RANGE_RED) {
         qsort(image_offset, image_length, 1, by_red);
@@ -160,21 +162,21 @@ struct color *median_cut(int row_start, int row_end, int ncuts)
     } else {
         qsort(image_offset, image_length, 1, by_blue);
     }
-    printf("done.\r");
-    fflush(stdout);
 
     median = (row_start + row_end) / 2;
 
-    median_cut(row_start, median,  ncuts - 1);
-    median_cut(median   , row_end, ncuts - 1);
+    median_cut(row_start, median,  ncuts - 1, palette, ncolors);
+    median_cut(median   , row_end, ncuts - 1, palette, ncolors);
 }
 
 struct color *quantize(struct bitmap *original_bmp, int ncuts)
 {
     struct color *palette;
+    int ncolors = 0;
 
     bmp = bitmap_copy(original_bmp);
-    palette = median_cut(0, bmp->height, ncuts);
+    palette = median_cut(0, bmp->height, ncuts, NULL, &ncolors);
+    printf("ncolors=%d\n", ncolors);
     bitmap_free(bmp);
     bmp = NULL;
 
