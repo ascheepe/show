@@ -14,32 +14,14 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef COLOR_H
-#define COLOR_H
+#ifndef QUANTIZE_H
+#define QUANTIZE_H
 
 #include "system.h"
+#include "bitmap.h"
 
-struct color {
-    BYTE red;
-    BYTE green;
-    BYTE blue;
-};
+struct color *quantize (struct bitmap *, int);
 
-enum {
-    MAX_RANGE_RED,
-    MAX_RANGE_GREEN,
-    MAX_RANGE_BLUE
-};
-
-#define DEFAULT_PALETTE_SIZE 16
-#define EGA_PALETTE_SIZE     64
-
-extern struct color default_palette[DEFAULT_PALETTE_SIZE];
-extern struct color ega_palette[EGA_PALETTE_SIZE];
-
-BYTE color_to_luma      (struct color *);
-int  find_closest_color (const struct color *,
-                         const struct color *,
-                         int);
 #endif
 
+

@@ -16,6 +16,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "system.h"
 #include "bitmap.h"
@@ -137,3 +138,19 @@ void bitmap_free(struct bitmap *bmp)
     free(bmp);
 }
 
+struct bitmap *bitmap_copy(struct bitmap *bmp)
+{
+    struct bitmap *copy;
+
+    copy = xmalloc(sizeof(*copy));
+    memcpy(copy, bmp, sizeof(*copy));
+    copy->image = xmalloc(bmp->width * bmp->height);
+    memcpy(copy->image, bmp->image, bmp->width * bmp->height);
+    copy->palette = xmalloc(sizeof(struct color) * bmp->ncolors);
+    memcpy(copy->palette, bmp->palette, sizeof(struct color) * bmp->ncolors);
+
+    return copy;
+}
+
+
+

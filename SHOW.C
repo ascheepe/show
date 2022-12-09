@@ -26,6 +26,7 @@
 #include "bitmap.h"
 #include "detect.h"
 #include "dither.h"
+#include "quantize.h"
 #include "mda.h"
 #include "cga.h"
 #include "ega.h"
@@ -87,24 +88,7 @@ static void cga_show(char *filename)
 
 static void ega_show(char *filename)
 {
-    struct color palette[] = {
-        { 0x00, 0x00, 0x00 },
-        { 0x55, 0x55, 0x55 },
-        { 0xAA, 0xAA, 0xAA },
-        { 0xFF, 0xFF, 0xFF },
-        { 0x55, 0x00, 0x00 },
-        { 0xAA, 0x00, 0x00 },
-        { 0xFF, 0x00, 0x00 },
-        { 0x00, 0x55, 0x00 },
-        { 0x00, 0xAA, 0x00 },
-        { 0x00, 0xFF, 0x00 },
-        { 0x00, 0x00, 0x55 },
-        { 0x00, 0x00, 0xAA },
-        { 0xAA, 0x55, 0x00 },
-        { 0xFF, 0xAA, 0x00 },
-        { 0x55, 0xFF, 0xFF },
-        { 0xFF, 0x55, 0xFF }
-    };
+    struct color *palette;
     struct bitmap *bmp;
     int row_offset;
     int col_offset;
@@ -114,10 +98,12 @@ static void ega_show(char *filename)
     bmp = bitmap_read(filename);
     col_offset = EGA_WIDTH  / 2 - bmp->width  / 2;
     row_offset = EGA_HEIGHT / 2 - bmp->height / 2;
+    palette = quantize(bmp, 4);
     dither(bmp, palette, 16);
 
     set_mode(MODE_EGAHI);
     ega_set_palette(palette, 16);
+    free(palette);
 
     for (row = 0; row < bmp->height - 1; ++row) {
         for (col = 1; col < bmp->width - 1; ++col) {
@@ -131,22 +117,8 @@ static void ega_show(char *filename)
     bitmap_free(bmp);
 }
 
-#if 0
-struct histogram {
-    BYTE  index;
-    DWORD count;
-};
-
-static int descending(const void *histogram_a, const void *histogram_b) {
-    struct histogram *a = histogram_a;
-    struct histogram *b = histogram_b;
-
-    return b->count - a->count;
-}
-
-static void ega_hi_show_custom(char *filename)
+static void ega_show_custom(char *filename)
 {
-    struct histogram histogram[256];
     struct color palette[16];
     struct bitmap *bmp;
     int row_offset;
@@ -160,42 +132,7 @@ static void ega_hi_show_custom(char *filename)
     col_offset = EGA_WIDTH  / 2 - bmp->width  / 2;
     row_offset = EGA_HEIGHT / 2 - bmp->height / 2;
 
-    /* take the 16 most used colors for palette */
-    memset(histogram, 0, sizeof(histogram));
-    for (row = 0; row < bmp->height; ++row) {
-        for (col = 0; col < bmp->width; ++col) {
-            BYTE index = bmp->image[row * bmp->width + col];
-
-            histogram[index].index = index;
-            ++histogram[index].count;
-        }
-    }
-
-    qsort(histogram, 256, sizeof(struct histogram), descending);
-
-    f = fopen("debug.log", "w");
-    if (!f) {
-        xerror("can't open debug.log!");
-    }
-
-    for (i = 0; i < 16; ++i) {
-        struct color *color = &bmp->palette[histogram[i].index];
-	int ega_index;
-
-	ega_index = find_closest_color(color, ega_palette, EGA_PALETTE_SIZE);
-	palette[i].red   = ega_palette[ega_index].red;
-	palette[i].green = ega_palette[ega_index].green;
-	palette[i].blue  = ega_palette[ega_index].blue;
-
-        fprintf(f, "%02x%02x%02x -> %02x%02x%02x %d\n",
-                color->red, color->green, color->blue,
-                palette[i].red, palette[i].green, palette[i].blue,
-                histogram[i].count);
-    }
-
     dither(bmp, palette, 16);
-
-    fclose(f);
 
     set_mode(MODE_EGAHI);
     ega_set_palette(palette, 16);
@@ -211,7 +148,6 @@ static void ega_hi_show_custom(char *filename)
 
     bitmap_free(bmp);
 }
-#endif
 
 static void vga_show(char *filename)
 {
