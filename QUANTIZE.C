@@ -22,6 +22,9 @@
 #include "bitmap.h"
 #include "color.h"
 
+/* XXX: this needs a large stack otherwise qsort(!) runs out of it. */
+extern unsigned _stklen = 1024 * 62;
+
 static struct bitmap *bmp;
 
 static int get_max_range(int row_start, int row_end)
@@ -222,3 +225,4 @@ struct color *quantize(struct bitmap *original_bmp, int ncuts)
     return palette;
 }
 
+
