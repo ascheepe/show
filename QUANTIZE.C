@@ -65,16 +65,15 @@ static int get_max_range(int row_start, int row_end)
 
 static struct color *get_average_color(int row_start, int row_end)
 {
-    struct color *average;
+    struct color *average_color;
+    DWORD red_sum   = 0;
+    DWORD green_sum = 0;
+    DWORD blue_sum  = 0;
+    DWORD n = 0;
     int row;
     int col;
 
-    average = xcalloc(1, sizeof(struct color));
     for (row = row_start; row < row_end; ++row) {
-        DWORD red_sum   = 0;
-        DWORD green_sum = 0;
-        DWORD blue_sum  = 0;
-
         for (col = 0; col < bmp->width; ++col) {
             struct color *color;
 
@@ -82,14 +81,48 @@ static struct color *get_average_color(int row_start, int row_end)
             red_sum   += color->red;
             green_sum += color->green;
             blue_sum  += color->blue;
+            ++n;
         }
-
-        average->red   += red_sum   / bmp->width;
-        average->green += green_sum / bmp->width;
-        average->blue  += blue_sum  / bmp->width;
     }
 
-    return average;
+    average_color = xmalloc(sizeof(struct color));
+
+    average_color->red   = red_sum   / n;
+    average_color->green = green_sum / n;
+    average_color->blue  = blue_sum  / n;
+
+    return average_color;
+}
+
+static struct color *get_average_color_x(int row_start, int row_end)
+{
+    struct color *average_color;
+    DWORD red_average   = 0;
+    DWORD green_average = 0;
+    DWORD blue_average  = 0;
+    DWORD n = 0;
+    int row;
+    int col;
+
+    for (row = row_start; row < row_end; ++row) {
+        for (col = 0; col < bmp->width; ++col) {
+            struct color *color;
+
+            color = &bmp->palette[bmp->image[row * bmp->width + col]];
+            red_average   = (color->red   + n * red_average)   / (n + 1);
+            green_average = (color->green + n * green_average) / (n + 1);
+            blue_average  = (color->blue  + n * blue_average)  / (n + 1);
+            ++n;
+        }
+    }
+
+    average_color = xcalloc(1, sizeof(struct color));
+
+    average_color->red   = red_average;
+    average_color->green = green_average;
+    average_color->blue  = blue_average;
+
+    return average_color;
 }
 
 static int by_red(const void *index_a_ptr, const void *index_b_ptr)
@@ -123,7 +156,7 @@ static int by_blue(const void *index_a_ptr, const void *index_b_ptr)
 }
 
 struct color *median_cut(int row_start, int row_end, int ncuts,
-                         struct color *palette, int *ncolors)
+                         struct color **palette, int *ncolors)
 {
     BYTE *image_offset;
     DWORD image_length;
@@ -135,25 +168,28 @@ struct color *median_cut(int row_start, int row_end, int ncuts,
 
     if (ncuts == 0) {
         struct color *average_color;
+        struct color *palette_entry;
         int i;
 
         i = *ncolors;
         ++(*ncolors);
-        palette = xrealloc(palette, sizeof(struct color) * *ncolors);
+        *palette = xrealloc(*palette, sizeof(struct color) * *ncolors);
         average_color = get_average_color(row_start, row_end);
-        palette[i].red   = average_color->red;
-        palette[i].green = average_color->green;
-        palette[i].blue  = average_color->blue;
+        palette_entry = &(*palette)[i];
+        palette_entry->red   = average_color->red;
+        palette_entry->green = average_color->green;
+        palette_entry->blue  = average_color->blue;
+        free(average_color);
 
-        printf("#%02x%02x%02x\n", palette[i].red, palette[i].green, palette[i].blue);
-        return palette;
+        printf("#%02x%02x%02x\n", palette_entry->red, palette_entry->green, palette_entry->blue);
+        return *palette;
     }
 
     max_range = get_max_range(row_start, row_end);
 
     image_offset = bmp->image + bmp->width * row_start;
     image_length = bmp->width * (row_end - row_start);
-    printf("NC=%d, MR=%d, IO=%p, IL=%lu.\r", ncuts, max_range, image_offset, image_length);
+    printf("P=%p, NC=%d, MR=%d, IO=%p, IL=%lu.\r", palette, ncuts, max_range, image_offset, image_length);
 
     if (max_range == MAX_RANGE_RED) {
         qsort(image_offset, image_length, 1, by_red);
@@ -171,12 +207,16 @@ struct color *median_cut(int row_start, int row_end, int ncuts,
 
 struct color *quantize(struct bitmap *original_bmp, int ncuts)
 {
-    struct color *palette;
+    struct color *palette = NULL;
     int ncolors = 0;
+    int i;
 
     bmp = bitmap_copy(original_bmp);
-    palette = median_cut(0, bmp->height, ncuts, NULL, &ncolors);
+    median_cut(0, bmp->height, ncuts, &palette, &ncolors);
     printf("ncolors=%d\n", ncolors);
+    for (i = 0; i < ncolors; ++i) {
+        printf("#%02x%02x%02x\n", palette[i].red, palette[i].green, palette[i].blue);
+    }
     bitmap_free(bmp);
     bmp = NULL;
 

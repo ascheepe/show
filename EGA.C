@@ -134,3 +134,4 @@ void ega_clear_screen(void)
     /* memset(vmem, 0, 128 * 1024); */
 }
 
+
