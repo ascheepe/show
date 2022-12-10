@@ -190,6 +190,11 @@ struct color *median_cut(int row_start, int row_end, int ncuts,
     max_range = get_max_range(row_start, row_end);
 
     image_offset = bmp->image + bmp->width * row_start;
+
+    /*
+     * XXX: size_t is 2 bytes, signed so this overflows for 'larger'
+     *      bitmaps..
+     */
     image_length = bmp->width * (row_end - row_start);
 
     printf("  image base is at %p.\n", bmp->image);
