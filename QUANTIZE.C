@@ -69,7 +69,7 @@ static struct color *get_average_color(int row_start, int row_end)
     DWORD red_sum   = 0;
     DWORD green_sum = 0;
     DWORD blue_sum  = 0;
-    DWORD n = 0;
+    DWORD ncolors   = 0;
     int row;
     int col;
 
@@ -81,15 +81,15 @@ static struct color *get_average_color(int row_start, int row_end)
             red_sum   += color->red;
             green_sum += color->green;
             blue_sum  += color->blue;
-            ++n;
+            ++ncolors;
         }
     }
 
     average_color = xmalloc(sizeof(struct color));
 
-    average_color->red   = red_sum   / n;
-    average_color->green = green_sum / n;
-    average_color->blue  = blue_sum  / n;
+    average_color->red   = red_sum   / ncolors;
+    average_color->green = green_sum / ncolors;
+    average_color->blue  = blue_sum  / ncolors;
 
     return average_color;
 }
@@ -116,7 +116,7 @@ static struct color *get_average_color_x(int row_start, int row_end)
         }
     }
 
-    average_color = xcalloc(1, sizeof(struct color));
+    average_color = xmalloc(sizeof(struct color));
 
     average_color->red   = red_average;
     average_color->green = green_average;
@@ -127,30 +127,30 @@ static struct color *get_average_color_x(int row_start, int row_end)
 
 static int by_red(const void *index_a_ptr, const void *index_b_ptr)
 {
-    int index_a = *((int*)index_a_ptr);
-    int index_b = *((int*)index_b_ptr);
-    struct color *a = &bmp->palette[bmp->image[index_a]];
-    struct color *b = &bmp->palette[bmp->image[index_b]];
+    BYTE index_a = *((BYTE *)index_a_ptr);
+    BYTE index_b = *((BYTE *)index_b_ptr);
+    struct color *a = &bmp->palette[index_a];
+    struct color *b = &bmp->palette[index_b];
 
     return a->red - b->red;
 }
 
 static int by_green(const void *index_a_ptr, const void *index_b_ptr)
 {
-    int index_a = *((int*)index_a_ptr);
-    int index_b = *((int*)index_b_ptr);
-    struct color *a = &bmp->palette[bmp->image[index_a]];
-    struct color *b = &bmp->palette[bmp->image[index_b]];
+    BYTE index_a = *((BYTE *)index_a_ptr);
+    BYTE index_b = *((BYTE *)index_b_ptr);
+    struct color *a = &bmp->palette[index_a];
+    struct color *b = &bmp->palette[index_b];
 
     return a->green - b->green;
 }
 
 static int by_blue(const void *index_a_ptr, const void *index_b_ptr)
 {
-    int index_a = *((int*)index_a_ptr);
-    int index_b = *((int*)index_b_ptr);
-    struct color *a = &bmp->palette[bmp->image[index_a]];
-    struct color *b = &bmp->palette[bmp->image[index_b]];
+    BYTE index_a = *((BYTE *)index_a_ptr);
+    BYTE index_b = *((BYTE *)index_b_ptr);
+    struct color *a = &bmp->palette[index_a];
+    struct color *b = &bmp->palette[index_b];
 
     return a->blue - b->blue;
 }
@@ -159,12 +159,11 @@ struct color *median_cut(int row_start, int row_end, int ncuts,
                          struct color **palette, int *ncolors)
 {
     BYTE *image_offset;
-    DWORD image_length;
+    size_t image_length;
     int max_range;
     int median;
 
-    printf("                                                                               \r");
-    printf("Quantize %3d - %3d: ", row_start, row_end);
+    printf("Quantize %3d - %3d\n", row_start, row_end);
 
     if (ncuts == 0) {
         struct color *average_color;
@@ -181,7 +180,7 @@ struct color *median_cut(int row_start, int row_end, int ncuts,
         palette_entry->blue  = average_color->blue;
         free(average_color);
 
-        printf("#%02x%02x%02x\n", palette_entry->red, palette_entry->green, palette_entry->blue);
+        printf("  adding color #%02x%02x%02x\n", palette_entry->red, palette_entry->green, palette_entry->blue);
         return *palette;
     }
 
@@ -189,18 +188,22 @@ struct color *median_cut(int row_start, int row_end, int ncuts,
 
     image_offset = bmp->image + bmp->width * row_start;
     image_length = bmp->width * (row_end - row_start);
-    printf("P=%p, NC=%d, MR=%d, IO=%p, IL=%lu.\r", palette, ncuts, max_range, image_offset, image_length);
 
+    printf("  image base is at %p.\n", bmp->image);
     if (max_range == MAX_RANGE_RED) {
+        printf("  sorting by red at %p, len %d.\n", image_offset, image_length);
         qsort(image_offset, image_length, 1, by_red);
     } else if (max_range == MAX_RANGE_GREEN) {
+        printf("  sorting by green at %p, len %d.\n", image_offset, image_length);
         qsort(image_offset, image_length, 1, by_green);
     } else {
+        printf("  sorting by blue at %p, len %d.\n", image_offset, image_length);
         qsort(image_offset, image_length, 1, by_blue);
     }
 
     median = (row_start + row_end) / 2;
 
+    printf("  median is at %d, redoing for bottom and top part now.\n", median);
     median_cut(row_start, median,  ncuts - 1, palette, ncolors);
     median_cut(median   , row_end, ncuts - 1, palette, ncolors);
 }
@@ -213,14 +216,9 @@ struct color *quantize(struct bitmap *original_bmp, int ncuts)
 
     bmp = bitmap_copy(original_bmp);
     median_cut(0, bmp->height, ncuts, &palette, &ncolors);
-    printf("ncolors=%d\n", ncolors);
-    for (i = 0; i < ncolors; ++i) {
-        printf("#%02x%02x%02x\n", palette[i].red, palette[i].green, palette[i].blue);
-    }
     bitmap_free(bmp);
     bmp = NULL;
 
     return palette;
 }
 
-

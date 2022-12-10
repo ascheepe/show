@@ -141,11 +141,19 @@ void bitmap_free(struct bitmap *bmp)
 struct bitmap *bitmap_copy(struct bitmap *bmp)
 {
     struct bitmap *copy;
+    int row;
 
     copy = xmalloc(sizeof(*copy));
     memcpy(copy, bmp, sizeof(*copy));
-    copy->image = xmalloc(bmp->width * bmp->height);
-    memcpy(copy->image, bmp->image, bmp->width * bmp->height);
+
+    copy->image = xcalloc(bmp->height, bmp->width);
+    for (row = 0; row < bmp->height; ++row) {
+        BYTE *source      = bmp->image  + row * bmp->width;
+        BYTE *destination = copy->image + row * bmp->width;
+
+        memcpy(destination, source, bmp->width);
+    }
+
     copy->palette = xmalloc(sizeof(struct color) * bmp->ncolors);
     memcpy(copy->palette, bmp->palette, sizeof(struct color) * bmp->ncolors);
 
@@ -153,4 +161,3 @@ struct bitmap *bitmap_copy(struct bitmap *bmp)
 }
 
 
-
