@@ -22,7 +22,7 @@
 #include "bitmap.h"
 #include "color.h"
 
-/* XXX: this needs a large stack otherwise qsort(!) runs out of it. */
+/* XXX: this needs a large stack otherwise we run out of it. */
 extern unsigned _stklen = 1024 * 62;
 
 static struct bitmap *bmp;
