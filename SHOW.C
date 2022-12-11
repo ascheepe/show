@@ -132,38 +132,6 @@ static void ega_show(char *filename)
     bitmap_free(bmp);
 }
 
-static void ega_show_custom(char *filename)
-{
-    struct color palette[16];
-    struct bitmap *bmp;
-    int row_offset;
-    int col_offset;
-    int row;
-    int col;
-    int i;
-    FILE *f;
-
-    bmp = bitmap_read(filename);
-    col_offset = EGA_WIDTH  / 2 - bmp->width  / 2;
-    row_offset = EGA_HEIGHT / 2 - bmp->height / 2;
-
-    dither(bmp, palette, 16);
-
-    set_mode(MODE_EGAHI);
-    ega_set_palette(palette, 16);
-
-    for (row = 0; row < bmp->height - 1; ++row) {
-        for (col = 1; col < bmp->width - 1; ++col) {
-            BYTE color;
-
-            color = bmp->image[row * bmp->width + col];
-            ega_hi_plot(col + col_offset, row + row_offset, color);
-        }
-    }
-
-    bitmap_free(bmp);
-}
-
 static void vga_show(char *filename)
 {
     struct bitmap *bmp;
