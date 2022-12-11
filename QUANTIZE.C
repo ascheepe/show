@@ -199,13 +199,13 @@ struct color *median_cut(int row_start, int row_end, int ncuts,
 
     printf("  image base is at %p.\n", bmp->image);
     if (max_range == MAX_RANGE_RED) {
-        printf("  sorting by red at %p, len %d.\n", image_offset, image_length);
+        printf("  sorting by red at %p, len %u.\n", image_offset, image_length);
         qsort(image_offset, image_length, 1, by_red);
     } else if (max_range == MAX_RANGE_GREEN) {
-        printf("  sorting by green at %p, len %d.\n", image_offset, image_length);
+        printf("  sorting by green at %p, len %u.\n", image_offset, image_length);
         qsort(image_offset, image_length, 1, by_green);
     } else {
-        printf("  sorting by blue at %p, len %d.\n", image_offset, image_length);
+        printf("  sorting by blue at %p, len %u.\n", image_offset, image_length);
         qsort(image_offset, image_length, 1, by_blue);
     }
 
