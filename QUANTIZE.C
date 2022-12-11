@@ -171,13 +171,13 @@ struct color *median_cut(int row_start, int row_end, int ncuts,
     if (ncuts == 0) {
         struct color *average_color;
         struct color *palette_entry;
-        int i;
+        int palette_index;
 
-        i = *ncolors;
+        palette_index = *ncolors;
         ++(*ncolors);
         *palette = xrealloc(*palette, sizeof(struct color) * *ncolors);
         average_color = get_average_color(row_start, row_end);
-        palette_entry = &(*palette)[i];
+        palette_entry = &(*palette)[palette_index];
         palette_entry->red   = average_color->red;
         palette_entry->green = average_color->green;
         palette_entry->blue  = average_color->blue;
