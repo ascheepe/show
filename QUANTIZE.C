@@ -192,7 +192,7 @@ struct color *median_cut(int row_start, int row_end, int ncuts,
     image_offset = bmp->image + bmp->width * row_start;
 
     /*
-     * XXX: size_t is 2 bytes, signed so this overflows for 'larger'
+     * XXX: size_t is 2 bytes, so this overflows for 'larger'
      *      bitmaps..
      */
     image_length = bmp->width * (row_end - row_start);
@@ -230,4 +230,3 @@ struct color *quantize(struct bitmap *original_bmp, int ncuts)
     return palette;
 }
 
-
