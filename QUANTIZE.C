@@ -69,37 +69,6 @@ static int get_max_range(int row_start, int row_end)
 static struct color *get_average_color(int row_start, int row_end)
 {
     struct color *average_color;
-    DWORD red_sum   = 0;
-    DWORD green_sum = 0;
-    DWORD blue_sum  = 0;
-    DWORD ncolors   = 0;
-    int row;
-    int col;
-
-    for (row = row_start; row < row_end; ++row) {
-        for (col = 0; col < bmp->width; ++col) {
-            struct color *color;
-
-            color = &bmp->palette[bmp->image[row * bmp->width + col]];
-            red_sum   += color->red;
-            green_sum += color->green;
-            blue_sum  += color->blue;
-            ++ncolors;
-        }
-    }
-
-    average_color = xmalloc(sizeof(struct color));
-
-    average_color->red   = red_sum   / ncolors;
-    average_color->green = green_sum / ncolors;
-    average_color->blue  = blue_sum  / ncolors;
-
-    return average_color;
-}
-
-static struct color *get_average_color_x(int row_start, int row_end)
-{
-    struct color *average_color;
     DWORD red_average   = 0;
     DWORD green_average = 0;
     DWORD blue_average  = 0;
@@ -112,18 +81,18 @@ static struct color *get_average_color_x(int row_start, int row_end)
             struct color *color;
 
             color = &bmp->palette[bmp->image[row * bmp->width + col]];
-            red_average   = (color->red   + n * red_average)   / (n + 1);
-            green_average = (color->green + n * green_average) / (n + 1);
-            blue_average  = (color->blue  + n * blue_average)  / (n + 1);
+            red_average   = ((color->red   * 8) + n * red_average)   / (n + 1);
+            green_average = ((color->green * 8) + n * green_average) / (n + 1);
+            blue_average  = ((color->blue  * 8) + n * blue_average)  / (n + 1);
             ++n;
         }
     }
 
     average_color = xmalloc(sizeof(struct color));
 
-    average_color->red   = red_average;
-    average_color->green = green_average;
-    average_color->blue  = blue_average;
+    average_color->red   = (red_average   + 4) / 8;
+    average_color->green = (green_average + 4) / 8;
+    average_color->blue  = (blue_average  + 4) / 8;
 
     return average_color;
 }
