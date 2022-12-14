@@ -112,7 +112,7 @@ static void show(char *filename)
             row_offset = CGA_HEIGHT / 2 - bmp->height / 2;
             grayscale_dither(bmp, 4);
 
-            set_mode(MODE_CGA2);
+            set_mode(MODE_CGA);
 
             for (row = 0; row < bmp->height; ++row) {
                 for (col = 0; col < bmp->width; ++col) {
@@ -130,7 +130,7 @@ static void show(char *filename)
             row_offset = EGA_HEIGHT / 2 - bmp->height / 2;
             dither(bmp, ega_palette, 16);
 
-            set_mode(MODE_EGAHI);
+            set_mode(MODE_EGA);
             ega_set_palette(ega_palette, 16);
 
             for (row = 0; row < bmp->height - 1; ++row) {
@@ -138,7 +138,7 @@ static void show(char *filename)
                     BYTE color;
 
                     color = bmp->image[row * bmp->width + col];
-                    ega_hi_plot(col + col_offset, row + row_offset, color);
+                    ega_plot(col + col_offset, row + row_offset, color);
                 }
             }
         break;

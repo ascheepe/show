@@ -82,32 +82,8 @@ void ega_set_palette(struct color *palette, int ncolors)
 
 void ega_plot(int x, int y, int color)
 {
-    BYTE *pixel = vmem + (y << 5) + (y << 3) + (x >> 3);
-    BYTE mask = 0x80 >> (x & 7);
-
-    /*
-     * color selects which planes to write to
-     * this is the palette index value
-     * e.g. 11 is cyan with default palette.
-     */
-    outp(0x3c4, 2);
-    outp(0x3c5, color);
-
-    /* set pixel mask */
-    outp(0x3ce, 8);
-    outp(0x3cf, mask);
-
-    /*
-     * with the mask set above we can just
-     * write all 1's
-     */
-    *pixel |= 0xff;
-}
-
-void ega_hi_plot(int x, int y, int color)
-{
     BYTE *pixel = vmem + (y << 6) + (y << 4) + (x >> 3);
-    BYTE mask = 0x80 >> (x & 7);
+    BYTE  mask  = 0x80 >> (x & 7);
 
     /*
      * color selects which planes to write to
