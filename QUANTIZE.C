@@ -148,8 +148,8 @@ static int by_blue(const void *index_a_ptr, const void *index_b_ptr)
  * work very well (yet) and is very slow with regard to sorting
  * all the pixels.
  */
-struct color *median_cut(int row_start, int row_end, int ncuts,
-                         struct color **palette, int *ncolors)
+static struct color *median_cut(int row_start, int row_end, int ncuts,
+                                struct color **palette, int *ncolors)
 {
     BYTE *image_offset;
     size_t image_length;
