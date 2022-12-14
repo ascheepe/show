@@ -72,7 +72,7 @@ static struct color *get_average_color(int row_start, int row_end)
     DWORD red_average   = 0;
     DWORD green_average = 0;
     DWORD blue_average  = 0;
-    DWORD n = 0;
+    DWORD ncolors       = 0;
     int row;
     int col;
 
@@ -81,9 +81,12 @@ static struct color *get_average_color(int row_start, int row_end)
             struct color *color;
 
             color = &bmp->palette[bmp->image[row * bmp->width + col]];
-            red_average   = ((color->red   * 8) + n * red_average)   / (n + 1);
-            green_average = ((color->green * 8) + n * green_average) / (n + 1);
-            blue_average  = ((color->blue  * 8) + n * blue_average)  / (n + 1);
+            red_average   = (color->red   * 8 + ncolors * red_average)
+                          / (n + 1);
+            green_average = (color->green * 8 + ncolors * green_average)
+                          / (n + 1);
+            blue_average  = (color->blue  * 8 + ncolors * blue_average)
+                          / (n + 1);
             ++n;
         }
     }
