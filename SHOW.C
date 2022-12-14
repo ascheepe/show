@@ -184,11 +184,6 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    if (!file_exists(argv[1])) {
-        printf("file does not exist.\n");
-        return 1;
-    }
-
     /* clear screen */
     set_mode(MODE_TEXT);
 
@@ -221,4 +216,3 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-
