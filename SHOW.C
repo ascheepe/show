@@ -32,129 +32,28 @@
 #include "ega.h"
 #include "vga.h"
 
-static void mda_show(char *filename)
-{
-    struct bitmap *bmp;
-    int row_offset;
-    int col_offset;
-    int row;
-    int col;
+static struct color ega_palette[] = {
+    { 0x00, 0x00, 0x00 },
+    { 0x55, 0x55, 0x55 },
+    { 0xAA, 0xAA, 0xAA },
+    { 0xFF, 0xFF, 0xFF },
+    { 0x55, 0x00, 0x00 },
+    { 0xAA, 0x00, 0x00 },
+    { 0xFF, 0x00, 0x00 },
+    { 0x00, 0x55, 0x00 },
+    { 0x00, 0xAA, 0x00 },
+    { 0x00, 0xFF, 0x00 },
+    { 0x00, 0x00, 0xAA },
+    { 0x00, 0x00, 0xFF },
+    { 0xAA, 0x55, 0x00 },
+    { 0xFF, 0xAA, 0x00 },
+    { 0xFF, 0x00, 0xFF },
+    { 0x00, 0xFF, 0xFF },
+};
 
-    bmp = bitmap_read(filename);
-    col_offset = MDA_WIDTH  / 2 - bmp->width  / 2;
-    row_offset = MDA_HEIGHT / 2 - bmp->height / 2;
-    grayscale_dither(bmp, 2);
-
-    mda_set_mode(MDA_GRAPHICS_MODE);
-    mda_clear_screen();
-
-    for (row = 0; row < bmp->height; ++row) {
-        for (col = 0; col < bmp->width; ++col) {
-            BYTE luma = bmp->image[row * bmp->width + col] >> 7;
-
-            mda_plot(col + col_offset, row + row_offset, luma);
-        }
-    }
-
-    bitmap_free(bmp);
-}
-
-static void cga_show(char *filename)
-{
-    BYTE palette[4] = { 0, 2, 1, 3 };
-    struct bitmap *bmp;
-    int row_offset;
-    int col_offset;
-    int row;
-    int col;
-
-    bmp = bitmap_read(filename);
-    col_offset = CGA_WIDTH  / 2 - bmp->width  / 2;
-    row_offset = CGA_HEIGHT / 2 - bmp->height / 2;
-    grayscale_dither(bmp, 4);
-
-    set_mode(MODE_CGA2);
-
-    for (row = 0; row < bmp->height; ++row) {
-        for (col = 0; col < bmp->width; ++col) {
-            BYTE luma = bmp->image[row * bmp->width + col] >> 6;
-
-            cga_plot(col + col_offset, row + row_offset, palette[luma]);
-        }
-    }
-
-    bitmap_free(bmp);
-}
-
-static void ega_show(char *filename)
-{
-    struct color palette[] = {
-        { 0x00, 0x00, 0x00 },
-        { 0x55, 0x55, 0x55 },
-        { 0xAA, 0xAA, 0xAA },
-        { 0xFF, 0xFF, 0xFF },
-        { 0x55, 0x00, 0x00 },
-        { 0xAA, 0x00, 0x00 },
-        { 0xFF, 0x00, 0x00 },
-        { 0x00, 0x55, 0x00 },
-        { 0x00, 0xAA, 0x00 },
-        { 0x00, 0xFF, 0x00 },
-        { 0x00, 0x00, 0xAA },
-        { 0x00, 0x00, 0xFF },
-        { 0xAA, 0x55, 0x00 },
-        { 0xFF, 0xAA, 0x00 },
-        { 0xFF, 0x00, 0xFF },
-        { 0x00, 0xFF, 0xFF },
-    };
-    struct bitmap *bmp;
-    int row_offset;
-    int col_offset;
-    int row;
-    int col;
-
-    bmp = bitmap_read(filename);
-    col_offset = EGA_WIDTH  / 2 - bmp->width  / 2;
-    row_offset = EGA_HEIGHT / 2 - bmp->height / 2;
-    dither(bmp, palette, 16);
-
-    set_mode(MODE_EGAHI);
-    ega_set_palette(palette, 16);
-
-    for (row = 0; row < bmp->height - 1; ++row) {
-        for (col = 1; col < bmp->width - 1; ++col) {
-            BYTE color;
-
-            color = bmp->image[row * bmp->width + col];
-            ega_hi_plot(col + col_offset, row + row_offset, color);
-        }
-    }
-
-    bitmap_free(bmp);
-}
-
-static void vga_show(char *filename)
-{
-    struct bitmap *bmp;
-    int row_offset;
-    int col_offset;
-    int row;
-
-    bmp = bitmap_read(filename);
-    col_offset = VGA_WIDTH  / 2 - bmp->width  / 2;
-    row_offset = VGA_HEIGHT / 2 - bmp->height / 2;
-
-    set_mode(MODE_VGA);
-    vga_set_palette(bmp->palette);
-    for (row = 0; row < bmp->height; ++row) {
-        BYTE *source      = bmp->image + row * bmp->width;
-        BYTE *destination = vga_vmem
-                          + VGA_MEM_OFFSET(col_offset, row + row_offset);
-
-        memcpy(destination, source, bmp->width);
-    }
-
-    bitmap_free(bmp);
-}
+static BYTE cga_palette[4] = {
+    0, 2, 1, 3
+};
 
 #define KEY_ESC 27
 static int quit(void)
@@ -166,7 +65,7 @@ static int quit(void)
             case KEY_ESC:
                 return 1;
 
-            /* read away special key */
+                /* read away special key */
             case 0:
             case 224:
                 getch();
@@ -177,6 +76,101 @@ static int quit(void)
     return 0;
 }
 
+static void show(char *filename)
+{
+    struct bitmap *bmp;
+    int row_offset;
+    int col_offset;
+    int row;
+    int col;
+
+    /* clear screen */
+    set_mode(MODE_TEXT);
+
+    bmp = bitmap_read(filename);
+
+    switch (detect_graphics()) {
+        case MDA_GRAPHICS:
+            col_offset = MDA_WIDTH  / 2 - bmp->width  / 2;
+            row_offset = MDA_HEIGHT / 2 - bmp->height / 2;
+            grayscale_dither(bmp, 2);
+
+            mda_set_mode(MDA_GRAPHICS_MODE);
+            mda_clear_screen();
+
+            for (row = 0; row < bmp->height; ++row) {
+                for (col = 0; col < bmp->width; ++col) {
+                    BYTE luma = bmp->image[row * bmp->width + col] >> 7;
+
+                    mda_plot(col + col_offset, row + row_offset, luma);
+                }
+            }
+        break;
+
+        case CGA_GRAPHICS:
+            col_offset = CGA_WIDTH  / 2 - bmp->width  / 2;
+            row_offset = CGA_HEIGHT / 2 - bmp->height / 2;
+            grayscale_dither(bmp, 4);
+
+            set_mode(MODE_CGA2);
+
+            for (row = 0; row < bmp->height; ++row) {
+                for (col = 0; col < bmp->width; ++col) {
+                    BYTE luma = bmp->image[row * bmp->width + col] >> 6;
+                    BYTE color;
+
+                    color = cga_palette[luma];
+                    cga_plot(col + col_offset, row + row_offset, color);
+                }
+            }
+        break;
+
+        case EGA_GRAPHICS:
+            col_offset = EGA_WIDTH  / 2 - bmp->width  / 2;
+            row_offset = EGA_HEIGHT / 2 - bmp->height / 2;
+            dither(bmp, ega_palette, 16);
+
+            set_mode(MODE_EGAHI);
+            ega_set_palette(ega_palette, 16);
+
+            for (row = 0; row < bmp->height - 1; ++row) {
+                for (col = 1; col < bmp->width - 1; ++col) {
+                    BYTE color;
+
+                    color = bmp->image[row * bmp->width + col];
+                    ega_hi_plot(col + col_offset, row + row_offset, color);
+                }
+            }
+        break;
+
+        case VGA_GRAPHICS:
+            col_offset = VGA_WIDTH  / 2 - bmp->width  / 2;
+            row_offset = VGA_HEIGHT / 2 - bmp->height / 2;
+
+            set_mode(MODE_VGA);
+            vga_set_palette(bmp->palette);
+
+            for (row = 0; row < bmp->height; ++row) {
+                BYTE *source      = bmp->image + row * bmp->width;
+                BYTE *destination = vga_vmem
+                                  + VGA_MEM_OFFSET(col_offset,
+                                                   row + row_offset);
+
+                memcpy(destination, source, bmp->width);
+            }
+        break;
+    }
+
+    bitmap_free(bmp);
+
+    while (!quit()) {
+        /* wait */
+    }
+
+    set_mode(MODE_TEXT);
+}
+
+
 int main(int argc, char *argv[])
 {
     if (argc != 2) {
@@ -184,35 +178,9 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    /* clear screen */
-    set_mode(MODE_TEXT);
+    show(argv[1]);
 
-    switch (detect_graphics()) {
-        case MDA_GRAPHICS:
-            mda_show(argv[1]);
-            break;
-
-        case CGA_GRAPHICS:
-            cga_show(argv[1]);
-            break;
-
-        case EGA_GRAPHICS:
-	    ega_show(argv[1]);
-            break;
-
-        case VGA_GRAPHICS:
-            vga_show(argv[1]);
-            break;
-
-        default:
-            xerror("Error detecting graphics card.");
-    }
-
-    while (!quit()) {
-        /* wait */
-    }
-
-    set_mode(MODE_TEXT);
     return 0;
 }
 
+
