@@ -25,8 +25,12 @@
 /* XXX: this needs a large stack otherwise we run out of it. */
 extern unsigned _stklen = 1024 * 62;
 
+/* a private copy of a bitmap to work on */
 static struct bitmap *bmp;
 
+/*
+ * See which color component has the largest range.
+ */
 static int get_max_range(int row_start, int row_end)
 {
     BYTE red_max   = 0;
@@ -66,6 +70,12 @@ static int get_max_range(int row_start, int row_end)
     return MAX_RANGE_BLUE;
 }
 
+/*
+ * Calculate a running average for the pixel colors between
+ * row_start and row_end.
+ * Scale color components by 8 to have a low precision fixed-point
+ * value which we can round back in the end.
+ */
 static struct color *get_average_color(int row_start, int row_end)
 {
     struct color *average_color;
@@ -82,7 +92,7 @@ static struct color *get_average_color(int row_start, int row_end)
 
             color = &bmp->palette[bmp->image[row * bmp->width + col]];
             red_average   = (color->red   * 8 + ncolors * red_average)
-                          / (n + 1);
+			  / (n + 1);
             green_average = (color->green * 8 + ncolors * green_average)
                           / (n + 1);
             blue_average  = (color->blue  * 8 + ncolors * blue_average)
@@ -100,6 +110,9 @@ static struct color *get_average_color(int row_start, int row_end)
     return average_color;
 }
 
+/*
+ * Sort pixels by a color component.
+ */
 static int by_red(const void *index_a_ptr, const void *index_b_ptr)
 {
     BYTE index_a = *((BYTE *)index_a_ptr);
@@ -130,6 +143,11 @@ static int by_blue(const void *index_a_ptr, const void *index_b_ptr)
     return a->blue - b->blue;
 }
 
+/*
+ * Do a median-cut to generate an optimal palette. This doesn't
+ * work very well (yet) and is very slow with regard to sorting
+ * all the pixels.
+ */
 struct color *median_cut(int row_start, int row_end, int ncuts,
                          struct color **palette, int *ncolors)
 {
@@ -183,6 +201,9 @@ struct color *median_cut(int row_start, int row_end, int ncuts,
     median_cut(median   , row_end, ncuts - 1, palette, ncolors);
 }
 
+/*
+ * Median cut driver.
+ */
 struct color *quantize(struct bitmap *original_bmp, int ncuts)
 {
     struct color *palette = NULL;
@@ -197,3 +218,4 @@ struct color *quantize(struct bitmap *original_bmp, int ncuts)
     return palette;
 }
 
+
