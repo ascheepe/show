@@ -147,7 +147,7 @@ static void vga_show(char *filename)
     vga_set_palette(bmp->palette);
     for (row = 0; row < bmp->height; ++row) {
         BYTE *source      = bmp->image + row * bmp->width;
-        BYTE *destination = vmem
+        BYTE *destination = vga_vmem
                           + VGA_MEM_OFFSET(col_offset, row + row_offset);
 
         memcpy(destination, source, bmp->width);

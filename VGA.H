@@ -23,7 +23,7 @@
 #define VGA_WIDTH  320
 #define VGA_HEIGHT 200
 
-extern BYTE *vmem;
+extern BYTE *vga_vmem;
 #define VGA_MEM_OFFSET(x, y) (((y) << 8) + ((y << 6)) + (x))
 
 void vga_plot         (int, int, int);
@@ -34,4 +34,3 @@ void vga_wait_vblank  (void);
 
 #endif
 
-
