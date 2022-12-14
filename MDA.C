@@ -46,7 +46,7 @@ static BYTE mda_text_table[TABLE_SIZE] = {
     0x02, 0x0d, 0x0b, 0x0c,
 };
 
-void mda_set_graphics_mode(int on)
+void mda_set_mode(int mode)
 {
     BYTE *table = NULL;
     int i;
@@ -57,7 +57,7 @@ void mda_set_graphics_mode(int on)
     outp(PORT_CONFIG, CONFIG_HALF);
 
     /* change mode w/o screen on */
-    if (on) {
+    if (mode == MDA_GRAPHICS_MODE) {
         table = mda_graphics_table;
         outp(PORT_CONTROL, MDA_MODE_GRAPHICS);
     } else {
@@ -72,7 +72,7 @@ void mda_set_graphics_mode(int on)
     }
 
     /* set screen on, page 0 (2 = 0b10) */
-    if (on) {
+    if (mode == MDA_GRAPHICS_MODE) {
         outp(PORT_CONTROL, MDA_MODE_GRAPHICS | 2);
     } else {
         outp(PORT_CONTROL, MDA_MODE_TEXT | 2);

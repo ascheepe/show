@@ -45,7 +45,7 @@ static void mda_show(char *filename)
     row_offset = MDA_HEIGHT / 2 - bmp->height / 2;
     grayscale_dither(bmp, 2);
 
-    mda_set_graphics_mode(1);
+    mda_set_mode(MDA_GRAPHICS_MODE);
     mda_clear_screen();
 
     for (row = 0; row < bmp->height; ++row) {
