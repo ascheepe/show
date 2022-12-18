@@ -33,8 +33,7 @@
 #include "vga.h"
 
 /*
- * Custom palette for ega mode tries
- * to have a broad color spectrum.
+ * Custom palette for ega mode tries to have a broad color spectrum.
  */
 static struct color ega_palette[] = {
     { 0x00, 0x00, 0x00 },
@@ -56,10 +55,8 @@ static struct color ega_palette[] = {
 };
 
 /*
- * The cga palette is for monochrome
- * monitors, so basically a grayscale
- * gradient. The darker version of the
- * default color palette is meant for
+ * The cga palette is for monochrome monitors, so basically a grayscale
+ * gradient. The darker version of the default color palette is meant for
  * this usage.
  */
 static BYTE cga_palette[4] = {
@@ -76,7 +73,7 @@ static int quit(void)
             case KEY_ESC:
                 return 1;
 
-                /* read away special key */
+            /* read away special key */
             case 0:
             case 224:
                 getch();
