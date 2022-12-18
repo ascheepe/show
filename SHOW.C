@@ -32,6 +32,10 @@
 #include "ega.h"
 #include "vga.h"
 
+/*
+ * Custom palette for ega mode tries
+ * to have a broad color spectrum.
+ */
 static struct color ega_palette[] = {
     { 0x00, 0x00, 0x00 },
     { 0x55, 0x55, 0x55 },
@@ -51,6 +55,13 @@ static struct color ega_palette[] = {
     { 0x00, 0xFF, 0xFF },
 };
 
+/*
+ * The cga palette is for monochrome
+ * monitors, so basically a grayscale
+ * gradient. The darker version of the
+ * default color palette is meant for
+ * this usage.
+ */
 static BYTE cga_palette[4] = {
     0, 2, 1, 3
 };
@@ -76,7 +87,7 @@ static int quit(void)
     return 0;
 }
 
-static void show(char *filename)
+int main(int argc, char **argv)
 {
     struct bitmap *bmp;
     int row_offset;
@@ -84,10 +95,15 @@ static void show(char *filename)
     int row;
     int col;
 
+    if (argc != 2) {
+        printf("usage: show imagefile\n");
+        return 1;
+    }
+
     /* clear screen */
     set_mode(MODE_TEXT);
 
-    bmp = bitmap_read(filename);
+    bmp = bitmap_read(argv[1]);
 
     switch (detect_graphics()) {
         case MDA_GRAPHICS:
@@ -168,19 +184,6 @@ static void show(char *filename)
     }
 
     set_mode(MODE_TEXT);
-}
-
-
-int main(int argc, char *argv[])
-{
-    if (argc != 2) {
-        printf("usage: show imagefile\n");
-        return 1;
-    }
-
-    show(argv[1]);
-
     return 0;
 }
-
 
