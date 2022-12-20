@@ -128,10 +128,9 @@ int main(int argc, char **argv)
 
             for (row = 0; row < bmp->height; ++row) {
                 for (col = 0; col < bmp->width; ++col) {
-                    BYTE luma = bmp->image[row * bmp->width + col] >> 6;
-                    BYTE color;
+                    BYTE luma  = bmp->image[row * bmp->width + col] >> 6;
+                    BYTE color = cga_palette[luma];
 
-                    color = cga_palette[luma];
                     cga_plot(col + col_offset, row + row_offset, color);
                 }
             }
