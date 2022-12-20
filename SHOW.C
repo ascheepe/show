@@ -17,6 +17,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include <time.h>
 #include <conio.h>
 #include <dos.h>
@@ -64,24 +65,22 @@ static BYTE cga_palette[4] = {
 };
 
 #define KEY_ESC 27
-static int quit(void)
+#define NO_KEY -1
+static int get_key(void)
 {
-    if (kbhit()) {
-        switch (getch()) {
-            case 'q':
-            case 'Q':
-            case KEY_ESC:
-                return 1;
+    int ch = NO_KEY;
 
-            /* read away special key */
-            case 0:
-            case 224:
-                getch();
-                break;
+    if (kbhit()) {
+        ch = getch();
+
+        /* read away special key */
+        if (ch == 0 || ch == 224) {
+            getch();
+            ch = NO_KEY;
         }
     }
 
-    return 0;
+    return ch;
 }
 
 int main(int argc, char **argv)
@@ -176,8 +175,13 @@ int main(int argc, char **argv)
 
     bitmap_free(bmp);
 
-    while (!quit()) {
-        /* wait */
+    while (1) {
+        int ch;
+
+        ch = tolower(get_key());
+        if (ch == 'q' || ch == KEY_ESC) {
+            break;
+        }
     }
 
     set_mode(MODE_TEXT);
