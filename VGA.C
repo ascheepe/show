@@ -29,11 +29,17 @@
 #define VGA_DAC               0x3c9
 #define VIDEO_STATUS_REGISTER 0x3da
 
-BYTE *vga_vmem = (BYTE *) 0xA0000000L;
+#define INDEX(x, y) (((y) << 8) + ((y) << 6) + (x))
+static BYTE *vga_vmem = (BYTE *) 0xA0000000L;
+
+void *vga_get_ptr(int x, int y)
+{
+    return &vga_vmem[INDEX(x, y)];
+}
 
 void vga_plot(int x, int y, int color)
 {
-    vga_vmem[VGA_MEM_OFFSET(x, y)] = color;
+    vga_vmem[INDEX(x, y)] = color;
 }
 
 void vga_wait_vblank(void)
@@ -73,3 +79,4 @@ void vga_set_palette(struct color *palette)
     }
 }
 
+

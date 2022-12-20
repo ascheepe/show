@@ -24,13 +24,14 @@
 #define VGA_HEIGHT 200
 
 extern BYTE *vga_vmem;
-#define VGA_MEM_OFFSET(x, y) (((y) << 8) + ((y << 6)) + (x))
 
-void vga_plot         (int, int, int);
-void vga_clear_screen (void);
-void vga_set_color    (BYTE, BYTE, BYTE, BYTE);
-void vga_set_palette  (struct color *);
-void vga_wait_vblank  (void);
+void *vga_get_ptr      (int x, int y);
+void  vga_plot         (int x, int y, int color);
+void  vga_clear_screen (void);
+void  vga_set_color    (BYTE index, BYTE red, BYTE green, BYTE blue);
+void  vga_set_palette  (struct color *palette);
+void  vga_wait_vblank  (void);
 
 #endif
 
+
