@@ -163,11 +163,9 @@ int main(int argc, char **argv)
             vga_set_palette(bmp->palette);
 
             for (row = 0; row < bmp->height; ++row) {
-                BYTE *source = bmp->image + row * bmp->width;
-                BYTE *destination;
-
-                destination = vga_get_ptr(col_offset, row + row_offset);
-                memcpy(destination, source, bmp->width);
+                memcpy(vga_get_ptr(col_offset, row + row_offset),
+                       bmp->image + row * bmp->width,
+                       bmp->width);
             }
         break;
     }
