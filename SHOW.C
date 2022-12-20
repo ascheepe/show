@@ -146,9 +146,8 @@ int main(int argc, char **argv)
 
             for (row = 0; row < bmp->height - 1; ++row) {
                 for (col = 1; col < bmp->width - 1; ++col) {
-                    BYTE color;
+                    BYTE color = bmp->image[row * bmp->width + col];
 
-                    color = bmp->image[row * bmp->width + col];
                     ega_plot(col + col_offset, row + row_offset, color);
                 }
             }
