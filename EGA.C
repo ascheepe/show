@@ -35,7 +35,7 @@ static BYTE *vmem = (BYTE *) 0xA0000000L;
  * | +------------- Reserved
  * +--------------- Reserved
  */
-BYTE ega_make_color(struct color *color)
+static BYTE ega_make_color(struct color *color)
 {
     BYTE red   = color->red   >> 6;
     BYTE green = color->green >> 6;
