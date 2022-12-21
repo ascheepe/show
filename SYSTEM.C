@@ -115,8 +115,8 @@ DWORD read_dword(FILE *input_file)
         xerror("read_dword: I/O Error");
     }
 
-    return (bytes[0] <<  0) | (bytes[1] << 8)
-         | (bytes[2] << 16) | (bytes[3] << 24);
+    return ((DWORD)bytes[0] <<  0) | ((DWORD)bytes[1] << 8)
+         | ((DWORD)bytes[2] << 16) | ((DWORD)bytes[3] << 24);
 }
 
 /*
@@ -146,3 +146,4 @@ int file_exists(char *filename)
     return true;
 }
 
+
