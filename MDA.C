@@ -51,8 +51,6 @@ void mda_set_mode(int mode)
     BYTE *table = NULL;
     int i;
 
-    disable();
-
     /* half mode configuration */
     outp(PORT_CONFIG, CONFIG_HALF);
 
@@ -77,8 +75,6 @@ void mda_set_mode(int mode)
     } else {
         outp(PORT_CONTROL, MDA_MODE_TEXT | 2);
     }
-
-    enable();
 }
 
 void mda_plot(int x, int y, int color)
