@@ -23,8 +23,6 @@
 #define VGA_WIDTH  320
 #define VGA_HEIGHT 200
 
-extern BYTE *vga_vmem;
-
 void *vga_get_ptr      (int x, int y);
 void  vga_plot         (int x, int y, int color);
 void  vga_clear_screen (void);
@@ -34,4 +32,3 @@ void  vga_wait_vblank  (void);
 
 #endif
 
-

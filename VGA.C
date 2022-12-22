@@ -30,16 +30,16 @@
 #define VIDEO_STATUS_REGISTER 0x3da
 
 #define INDEX(x, y) (((y) << 8) + ((y) << 6) + (x))
-static BYTE *vga_vmem = (BYTE *) 0xA0000000L;
+static BYTE *vmem = (BYTE *) 0xA0000000L;
 
 void *vga_get_ptr(int x, int y)
 {
-    return &vga_vmem[INDEX(x, y)];
+    return &vmem[INDEX(x, y)];
 }
 
 void vga_plot(int x, int y, int color)
 {
-    vga_vmem[INDEX(x, y)] = color;
+    vmem[INDEX(x, y)] = color;
 }
 
 void vga_wait_vblank(void)
@@ -63,7 +63,7 @@ void vga_set_color(BYTE index, BYTE red, BYTE green, BYTE blue)
 void vga_clear_screen(void)
 {
     vga_set_color(0, 0, 0, 0);
-    memset(vga_vmem, 0, 320 * 200);
+    memset(vmem, 0, 320 * 200);
 }
 
 void vga_set_palette(struct color *palette)
