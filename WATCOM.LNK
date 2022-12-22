@@ -1,0 +1,13 @@
+option stack=8192
+system dos
+name show
+file BITMAP.OBJ
+file CGA.OBJ
+file COLOR.OBJ
+file DETECT.OBJ
+file DITHER.OBJ
+file EGA.OBJ
+file MDA.OBJ
+file SHOW.OBJ
+file SYSTEM.OBJ
+file VGA.OBJ

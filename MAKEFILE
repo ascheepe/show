@@ -1,0 +1,14 @@
+OBJS=   BITMAP.OBJ CGA.OBJ COLOR.OBJ DETECT.OBJ DITHER.OBJ EGA.OBJ MDA.OBJ SHOW.OBJ SYSTEM.OBJ VGA.OBJ
+PRG=    show.exe
+CFLAGS = -c -mc -G -O -Z -f-
+
+$(PRG): $(OBJS)
+  tlink @tc.lnk
+        
+.C.OBJ:
+  tcc $(CFLAGS) $<
+
+clean:
+  del *.exe
+  del *.obj
+
