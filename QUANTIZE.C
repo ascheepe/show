@@ -148,8 +148,8 @@ static int by_blue(const void *index_a_ptr, const void *index_b_ptr)
  * work very well (yet) and is very slow with regard to sorting
  * all the pixels.
  */
-static struct color *median_cut(int row_start, int row_end, int ncuts,
-                                struct color **palette, int *ncolors)
+static void median_cut(int row_start, int row_end, int ncuts,
+                       struct color **palette, int *ncolors)
 {
     BYTE *image_offset;
     size_t image_length;
@@ -174,7 +174,7 @@ static struct color *median_cut(int row_start, int row_end, int ncuts,
         free(average_color);
 
         printf("  adding color #%02x%02x%02x\n", palette_entry->red, palette_entry->green, palette_entry->blue);
-        return *palette;
+        return;
     }
 
     max_range = get_max_range(row_start, row_end);
@@ -218,4 +218,3 @@ struct color *quantize(struct bitmap *original_bmp, int ncuts)
     return palette;
 }
 
-
