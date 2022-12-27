@@ -144,9 +144,13 @@ static int by_blue(const void *index_a_ptr, const void *index_b_ptr)
 }
 
 /*
- * Do a median-cut to generate an optimal palette. This doesn't
- * work very well (yet) and is very slow with regard to sorting
- * all the pixels.
+ * Do a median-cut to generate an optimal palette. This is
+ * very slow with regard to sorting all the pixels under
+ * Turbo C.
+ *
+ * The selected colors are ok but further mapping to a
+ * fixed palette makes some pretty far off, this needs
+ * more work.
  */
 static void median_cut(int row_start, int row_end, int ncuts,
                        struct color **palette, int *ncolors)
@@ -156,8 +160,12 @@ static void median_cut(int row_start, int row_end, int ncuts,
     int max_range;
     int median;
 
-    printf("Quantize %3d - %3d\n", row_start, row_end);
+    printf("Quantizing\r");
 
+    /*
+     * We are done for this bucket, take the average color
+     * and add it to the palette.
+     */
     if (ncuts == 0) {
         struct color *average_color;
         struct color *palette_entry;
@@ -172,8 +180,6 @@ static void median_cut(int row_start, int row_end, int ncuts,
         palette_entry->green = average_color->green;
         palette_entry->blue  = average_color->blue;
         free(average_color);
-
-        printf("  adding color #%02x%02x%02x\n", palette_entry->red, palette_entry->green, palette_entry->blue);
         return;
     }
 
@@ -182,21 +188,25 @@ static void median_cut(int row_start, int row_end, int ncuts,
     image_offset = bmp->image + bmp->width * row_start;
     image_length = bmp->width * (row_end - row_start);
 
-    printf("  image base is at %p.\n", bmp->image);
-    if (max_range == MAX_RANGE_RED) {
-        printf("  sorting by red at %p, len %u.\n", image_offset, image_length);
-        qsort(image_offset, image_length, 1, by_red);
-    } else if (max_range == MAX_RANGE_GREEN) {
-        printf("  sorting by green at %p, len %u.\n", image_offset, image_length);
-        qsort(image_offset, image_length, 1, by_green);
-    } else {
-        printf("  sorting by blue at %p, len %u.\n", image_offset, image_length);
-        qsort(image_offset, image_length, 1, by_blue);
+    switch (max_range) {
+        case MAX_RANGE_RED:
+            qsort(image_offset, image_length, 1, by_red);
+            break;
+
+        case MAX_RANGE_GREEN:
+            qsort(image_offset, image_length, 1, by_green);
+            break;
+
+        case MAX_RANGE_BLUE:
+            qsort(image_offset, image_length, 1, by_blue);
+            break;
+
+        default:
+            xerror("median_cut: illegal max_range.");
     }
 
     median = (row_start + row_end) / 2;
 
-    printf("  median is at %d, redoing for bottom and top part now.\n", median);
     median_cut(row_start, median,  ncuts - 1, palette, ncolors);
     median_cut(median   , row_end, ncuts - 1, palette, ncolors);
 }
