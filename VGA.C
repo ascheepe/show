@@ -32,7 +32,7 @@
 #define INDEX(x, y) (((y) << 8) + ((y) << 6) + (x))
 static BYTE *vmem = (BYTE *) 0xA0000000L;
 
-void *vga_get_ptr(int x, int y)
+void *vga_vmem_ptr(int x, int y)
 {
     return &vmem[INDEX(x, y)];
 }

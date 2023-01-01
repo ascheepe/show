@@ -14,8 +14,10 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <dos.h>
 
 #include "system.h"
@@ -24,10 +26,22 @@
  * Return to text mode, print a message and
  * exit with error.
  */
-void xerror(char *message)
+void die(char *fmt, ...)
 {
+    va_list vp;
+
     set_mode(MODE_TEXT);
-    fprintf(stderr, "%s\n", message);
+
+    va_start(vp, fmt);
+    vfprintf(stderr, fmt, vp);
+    va_end(vp);
+
+    if (fmt[0] && fmt[strlen(fmt) - 1] == ':') {
+        fprintf(stderr, " %s", strerror(errno));
+    } else {
+        fputc(' ', stderr);
+    }
+
     exit(1);
 }
 
@@ -40,7 +54,7 @@ void *xmalloc(size_t size)
 
     ptr = malloc(size);
     if (ptr == NULL) {
-        xerror("malloc: no more memory.");
+        die("malloc: out of memory.");
     }
 
     return ptr;
@@ -55,7 +69,7 @@ void *xcalloc(size_t nmemb, size_t size)
 
     ptr = calloc(nmemb, size);
     if (ptr == NULL) {
-        xerror("xcalloc: no more memory.");
+        die("calloc: out of memory.");
     }
 
     return ptr;
@@ -70,7 +84,7 @@ void *xrealloc(void *ptr, size_t size)
 
     new_ptr = realloc(ptr, size);
     if (new_ptr == NULL) {
-        xerror("xrealloc: no more memory.");
+        die("realloc: out of memory");
     }
 
     return new_ptr;
@@ -84,7 +98,7 @@ BYTE read_byte(FILE *input_file)
     int ch;
 
     if ((ch = fgetc(input_file)) == EOF) {
-        xerror("read_byte: I/O Error");
+        die("read_byte: input error.");
     }
 
     return ch;
@@ -98,7 +112,7 @@ WORD read_word(FILE *input_file)
     BYTE bytes[2];
 
     if (fread(bytes, 2, 1, input_file) != 1) {
-        xerror("read_word: I/O Error");
+        die("read_word: input error.");
     }
 
     return (bytes[0] << 0) | (bytes[1] << 8);
@@ -112,7 +126,7 @@ DWORD read_dword(FILE *input_file)
     BYTE bytes[4];
 
     if (fread(bytes, 4, 1, input_file) != 1) {
-        xerror("read_dword: I/O Error");
+        die("read_dword: input error.");
     }
 
     return ((DWORD)bytes[0] <<  0) | ((DWORD)bytes[1] << 8)

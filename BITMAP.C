@@ -40,17 +40,17 @@ struct bitmap *bitmap_read(char *filename)
 
     bmp_file = fopen(filename, "rb");
     if (bmp_file == NULL) {
-        xerror("can't open file");
+        die("bitmap_read:");
     }
 
     bmp = malloc(sizeof(struct bitmap));
     if (bmp == NULL) {
-        xerror("can't allocate image struct");
+        die("bitmap_read: out of memory.");
     }
 
     bmp->file_type = read_word(bmp_file);
     if (bmp->file_type != 0x4d42) {
-        xerror("not a bitmap file");
+        die("bitmap_read: not a bitmap file.");
     }
 
     bmp->file_size    = read_dword(bmp_file);
@@ -60,19 +60,22 @@ struct bitmap *bitmap_read(char *filename)
     bmp->width        = read_dword(bmp_file);
     bmp->height       = read_dword(bmp_file);
 
-    if (bmp->width == 0 || bmp->height == 0
-        || bmp->width > MAX_IMAGE_WIDTH || bmp->height > MAX_IMAGE_HEIGHT) {
-        xerror("image must be 320x200 or less");
+    if (bmp->width  == 0
+     || bmp->height == 0
+     || bmp->width  > MAX_IMAGE_WIDTH
+     || bmp->height > MAX_IMAGE_HEIGHT) {
+        die("bitmap_read: image must be 320x200 or less.");
     }
 
     bmp->planes = read_word(bmp_file);
-    if ((bmp->bpp = read_word(bmp_file)) > 8) {
-        xerror("unsupported bit depth");
+    bmp->bpp    = read_word(bmp_file);
+    if (bmp->bpp > 8) {
+        die("bitmap_read: unsupported bit depth (%d).", bmp->bpp);
     }
 
     bmp->compression = read_dword(bmp_file);
     if (bmp->compression != 0) {
-        xerror("compression is not supported");
+        die("bitmap_read: compression is not supported.");
     }
 
     bmp->image_size = read_dword(bmp_file);
@@ -81,7 +84,7 @@ struct bitmap *bitmap_read(char *filename)
     bmp->ncolors    = read_dword(bmp_file);
     bmp->palette    = malloc(sizeof(*bmp->palette) * bmp->ncolors);
     if (bmp->palette == NULL) {
-        xerror("can't allocate memory for image palette");
+        die("bitmap_read: out of memory.");
     }
     bmp->ncolors_important = read_dword(bmp_file);
 
@@ -103,7 +106,7 @@ struct bitmap *bitmap_read(char *filename)
 
     bmp->image = malloc(bmp->width * bmp->height);
     if (bmp->image == NULL) {
-        xerror("can't allocate memory for image");
+        die("bitmap_read: out of memory.");
     }
 
     /* pad width to multiple of 4 with formula (x + 4-1) & (-4) */
@@ -119,7 +122,7 @@ struct bitmap *bitmap_read(char *filename)
         fflush(stdout);
 
         if (fread(row_ptr, bmp->width, 1, bmp_file) != 1) {
-            xerror("error reading file.");
+            die("bitmap_read: input error.");
         }
 
         if (to_skip > 0) {
@@ -146,13 +149,8 @@ struct bitmap *bitmap_copy(struct bitmap *bmp)
     copy = xmalloc(sizeof(*copy));
     memcpy(copy, bmp, sizeof(*copy));
 
-    copy->image = xcalloc(bmp->height, bmp->width);
-    for (row = 0; row < bmp->height; ++row) {
-        BYTE *source      = bmp->image  + row * bmp->width;
-        BYTE *destination = copy->image + row * bmp->width;
-
-        memcpy(destination, source, bmp->width);
-    }
+    copy->image = xmalloc(bmp->height * bmp->width);
+    memcpy(copy->image, bmp->image, bmp->height * bmp->width);
 
     copy->palette = xmalloc(sizeof(struct color) * bmp->ncolors);
     memcpy(copy->palette, bmp->palette, sizeof(struct color) * bmp->ncolors);
@@ -161,3 +159,4 @@ struct bitmap *bitmap_copy(struct bitmap *bmp)
 }
 
 
+
