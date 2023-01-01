@@ -52,7 +52,10 @@ int find_closest_color(const struct color *color,
         WORD green_diff = abs(color->green - palette_color->green);
         WORD blue_diff  = abs(color->blue  - palette_color->blue);
 
-        distance = SQR(red_diff) + SQR(green_diff) + SQR(blue_diff);
+        distance = SQR(red_diff)   * 3
+                 + SQR(green_diff) * 4
+                 + SQR(blue_diff)  * 2;
+
         if (distance < max_distance) {
             max_distance = distance;
             match = i;
@@ -62,4 +65,3 @@ int find_closest_color(const struct color *color,
     return match;
 }
 
-
