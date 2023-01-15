@@ -43,10 +43,7 @@ struct bitmap *bitmap_read(char *filename)
         die("bitmap_read:");
     }
 
-    bmp = malloc(sizeof(struct bitmap));
-    if (bmp == NULL) {
-        die("bitmap_read: out of memory.");
-    }
+    bmp = xmalloc(sizeof(struct bitmap));
 
     bmp->file_type = read_word(bmp_file);
     if (bmp->file_type != 0x4d42) {
@@ -82,10 +79,8 @@ struct bitmap *bitmap_read(char *filename)
     bmp->x_ppm      = read_dword(bmp_file);
     bmp->y_ppm      = read_dword(bmp_file);
     bmp->ncolors    = read_dword(bmp_file);
-    bmp->palette    = malloc(sizeof(*bmp->palette) * bmp->ncolors);
-    if (bmp->palette == NULL) {
-        die("bitmap_read: out of memory.");
-    }
+    bmp->palette    = xmalloc(sizeof(*bmp->palette) * bmp->ncolors);
+
     bmp->ncolors_important = read_dword(bmp_file);
 
     /* palette data is bgr(a), located after all the headers */
@@ -104,10 +99,7 @@ struct bitmap *bitmap_read(char *filename)
         bmp->palette[i].blue  = 0;
     }
 
-    bmp->image = malloc(bmp->width * bmp->height);
-    if (bmp->image == NULL) {
-        die("bitmap_read: out of memory.");
-    }
+    bmp->image = xmalloc(bmp->width * bmp->height);
 
     /* pad width to multiple of 4 with formula (x + 4-1) & (-4) */
     width = (bmp->width + 4 - 1) & -4;
