@@ -22,7 +22,7 @@
 #define CGA_WIDTH  320
 #define CGA_HEIGHT 200
 
-void cga_plot         (int, int, int);
+void cga_plot         (int x, int y, int color);
 void cga_clear_screen (void);
 
 #endif

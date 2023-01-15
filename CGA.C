@@ -23,10 +23,10 @@ static BYTE *vmem = (BYTE *) 0xB8000000L;
 
 /*
  * CGA has 4 pixels per byte as such:
- * bit: 7 6  5 4  3 2  1 0
- * clr: 1 0  1 0  1 0  1 0
- *      \/   \/   \/   \/
- * pix:  0    1    2    3
+ * bit   : 7 6  5 4  3 2  1 0
+ * color : 1 0  1 0  1 0  1 0
+ *          \/   \/   \/   \/
+ * pixel :  0    1    2    3
  *
  * even lines are stored at B8000
  * while odd lines are offset +2000;
@@ -39,7 +39,7 @@ void cga_plot(int x, int y, int color)
     BYTE bitpos = x & 3;
     BYTE value = *pixel;
 
-    /* clear masked ps */
+    /* clear masked pixels */
     value &= mask[bitpos];
 
     /*
@@ -60,5 +60,4 @@ void cga_clear_screen(void)
 {
     memset(vmem, 0, 16 * 1024);
 }
-
 
