@@ -107,10 +107,11 @@ struct bitmap *bitmap_read(char *filename)
 
     /* read the image data */
     fseek(bmp_file, bmp->pixel_offset, SEEK_SET);
-    for (row = bmp->height; row > 0; --row) {
-        BYTE *row_ptr = bmp->image + (row - 1) * bmp->width;
+    row = bmp->height;
+    while (row-- > 0) {
+        BYTE *row_ptr = bmp->image + row * bmp->width;
 
-        printf("Loading %3d%%\r", row * 100 / bmp->height);
+        printf("Loading %3d%%\r", 100 - row * 100 / bmp->height);
         fflush(stdout);
 
         if (fread(row_ptr, bmp->width, 1, bmp_file) != 1) {
