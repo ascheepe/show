@@ -141,3 +141,41 @@ void dither(struct bitmap *bmp, struct color *palette, int ncolors)
     }
 }
 
+void ordered_dither(struct bitmap *bmp, struct color *palette, int ncolors)
+{
+    BYTE M[8][8] = {
+        {  0, 32,  8, 40,  2, 34, 10, 42 },
+        { 48, 16, 56, 24, 50, 18, 58, 26 },
+        { 12, 44,  4, 36, 14, 46,  6, 38 },
+        { 60, 28, 52, 20, 62, 30, 54, 22 },
+        {  3, 35, 11, 43,  1, 33,  9, 41 },
+        { 51, 19, 59, 27, 49, 17, 57, 25 },
+        { 15, 47,  7, 39, 13, 45,  5, 37 },
+        { 63, 31, 55, 23, 61, 29, 53, 21 }
+    };
+    int row;
+    int col;
+
+    for (row = 0; row < bmp->height; ++row) {
+        BYTE Mrow = row & 7;
+
+        printf("Dithering %3d%%\r", row * 100 / bmp->height);
+        fflush(stdout);
+
+        for (col = 0; col < bmp->width; ++col) {
+            int palette_index = bmp->image[INDEX(col, row)];
+            struct color *color_ptr = &bmp->palette[palette_index];
+            struct color  new_color;
+            BYTE Mcol = col & 7;
+
+            new_color.red   = clamp(color_ptr->red   + 4 * M[Mrow][Mcol] / 64);
+            new_color.green = clamp(color_ptr->green + 4 * M[Mrow][Mcol] / 64);
+            new_color.blue  = clamp(color_ptr->blue  + 4 * M[Mrow][Mcol] / 64);
+
+            palette_index = find_closest_color(&new_color, palette, ncolors);
+            bmp->image[INDEX(col, row)] = palette_index;
+        }
+    }
+}
+
+
