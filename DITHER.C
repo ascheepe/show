@@ -168,9 +168,9 @@ void ordered_dither(struct bitmap *bmp, struct color *palette, int ncolors)
             struct color  new_color;
             BYTE Mcol = col & 7;
 
-            new_color.red   = clamp(color_ptr->red   + 4 * M[Mrow][Mcol] / 64);
-            new_color.green = clamp(color_ptr->green + 4 * M[Mrow][Mcol] / 64);
-            new_color.blue  = clamp(color_ptr->blue  + 4 * M[Mrow][Mcol] / 64);
+            new_color.red   = color_ptr->red   > (4 * M[Mrow][Mcol]) ? 255 : 0;
+            new_color.green = color_ptr->green > (4 * M[Mrow][Mcol]) ? 255 : 0;
+            new_color.blue  = color_ptr->blue  > (4 * M[Mrow][Mcol]) ? 255 : 0;
 
             palette_index = find_closest_color(&new_color, palette, ncolors);
             bmp->image[INDEX(col, row)] = palette_index;
