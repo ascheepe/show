@@ -22,6 +22,15 @@
 
 #define INDEX(x, y) ((y) * bmp->width + (x))
 
+struct error_color {
+    int red;
+    int green;
+    int blue;
+    int luma;
+};
+
+static struct error_color error[2][MAX_IMAGE_WIDTH];
+
 /*
  * Clamp a value between 0 and 255, inclusive.
  */
@@ -43,7 +52,6 @@ static BYTE clamp(int value)
  */
 void grayscale_dither(struct bitmap *bmp, int ncolors)
 {
-    int error[2][MAX_IMAGE_WIDTH];
     int row;
     int col;
 
@@ -58,15 +66,15 @@ void grayscale_dither(struct bitmap *bmp, int ncolors)
             BYTE new_pixel;
 
             color_ptr = &bmp->palette[bmp->image[INDEX(col, row)]];
-            old_pixel = clamp(color_to_luma(color_ptr) + error[0][col]);
+            old_pixel = clamp(color_to_luma(color_ptr) + error[0][col].luma);
             new_pixel = (old_pixel * ncolors / 256) * (256 / ncolors);
             bmp->image[INDEX(col, row)] = new_pixel;
 
 	    luma_error = old_pixel - new_pixel;
-            error[0][col + 1] += luma_error * 7 / 16;
-            error[1][col - 1] += luma_error * 3 / 16;
-            error[1][col    ] += luma_error * 5 / 16;
-            error[1][col + 1] += luma_error * 1 / 16;
+            error[0][col + 1].luma += luma_error * 7 / 16;
+            error[1][col - 1].luma += luma_error * 3 / 16;
+            error[1][col    ].luma += luma_error * 5 / 16;
+            error[1][col + 1].luma += luma_error * 1 / 16;
         }
 
 	memcpy(&error[0][0], &error[1][0], sizeof(error[0]));
@@ -77,15 +85,8 @@ void grayscale_dither(struct bitmap *bmp, int ncolors)
 /*
  * Dither a bitmap in place
  */
-struct error_color {
-    int red;
-    int green;
-    int blue;
-};
-
 void dither(struct bitmap *bmp, struct color *palette, int ncolors)
 {
-    struct error_color error[2][MAX_IMAGE_WIDTH];
     int row;
     int col;
 
