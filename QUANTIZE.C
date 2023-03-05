@@ -37,13 +37,13 @@ static int get_max_range(int row_start, int row_end)
     BYTE green_max = 0;
     BYTE blue_max  = 0;
     int row;
-    int col;
+    int column;
 
     for (row = row_start; row < row_end; ++row) {
-        for (col = 0; col < bmp->width; ++col) {
+        for (column = 0; column < bmp->width; ++column) {
             struct color *color;
 
-            color = &bmp->palette[bmp->image[row * bmp->width + col]];
+            color = &bmp->palette[bmp->image[row * bmp->width + column]];
             if (color->red > red_max) {
                 red_max = color->red;
             }
@@ -84,13 +84,13 @@ static struct color *get_average_color(int row_start, int row_end)
     DWORD blue_average  = 0;
     DWORD ncolors       = 0;
     int row;
-    int col;
+    int column;
 
     for (row = row_start; row < row_end; ++row) {
-        for (col = 0; col < bmp->width; ++col) {
+        for (column = 0; column < bmp->width; ++column) {
             struct color *color;
 
-            color = &bmp->palette[bmp->image[row * bmp->width + col]];
+            color = &bmp->palette[bmp->image[row * bmp->width + column]];
             red_average   = (color->red   * 8 + ncolors * red_average)
 			  / (ncolors + 1);
             green_average = (color->green * 8 + ncolors * green_average)
