@@ -22,14 +22,14 @@
 
 #define INDEX(x, y) ((y) * bmp->width + (x))
 
-struct error_color {
+struct error {
     int red;
     int green;
     int blue;
     int luma;
 };
 
-static struct error_color error[2][MAX_IMAGE_WIDTH];
+static struct error error[2][MAX_IMAGE_WIDTH];
 
 /*
  * Clamp a value between 0 and 255, inclusive.
