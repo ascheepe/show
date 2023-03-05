@@ -69,7 +69,7 @@ BYTE ega_make_color(struct color *color)
  * Attributes 0x00 - 0x0F specify the 16 color palette in
  * the format as the make_color function provides.
  */
-void ega_set_palette(struct color *palette, int ncolors)
+void ega_set_palette(struct color *palette, int color_count)
 {
     int i;
 
@@ -77,7 +77,7 @@ void ega_set_palette(struct color *palette, int ncolors)
     inp(0x3da);
 
     /* and set the palette */
-    for (i = 0; i < ncolors; ++i) {
+    for (i = 0; i < color_count; ++i) {
         outp(0x3c0, i);
         outp(0x3c0, ega_make_color(&palette[i]));
     }

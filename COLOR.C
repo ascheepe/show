@@ -39,14 +39,14 @@ BYTE color_to_luma(struct color *color)
  */
 int find_closest_color(const struct color *color,
                        const struct color *palette,
-                       int ncolors)
+                       int color_count)
 {
     DWORD max_distance = -1;
     DWORD distance;
     int match;
     int i;
 
-    for (i = 0; i < ncolors; ++i) {
+    for (i = 0; i < color_count; ++i) {
         const struct color *palette_color = &palette[i];
         WORD red_diff   = abs(color->red   - palette_color->red);
         WORD green_diff = abs(color->green - palette_color->green);

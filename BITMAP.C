@@ -75,17 +75,17 @@ struct bitmap *bitmap_read(char *filename)
         die("bitmap_read: compression is not supported.");
     }
 
-    bmp->image_size = read_dword(bmp_file);
-    bmp->x_ppm      = read_dword(bmp_file);
-    bmp->y_ppm      = read_dword(bmp_file);
-    bmp->ncolors    = read_dword(bmp_file);
-    bmp->palette    = xmalloc(sizeof(*bmp->palette) * bmp->ncolors);
+    bmp->image_size  = read_dword(bmp_file);
+    bmp->x_ppm       = read_dword(bmp_file);
+    bmp->y_ppm       = read_dword(bmp_file);
+    bmp->color_count = read_dword(bmp_file);
+    bmp->palette     = xmalloc(sizeof(*bmp->palette) * bmp->color_count);
 
-    bmp->ncolors_important = read_dword(bmp_file);
+    bmp->color_count_important = read_dword(bmp_file);
 
     /* palette data is bgr(a), located after all the headers */
     fseek(bmp_file, bmp->header_size + FILEHEADERSIZE, SEEK_SET);
-    for (i = 0; i < bmp->ncolors; ++i) {
+    for (i = 0; i < bmp->color_count; ++i) {
         bmp->palette[i].blue  = read_byte(bmp_file);
         bmp->palette[i].green = read_byte(bmp_file);
         bmp->palette[i].red   = read_byte(bmp_file);
@@ -145,11 +145,10 @@ struct bitmap *bitmap_copy(struct bitmap *bmp)
     copy->image = xmalloc(bmp->height * bmp->width);
     memcpy(copy->image, bmp->image, bmp->height * bmp->width);
 
-    copy->palette = xmalloc(sizeof(struct color) * bmp->ncolors);
-    memcpy(copy->palette, bmp->palette, sizeof(struct color) * bmp->ncolors);
+    copy->palette = xmalloc(sizeof(struct color) * bmp->color_count);
+    memcpy(copy->palette, bmp->palette, sizeof(struct color) * bmp->color_count);
 
     return copy;
 }
 
 
-

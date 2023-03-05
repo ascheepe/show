@@ -50,7 +50,7 @@ static BYTE clamp(int value)
 /*
  * Convert bitmap to grayscale with dithering in place.
  */
-void grayscale_dither(struct bitmap *bmp, int ncolors)
+void grayscale_dither(struct bitmap *bmp, int color_count)
 {
     int row;
     int column;
@@ -68,7 +68,7 @@ void grayscale_dither(struct bitmap *bmp, int ncolors)
             color_ptr = &bmp->palette[bmp->image[INDEX(column, row)]];
             old_pixel = clamp(color_to_luma(color_ptr)
                               + error[0][column].luma);
-            new_pixel = (old_pixel * ncolors / 256) * (256 / ncolors);
+            new_pixel = (old_pixel * color_count / 256) * (256 / color_count);
             bmp->image[INDEX(column, row)] = new_pixel;
 
 	    luma_error = old_pixel - new_pixel;
@@ -86,7 +86,7 @@ void grayscale_dither(struct bitmap *bmp, int ncolors)
 /*
  * Dither a bitmap in place
  */
-void dither(struct bitmap *bmp, struct color *palette, int ncolors)
+void dither(struct bitmap *bmp, struct color *palette, int color_count)
 {
     int row;
     int column;
@@ -109,7 +109,8 @@ void dither(struct bitmap *bmp, struct color *palette, int ncolors)
             old_pixel.green = clamp(color_ptr->green + error[0][column].green);
             old_pixel.blue  = clamp(color_ptr->blue  + error[0][column].blue);
 
-            palette_index = find_closest_color(&old_pixel, palette, ncolors);
+            palette_index = find_closest_color(&old_pixel, palette,
+                                               color_count);
             bmp->image[INDEX(column, row)] = palette_index;
 
             color_ptr = &palette[palette_index];
@@ -143,7 +144,7 @@ void dither(struct bitmap *bmp, struct color *palette, int ncolors)
     }
 }
 
-void ordered_dither(struct bitmap *bmp, struct color *palette, int ncolors)
+void ordered_dither(struct bitmap *bmp, struct color *palette, int color_count)
 {
     BYTE M[8][8] = {
         {  0, 32,  8, 40,  2, 34, 10, 42 },
@@ -174,7 +175,8 @@ void ordered_dither(struct bitmap *bmp, struct color *palette, int ncolors)
             new_color.green = color_ptr->green > (4 * M[Mrow][Mcolumn]) ? 255 : 0;
             new_color.blue  = color_ptr->blue  > (4 * M[Mrow][Mcolumn]) ? 255 : 0;
 
-            palette_index = find_closest_color(&new_color, palette, ncolors);
+            palette_index = find_closest_color(&new_color, palette,
+                                               color_count);
             bmp->image[INDEX(column, row)] = palette_index;
         }
     }

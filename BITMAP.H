@@ -40,8 +40,8 @@ struct bitmap {
     DWORD image_size;
     DWORD x_ppm;
     DWORD y_ppm;
-    DWORD ncolors;
-    DWORD ncolors_important;
+    DWORD color_count;
+    DWORD color_count_important;
 
     struct color *palette;
     BYTE         *image;
