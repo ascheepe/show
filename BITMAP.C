@@ -146,7 +146,8 @@ struct bitmap *bitmap_copy(struct bitmap *bmp)
     memcpy(copy->image, bmp->image, bmp->height * bmp->width);
 
     copy->palette = xmalloc(sizeof(struct color) * bmp->color_count);
-    memcpy(copy->palette, bmp->palette, sizeof(struct color) * bmp->color_count);
+    memcpy(copy->palette, bmp->palette,
+           sizeof(struct color) * bmp->color_count);
 
     return copy;
 }
