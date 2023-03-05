@@ -36,11 +36,11 @@ void cga_plot(int x, int y, int color)
 {
     BYTE mask[] = { 0x3f, 0xcf, 0xf3, 0xfc };
     BYTE *pixel = vmem + (0x2000 * (y & 1)) + (80 * (y >> 1)) + (x >> 2);
-    BYTE bitpos = x & 3;
+    BYTE bit_position = x & 3;
     BYTE value = *pixel;
 
     /* clear masked pixels */
-    value &= mask[bitpos];
+    value &= mask[bit_position];
 
     /*
      * set masked pixels:
@@ -51,7 +51,7 @@ void cga_plot(int x, int y, int color)
      * 3 ^ 3 = 0 => 0 * 2 = 0
      *
      */
-    value |= (color & 3) << ((bitpos ^ 3) << 1);
+    value |= (color & 3) << ((bit_position ^ 3) << 1);
 
     *pixel = value;
 }
