@@ -44,11 +44,11 @@ void vga_plot(int x, int y, int color)
 
 void vga_wait_vblank(void)
 {
-    while ( (inp(VIDEO_STATUS_REGISTER) & 0x08))
-        ;
+    while ( (inp(VIDEO_STATUS_REGISTER) & 0x08)) {
+    }
 
-    while (!(inp(VIDEO_STATUS_REGISTER) & 0x08))
-        ;
+    while (!(inp(VIDEO_STATUS_REGISTER) & 0x08)) {
+    }
 }
 
 void vga_set_color(BYTE index, BYTE red, BYTE green, BYTE blue)
@@ -73,9 +73,9 @@ void vga_set_palette(struct color *palette)
     vga_wait_vblank();
     outp(VGA_DAC_PEL_ADDRESS, 0);
     for (i = 0; i < 256; ++i) {
-        outp(VGA_DAC, palette[i].red >> 2);
+        outp(VGA_DAC, palette[i].red   >> 2);
         outp(VGA_DAC, palette[i].green >> 2);
-        outp(VGA_DAC, palette[i].blue >> 2);
+        outp(VGA_DAC, palette[i].blue  >> 2);
     }
 }
 
