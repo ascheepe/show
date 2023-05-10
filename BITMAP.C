@@ -57,10 +57,9 @@ struct bitmap *bitmap_read(char *filename)
     bmp->width        = read_dword(bmp_file);
     bmp->height       = read_dword(bmp_file);
 
-    if (bmp->width  == 0
-            || bmp->height == 0
-            || bmp->width  > MAX_IMAGE_WIDTH
-            || bmp->height > MAX_IMAGE_HEIGHT) {
+    if (bmp->width  == 0 || bmp->height == 0 ||
+        bmp->width  > MAX_IMAGE_WIDTH || bmp->height > MAX_IMAGE_HEIGHT)
+    {
         die("bitmap_read: image must be 320x200 or less.");
     }
 
