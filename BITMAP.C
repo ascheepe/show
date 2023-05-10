@@ -101,8 +101,8 @@ struct bitmap *bitmap_read(char *filename)
 
     bmp->image = xmalloc(bmp->width * bmp->height);
 
-    /* pad width to multiple of 4 with formula (x + 4-1) & (-4) */
-    width = (bmp->width + 4 - 1) & -4;
+    /* pad width to multiple of 4 */
+    width = ((bmp->width + 3) / 4) * 4;
     to_skip = width - bmp->width;
 
     /* read the image data */
