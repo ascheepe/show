@@ -136,7 +136,6 @@ void bitmap_free(struct bitmap *bmp)
 struct bitmap *bitmap_copy(struct bitmap *bmp)
 {
     struct bitmap *copy;
-    int row;
 
     copy = xmalloc(sizeof(*copy));
     memcpy(copy, bmp, sizeof(*copy));
