@@ -29,125 +29,116 @@
  * Also checks if it's a valid file
  * (320x200, 256c + alpha, uncompressed).
  */
-struct bitmap *bitmap_read(char *filename)
+struct bitmap *
+bitmap_read(char *filename)
 {
-    struct bitmap *bmp = NULL;
-    FILE *bmp_file = NULL;
-    DWORD width;
-    DWORD row;
-    int to_skip;
-    int i;
+	struct bitmap *bmp;
+	FILE *f;
+	DWORD width, row;
+	int i, to_skip;
 
-    bmp_file = fopen(filename, "rb");
-    if (bmp_file == NULL) {
-        die("bitmap_read:");
-    }
+	f = fopen(filename, "rb");
+	if (f == NULL)
+		die("bitmap_read:");
 
-    bmp = xmalloc(sizeof(struct bitmap));
+	bmp = xmalloc(sizeof(struct bitmap));
 
-    bmp->file_type = read_word(bmp_file);
-    if (bmp->file_type != 0x4d42) {
-        die("bitmap_read: not a bitmap file.");
-    }
+	bmp->file_type = read_word(f);
+	if (bmp->file_type != 0x4d42)
+		die("bitmap_read: not a bitmap file.");
 
-    bmp->file_size    = read_dword(bmp_file);
-    bmp->reserved     = read_dword(bmp_file);
-    bmp->pixel_offset = read_dword(bmp_file);
-    bmp->header_size  = read_dword(bmp_file);
-    bmp->width        = read_dword(bmp_file);
-    bmp->height       = read_dword(bmp_file);
+	bmp->file_size = read_dword(f);
+	bmp->reserved = read_dword(f);
+	bmp->pixel_offset = read_dword(f);
+	bmp->header_size = read_dword(f);
+	bmp->width = read_dword(f);
+	bmp->height = read_dword(f);
 
-    if (bmp->width  == 0 || bmp->height == 0 ||
-        bmp->width  > MAX_IMAGE_WIDTH || bmp->height > MAX_IMAGE_HEIGHT)
-    {
-        die("bitmap_read: image must be 320x200 or less.");
-    }
+	if (bmp->width == 0 || bmp->height == 0 ||
+	    bmp->width > MAX_IMAGE_WIDTH || bmp->height > MAX_IMAGE_HEIGHT)
+		die("bitmap_read: image must be 320x200 or less.");
 
-    bmp->planes = read_word(bmp_file);
-    bmp->bpp    = read_word(bmp_file);
-    if (bmp->bpp > 8) {
-        die("bitmap_read: unsupported bit depth (%d).", bmp->bpp);
-    }
+	bmp->planes = read_word(f);
+	bmp->bpp = read_word(f);
+	if (bmp->bpp > 8)
+		die("bitmap_read: unsupported bit depth (%d).", bmp->bpp);
 
-    bmp->compression = read_dword(bmp_file);
-    if (bmp->compression != 0) {
-        die("bitmap_read: compression is not supported.");
-    }
+	bmp->compression = read_dword(f);
+	if (bmp->compression != 0)
+		die("bitmap_read: compression is not supported.");
 
-    bmp->image_size  = read_dword(bmp_file);
-    bmp->x_ppm       = read_dword(bmp_file);
-    bmp->y_ppm       = read_dword(bmp_file);
-    bmp->color_count = read_dword(bmp_file);
-    bmp->palette     = xmalloc(sizeof(*bmp->palette) * bmp->color_count);
+	bmp->image_size = read_dword(f);
+	bmp->x_ppm = read_dword(f);
+	bmp->y_ppm = read_dword(f);
+	bmp->ncolors = read_dword(f);
+	bmp->palette = xmalloc(sizeof(*bmp->palette) * bmp->ncolors);
 
-    bmp->color_count_important = read_dword(bmp_file);
+	bmp->ncolors_important = read_dword(f);
 
-    /* palette data is bgr(a), located after all the headers */
-    fseek(bmp_file, bmp->header_size + FILEHEADERSIZE, SEEK_SET);
-    for (i = 0; i < bmp->color_count; ++i) {
-        bmp->palette[i].blue  = read_byte(bmp_file);
-        bmp->palette[i].green = read_byte(bmp_file);
-        bmp->palette[i].red   = read_byte(bmp_file);
-        read_byte(bmp_file); /* read away alpha value */
-    }
+	/* palette data is bgr(a), located after all the headers */
+	fseek(f, bmp->header_size + FILEHEADERSIZE, SEEK_SET);
+	for (i = 0; i < bmp->ncolors; ++i) {
+		bmp->palette[i].blue = read_byte(f);
+		bmp->palette[i].green = read_byte(f);
+		bmp->palette[i].red = read_byte(f);
+		read_byte(f);	/* read away alpha value */
+	}
 
-    /* fill remaining palette with black */
-    for (; i < 256; ++i) {
-        bmp->palette[i].red   = 0;
-        bmp->palette[i].green = 0;
-        bmp->palette[i].blue  = 0;
-    }
+	/* fill remaining palette with black */
+	for (; i < 256; ++i) {
+		bmp->palette[i].red = 0;
+		bmp->palette[i].green = 0;
+		bmp->palette[i].blue = 0;
+	}
 
-    bmp->image = xmalloc(bmp->width * bmp->height);
+	bmp->image = xmalloc(bmp->width * bmp->height);
 
-    /* pad width to multiple of 4 */
-    width = ((bmp->width + 3) / 4) * 4;
-    to_skip = width - bmp->width;
+	/* pad width to multiple of 4 */
+	width = ((bmp->width + 3) / 4) * 4;
+	to_skip = width - bmp->width;
 
-    /* read the image data */
-    fseek(bmp_file, bmp->pixel_offset, SEEK_SET);
-    row = bmp->height;
-    while (row-- > 0) {
-        BYTE *row_ptr = bmp->image + row * bmp->width;
+	/* read the image data */
+	fseek(f, bmp->pixel_offset, SEEK_SET);
+	row = bmp->height;
+	while (row-- > 0) {
+		BYTE *row_ptr = bmp->image + row * bmp->width;
 
-        printf("Loading %3d%%\r", 100 - row * 100 / bmp->height);
-        fflush(stdout);
+		printf("Loading %3d%%\r", 100 - row * 100 / bmp->height);
+		fflush(stdout);
 
-        if (fread(row_ptr, bmp->width, 1, bmp_file) != 1) {
-            die("bitmap_read: input error.");
-        }
+		if (fread(row_ptr, bmp->width, 1, f) != 1)
+			die("bitmap_read: input error.");
 
-        if (to_skip > 0) {
-            fseek(bmp_file, to_skip, SEEK_CUR);
-        }
-    }
+		if (to_skip > 0)
+			fseek(f, to_skip, SEEK_CUR);
+	}
 
-    fclose(bmp_file);
-    return bmp;
+	fclose(f);
+	return bmp;
 }
 
-void bitmap_free(struct bitmap *bmp)
+void
+bitmap_free(struct bitmap *bmp)
 {
-    free(bmp->image);
-    free(bmp->palette);
-    free(bmp);
+	free(bmp->image);
+	free(bmp->palette);
+	free(bmp);
 }
 
-struct bitmap *bitmap_copy(struct bitmap *bmp)
+struct bitmap *
+bitmap_copy(struct bitmap *bmp)
 {
-    struct bitmap *copy;
+	struct bitmap *copy;
 
-    copy = xmalloc(sizeof(*copy));
-    memcpy(copy, bmp, sizeof(*copy));
+	copy = xmalloc(sizeof(*copy));
+	memcpy(copy, bmp, sizeof(*copy));
 
-    copy->image = xmalloc(bmp->height * bmp->width);
-    memcpy(copy->image, bmp->image, bmp->height * bmp->width);
+	copy->image = xmalloc(bmp->height * bmp->width);
+	memcpy(copy->image, bmp->image, bmp->height * bmp->width);
 
-    copy->palette = xmalloc(sizeof(struct color) * bmp->color_count);
-    memcpy(copy->palette, bmp->palette,
-           sizeof(struct color) * bmp->color_count);
+	copy->palette = xmalloc(sizeof(struct color) * bmp->ncolors);
+	memcpy(copy->palette, bmp->palette,
+	    sizeof(struct color) * bmp->ncolors);
 
-    return copy;
+	return copy;
 }
-
-

@@ -4,26 +4,27 @@
 #include <dos.h>
 
 typedef unsigned char BYTE;
-typedef unsigned int  WORD;
+typedef unsigned int WORD;
 typedef unsigned long DWORD;
 
 enum { false, true };
 
 struct color {
-    BYTE red;
-    BYTE green;
-    BYTE blue;
+	BYTE red;
+	BYTE green;
+	BYTE blue;
 };
 
 static BYTE *vmem = (BYTE *) 0xA0000000L;
 
-void set_mode(int mode)
+void
+set_mode(int mode)
 {
-    union REGS regs = { 0 };
+	union REGS regs = { 0 };
 
-    regs.h.ah = 0;
-    regs.h.al = mode;
-    int86(0x10, &regs, &regs);
+	regs.h.ah = 0;
+	regs.h.al = mode;
+	int86(0x10, &regs, &regs);
 }
 
 /*
@@ -38,22 +39,23 @@ void set_mode(int mode)
  * | +------------- Reserved
  * +--------------- Reserved
  */
-BYTE ega_make_color(struct color *color)
+BYTE
+ega_make_color(struct color *color)
 {
-    BYTE red   = color->red   >> 6;
-    BYTE green = color->green >> 6;
-    BYTE blue  = color->blue  >> 6;
+	BYTE red = color->red >> 6;
+	BYTE green = color->green >> 6;
+	BYTE blue = color->blue >> 6;
 
-    BYTE red_msb   = red   >> 1;
-    BYTE green_msb = green >> 1;
-    BYTE blue_msb  = blue  >> 1;
+	BYTE red_msb = red >> 1;
+	BYTE green_msb = green >> 1;
+	BYTE blue_msb = blue >> 1;
 
-    BYTE red_lsb   = red   & 1;
-    BYTE green_lsb = green & 1;
-    BYTE blue_lsb  = blue  & 1;
+	BYTE red_lsb = red & 1;
+	BYTE green_lsb = green & 1;
+	BYTE blue_lsb = blue & 1;
 
-    return (blue_msb << 0) | (green_msb << 1) | (red_msb << 2) |
-           (blue_lsb << 3) | (green_lsb << 4) | (red_lsb << 5);
+	return (blue_msb << 0) | (green_msb << 1) | (red_msb << 2) |
+	    (blue_lsb << 3) | (green_lsb << 4) | (red_lsb << 5);
 }
 
 /*
@@ -69,113 +71,114 @@ BYTE ega_make_color(struct color *color)
  * Attributes 0x00 - 0x0F specify the 16 color palette in
  * the format as the make_color function provides.
  */
-void ega_set_palette(struct color *palette, int color_count)
+void
+ega_set_palette(struct color *palette, int ncolors)
 {
-    int i;
+	int i;
 
-    /* enable 0x3c0 flip-flop */
-    inp(0x3da);
+	/* enable 0x3c0 flip-flop */
+	inp(0x3da);
 
-    /* and set the palette */
-    for (i = 0; i < color_count; ++i) {
-        outp(0x3c0, i);
-        outp(0x3c0, ega_make_color(&palette[i]));
-    }
+	/* and set the palette */
+	for (i = 0; i < ncolors; ++i) {
+		outp(0x3c0, i);
+		outp(0x3c0, ega_make_color(&palette[i]));
+	}
 }
 
-void ega_hi_plot(int x, int y, int color)
+void
+ega_hi_plot(int x, int y, int color)
 {
-    BYTE *pixel = vmem + (y << 6) + (y << 4) + (x >> 3);
-    BYTE  mask  = 0x80 >> (x & 7);
+	BYTE *pixel = vmem + (y << 6) + (y << 4) + (x >> 3);
+	BYTE mask = 0x80 >> (x & 7);
 
-    /*
-     * color selects which planes to write to
-     * this is the palette index value
-     * e.g. 11 is cyan with default palette.
-     */
-    outp(0x3c4, 2);
-    outp(0x3c5, color);
+	/*
+	 * color selects which planes to write to
+	 * this is the palette index value
+	 * e.g. 11 is cyan with default palette.
+	 */
+	outp(0x3c4, 2);
+	outp(0x3c5, color);
 
-    /* set pixel mask */
-    outp(0x3ce, 8);
-    outp(0x3cf, mask);
+	/* set pixel mask */
+	outp(0x3ce, 8);
+	outp(0x3cf, mask);
 
-    /*
-     * with the mask set above we can just
-     * write all 1's
-     */
-    *pixel |= 0xff;
+	/*
+	 * with the mask set above we can just
+	 * write all 1's
+	 */
+	*pixel |= 0xff;
 }
 
-static void ega_hi_show(void)
+static void
+ega_hi_show(void)
 {
-    struct color palette[] = {
-        { 0x00, 0x00, 0x00 },
-        { 0x55, 0x55, 0x55 },
-        { 0xAA, 0xAA, 0xAA },
-        { 0xFF, 0xFF, 0xFF },
-        { 0x55, 0x00, 0x00 },
-        { 0xAA, 0x00, 0x00 },
-        { 0xFF, 0x00, 0x00 },
-        { 0x00, 0x55, 0x00 },
-        { 0x00, 0xAA, 0x00 },
-        { 0x00, 0xFF, 0x00 },
-        { 0x00, 0x00, 0x55 },
-        { 0x00, 0x00, 0xAA },
-        { 0xAA, 0x55, 0x00 },
-        { 0xFF, 0xAA, 0x00 },
-        { 0x55, 0xFF, 0xFF },
-        { 0xFF, 0x55, 0xFF }
-    };
-    BYTE color;
-    int row, col;
+	struct color palette[] = {
+		{ 0x00, 0x00, 0x00 },
+		{ 0x55, 0x55, 0x55 },
+		{ 0xAA, 0xAA, 0xAA },
+		{ 0xFF, 0xFF, 0xFF },
+		{ 0x55, 0x00, 0x00 },
+		{ 0xAA, 0x00, 0x00 },
+		{ 0xFF, 0x00, 0x00 },
+		{ 0x00, 0x55, 0x00 },
+		{ 0x00, 0xAA, 0x00 },
+		{ 0x00, 0xFF, 0x00 },
+		{ 0x00, 0x00, 0x55 },
+		{ 0x00, 0x00, 0xAA },
+		{ 0xAA, 0x55, 0x00 },
+		{ 0xFF, 0xAA, 0x00 },
+		{ 0x55, 0xFF, 0xFF },
+		{ 0xFF, 0x55, 0xFF }
+	};
+	BYTE color;
+	int row, col;
 
-    set_mode(0x10);
-    ega_set_palette(palette, 16);
+	set_mode(0x10);
+	ega_set_palette(palette, 16);
 
-    color = 0;
-    for (row = 0; row < 350; ++row) {
-        if ((row + 1) % (350 / 16) == 0) {
-            ++color;
-        }
+	color = 0;
+	for (row = 0; row < 350; ++row) {
+		if ((row + 1) % (350 / 16) == 0)
+			++color;
 
-        for (col = 0; col < 640; ++col) {
-            ega_hi_plot(col, row, color);
-        }
-    }
+		for (col = 0; col < 640; ++col)
+			ega_hi_plot(col, row, color);
+	}
 }
 
 #define KEY_ESC 27
-static int quit(void)
+static int
+quit(void)
 {
-    if (kbhit()) {
-        switch (getch()) {
-            case 'q':
-            case 'Q':
-            case KEY_ESC:
-                return 1;
+	if (kbhit()) {
+		switch (getch()) {
+		case 'q':
+		case 'Q':
+		case KEY_ESC:
+			return 1;
 
-            /* read away special key */
-            case 0:
-            case 224:
-                getch();
-                break;
-        }
-    }
+			/* read away special key */
+		case 0:
+		case 224:
+			getch();
+			break;
+		}
+	}
 
-    return 0;
+	return 0;
 }
 
-int main(void)
+int
+main(void)
 {
-    ega_hi_show();
+	ega_hi_show();
 
-    while (!quit()) {
-        /* wait */
-    }
+	while (!quit()) {
+		/* wait */
+	}
 
-    set_mode(0x03);
-    return 0;
+	set_mode(0x03);
+	return 0;
 }
-
-

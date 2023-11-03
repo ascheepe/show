@@ -35,22 +35,23 @@ static BYTE *vmem = (BYTE *) 0xA0000000L;
  * | +------------- Reserved
  * +--------------- Reserved
  */
-static BYTE ega_make_color(struct color *color)
+static BYTE
+ega_make_color(struct color *color)
 {
-    BYTE red   = color->red   >> 6;
-    BYTE green = color->green >> 6;
-    BYTE blue  = color->blue  >> 6;
+	BYTE red = color->red >> 6;
+	BYTE green = color->green >> 6;
+	BYTE blue = color->blue >> 6;
 
-    BYTE red_msb   = red   >> 1;
-    BYTE green_msb = green >> 1;
-    BYTE blue_msb  = blue  >> 1;
+	BYTE red_msb = red >> 1;
+	BYTE green_msb = green >> 1;
+	BYTE blue_msb = blue >> 1;
 
-    BYTE red_lsb   = red   & 1;
-    BYTE green_lsb = green & 1;
-    BYTE blue_lsb  = blue  & 1;
+	BYTE red_lsb = red & 1;
+	BYTE green_lsb = green & 1;
+	BYTE blue_lsb = blue & 1;
 
-    return (blue_msb << 0) | (green_msb << 1) | (red_msb << 2)
-         | (blue_lsb << 3) | (green_lsb << 4) | (red_lsb << 5);
+	return (blue_msb << 0) | (green_msb << 1) | (red_msb << 2) |
+	    (blue_lsb << 3) | (green_lsb << 4) | (red_lsb << 5);
 }
 
 /*
@@ -66,48 +67,49 @@ static BYTE ega_make_color(struct color *color)
  * Attributes 0x00 - 0x0F specify the 16 color palette in
  * the format as the make_color function provides.
  */
-void ega_set_palette(struct color *palette, int color_count)
+void
+ega_set_palette(struct color *palette, int ncolors)
 {
-    int i;
+	int i;
 
-    /* enable 0x3c0 flip-flop */
-    inp(0x3da);
+	/* enable 0x3c0 flip-flop */
+	inp(0x3da);
 
-    /* and set the palette */
-    for (i = 0; i < color_count; ++i) {
-        outp(0x3c0, i);
-        outp(0x3c0, ega_make_color(&palette[i]));
-    }
+	/* and set the palette */
+	for (i = 0; i < ncolors; ++i) {
+		outp(0x3c0, i);
+		outp(0x3c0, ega_make_color(&palette[i]));
+	}
 }
 
-void ega_plot(int x, int y, int color)
+void
+ega_plot(int x, int y, int color)
 {
-    BYTE *pixel = vmem + (y << 6) + (y << 4) + (x >> 3);
-    BYTE  mask  = 0x80 >> (x & 7);
+	BYTE *pixel = vmem + (y << 6) + (y << 4) + (x >> 3);
+	BYTE mask = 0x80 >> (x & 7);
 
-    /*
-     * color selects which planes to write to
-     * this is the palette index value
-     * e.g. 11 is cyan with default palette.
-     */
-    outp(0x3c4, 2);
-    outp(0x3c5, color);
+	/*
+	 * color selects which planes to write to
+	 * this is the palette index value
+	 * e.g. 11 is cyan with default palette.
+	 */
+	outp(0x3c4, 2);
+	outp(0x3c5, color);
 
-    /* set pixel mask */
-    outp(0x3ce, 8);
-    outp(0x3cf, mask);
+	/* set pixel mask */
+	outp(0x3ce, 8);
+	outp(0x3cf, mask);
 
-    /*
-     * with the mask set above we can just
-     * write all 1's
-     */
-    *pixel |= 0xff;
+	/*
+	 * with the mask set above we can just
+	 * write all 1's
+	 */
+	*pixel |= 0xff;
 }
 
-void ega_clear_screen(void)
+void
+ega_clear_screen(void)
 {
-    set_mode(MODE_EGA);
-    /* memset(vmem, 0, 128 * 1024); */
+	set_mode(MODE_EGA);
+	/* memset(vmem, 0, 128 * 1024); */
 }
-
-

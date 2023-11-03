@@ -20,8 +20,6 @@
 #include "system.h"
 #include "bitmap.h"
 
-struct color *quantize (struct bitmap *, int);
+struct color *quantize(struct bitmap *, int);
 
 #endif
-
-

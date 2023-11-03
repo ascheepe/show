@@ -22,75 +22,75 @@
 
 static BYTE *vmem = (BYTE *) 0xB0000000L;
 
-#define PORT_INDEX   0x3b4
-#define PORT_DATA    (PORT_INDEX + 1)
+#define PORT_INDEX 0x3b4
+#define PORT_DATA (PORT_INDEX + 1)
 #define PORT_CONTROL 0x3b8
-#define PORT_CONFIG  0x3bf
+#define PORT_CONFIG 0x3bf
 
 #define CONFIG_HALF 1
 
 #define MDA_MODE_GRAPHICS 2
-#define MDA_MODE_TEXT     0x20
+#define MDA_MODE_TEXT 0x20
 
 #define TABLE_SIZE 12
 
-static BYTE mda_graphics_table[TABLE_SIZE] = {
-    0x35, 0x2d, 0x2e, 0x07,
-    0x5b, 0x02, 0x57, 0x57,
-    0x02, 0x03, 0x00, 0x00,
+static BYTE gfxtab[TABLE_SIZE] = {
+	0x35, 0x2d, 0x2e, 0x07,
+	0x5b, 0x02, 0x57, 0x57,
+	0x02, 0x03, 0x00, 0x00,
 };
 
-static BYTE mda_text_table[TABLE_SIZE] = {
-    0x61, 0x50, 0x52, 0x0f,
-    0x19, 0x06, 0x19, 0x19,
-    0x02, 0x0d, 0x0b, 0x0c,
+static BYTE txttab[TABLE_SIZE] = {
+	0x61, 0x50, 0x52, 0x0f,
+	0x19, 0x06, 0x19, 0x19,
+	0x02, 0x0d, 0x0b, 0x0c,
 };
 
-void mda_set_mode(int mode)
+void
+mda_set_mode(int mode)
 {
-    BYTE *table = NULL;
-    int i;
+	BYTE *tab;
+	int i;
 
-    /* half mode configuration */
-    outp(PORT_CONFIG, CONFIG_HALF);
+	/* half mode configuration */
+	outp(PORT_CONFIG, CONFIG_HALF);
 
-    /* change mode w/o screen on */
-    if (mode == MDA_GRAPHICS_MODE) {
-        table = mda_graphics_table;
-        outp(PORT_CONTROL, MDA_MODE_GRAPHICS);
-    } else {
-        table = mda_text_table;
-        outp(PORT_CONTROL, MDA_MODE_TEXT);
-    }
+	/* change mode w/o screen on */
+	if (mode == MDA_GRAPHICS_MODE) {
+		tab = gfxtab;
+		outp(PORT_CONTROL, MDA_MODE_GRAPHICS);
+	} else {
+		tab = txttab;
+		outp(PORT_CONTROL, MDA_MODE_TEXT);
+	}
 
-    /* setup 6845 */
-    for (i = 0; i < TABLE_SIZE; ++i) {
-        outp(PORT_INDEX, i);
-        outp(PORT_DATA, table[i]);
-    }
+	/* setup 6845 */
+	for (i = 0; i < TABLE_SIZE; ++i) {
+		outp(PORT_INDEX, i);
+		outp(PORT_DATA, tab[i]);
+	}
 
-    /* set screen on, page 0 (2 = 0b10) */
-    if (mode == MDA_GRAPHICS_MODE) {
-        outp(PORT_CONTROL, MDA_MODE_GRAPHICS | 2);
-    } else {
-        outp(PORT_CONTROL, MDA_MODE_TEXT | 2);
-    }
+	/* set screen on, page 0 (2 = 0b10) */
+	if (mode == MDA_GRAPHICS_MODE)
+		outp(PORT_CONTROL, MDA_MODE_GRAPHICS | 2);
+	else
+		outp(PORT_CONTROL, MDA_MODE_TEXT | 2);
 }
 
-void mda_plot(int x, int y, int color)
+void
+mda_plot(int x, int y, int color)
 {
-    BYTE *pixel = vmem + (0x2000 * (y & 3)) + (90 * (y >> 2)) + (x >> 3);
-    BYTE value = 1 << (7 - (x & 7));
+	BYTE *pixel = vmem + (0x2000 * (y & 3)) + (90 * (y >> 2)) + (x >> 3);
+	BYTE val = 1 << (7 - (x & 7));
 
-    if (color) {
-        *pixel |= value;
-    } else {
-        *pixel &= ~value;
-    }
+	if (color)
+		*pixel |= val;
+	else
+		*pixel &= ~val;
 }
 
-void mda_clear_screen(void)
+void
+mda_clear_screen(void)
 {
-    memset(vmem, 0, 32 * 1024);
+	memset(vmem, 0, 32 * 1024);
 }
-

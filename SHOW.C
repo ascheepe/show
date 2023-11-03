@@ -37,22 +37,22 @@
  * Custom palette for ega mode tries to have a broad color spectrum.
  */
 static struct color ega_palette[] = {
-    { 0x00, 0x00, 0x00 },
-    { 0x55, 0x55, 0x55 },
-    { 0xAA, 0xAA, 0xAA },
-    { 0xFF, 0xFF, 0xFF },
-    { 0x55, 0x00, 0x00 },
-    { 0xAA, 0x00, 0x00 },
-    { 0xFF, 0x00, 0x00 },
-    { 0x00, 0x55, 0x00 },
-    { 0x00, 0xAA, 0x00 },
-    { 0x00, 0xFF, 0x00 },
-    { 0x00, 0x00, 0xAA },
-    { 0x00, 0x00, 0xFF },
-    { 0xFF, 0xAA, 0x00 },
-    { 0xFF, 0xFF, 0x00 },
-    { 0xFF, 0x00, 0xFF },
-    { 0x00, 0xFF, 0xFF },
+	{ 0x00, 0x00, 0x00 },
+	{ 0x55, 0x55, 0x55 },
+	{ 0xAA, 0xAA, 0xAA },
+	{ 0xFF, 0xFF, 0xFF },
+	{ 0x55, 0x00, 0x00 },
+	{ 0xAA, 0x00, 0x00 },
+	{ 0xFF, 0x00, 0x00 },
+	{ 0x00, 0x55, 0x00 },
+	{ 0x00, 0xAA, 0x00 },
+	{ 0x00, 0xFF, 0x00 },
+	{ 0x00, 0x00, 0xAA },
+	{ 0x00, 0x00, 0xFF },
+	{ 0xFF, 0xAA, 0x00 },
+	{ 0xFF, 0xFF, 0x00 },
+	{ 0xFF, 0x00, 0xFF },
+	{ 0x00, 0xFF, 0xFF },
 };
 
 /*
@@ -61,124 +61,125 @@ static struct color ega_palette[] = {
  * this usage.
  */
 static BYTE cga_palette[4] = {
-    0, 2, 1, 3
+	0, 2, 1, 3
 };
 
 #define KEY_ESC 27
 #define NO_KEY -1
-static int get_key(void)
+static int
+get_key(void)
 {
-    int ch = NO_KEY;
+	int ch = NO_KEY;
 
-    if (kbhit()) {
-        ch = getch();
+	if (kbhit()) {
+		ch = getch();
 
-        /* read away special key */
-        if (ch == 0 || ch == 224) {
-            getch();
-            ch = NO_KEY;
-        }
-    }
+		/* read away special key */
+		if (ch == 0 || ch == 224) {
+			getch();
+			ch = NO_KEY;
+		}
+	}
 
-    return ch;
+	return ch;
 }
 
-int main(int argc, char **argv)
+int
+main(int argc, char **argv)
 {
-    struct bitmap *bmp;
-    int row_offset;
-    int column_offset;
-    int row;
-    int column;
+	struct bitmap *bmp;
+	int row_off, col_off;
+	int row, col;
 
-    if (argc != 2) {
-        printf("usage: show imagefile\n");
-        return 1;
-    }
+	if (argc != 2) {
+		printf("usage: show imagefile\n");
+		return 1;
+	}
 
-    /* clear screen */
-    set_mode(MODE_TEXT);
+	/* clear screen */
+	set_mode(MODE_TEXT);
 
-    bmp = bitmap_read(argv[1]);
+	bmp = bitmap_read(argv[1]);
 
-    switch (detect_graphics()) {
-        case MDA_GRAPHICS:
-            column_offset = MDA_WIDTH  / 2 - bmp->width  / 2;
-            row_offset = MDA_HEIGHT / 2 - bmp->height / 2;
-            grayscale_dither(bmp, 2);
+	switch (detect_graphics()) {
+	case MDA_GRAPHICS:
+		col_off = MDA_WIDTH / 2 - bmp->width / 2;
+		row_off = MDA_HEIGHT / 2 - bmp->height / 2;
+		grayscale_dither(bmp, 2);
 
-            mda_set_mode(MDA_GRAPHICS_MODE);
-            mda_clear_screen();
+		mda_set_mode(MDA_GRAPHICS_MODE);
+		mda_clear_screen();
 
-            for (row = 0; row < bmp->height; ++row) {
-                for (column = 0; column < bmp->width; ++column) {
-                    BYTE luma = bmp->image[row * bmp->width + column] >> 7;
+		for (row = 0; row < bmp->height; ++row) {
+			for (col = 0; col < bmp->width; ++col) {
+				BYTE luma =
+				    bmp->image[row * bmp->width + col] >> 7;
 
-                    mda_plot(column + column_offset, row + row_offset, luma);
-                }
-            }
-        break;
+				mda_plot(col + col_off, row + row_off, luma);
+			}
+		}
+		break;
 
-        case CGA_GRAPHICS:
-            column_offset = CGA_WIDTH  / 2 - bmp->width  / 2;
-            row_offset = CGA_HEIGHT / 2 - bmp->height / 2;
-            grayscale_dither(bmp, 4);
+	case CGA_GRAPHICS:
+		col_off = CGA_WIDTH / 2 - bmp->width / 2;
+		row_off = CGA_HEIGHT / 2 - bmp->height / 2;
+		grayscale_dither(bmp, 4);
 
-            set_mode(MODE_CGA);
+		set_mode(MODE_CGA);
 
-            for (row = 0; row < bmp->height; ++row) {
-                for (column = 0; column < bmp->width; ++column) {
-                    BYTE luma  = bmp->image[row * bmp->width + column] >> 6;
-                    BYTE color = cga_palette[luma];
+		for (row = 0; row < bmp->height; ++row) {
+			for (col = 0; col < bmp->width; ++col) {
+				BYTE luma =
+				    bmp->image[row * bmp->width + col] >> 6;
+				BYTE color = cga_palette[luma];
 
-                    cga_plot(column + column_offset, row + row_offset, color);
-                }
-            }
-        break;
+				cga_plot(col + col_off, row + row_off, color);
+			}
+		}
+		break;
 
-        case EGA_GRAPHICS:
-            column_offset = EGA_WIDTH  / 2 - bmp->width  / 2;
-            row_offset = EGA_HEIGHT / 2 - bmp->height / 2;
-            dither(bmp, ega_palette, 16);
+	case EGA_GRAPHICS:
+		col_off = EGA_WIDTH / 2 - bmp->width / 2;
+		row_off = EGA_HEIGHT / 2 - bmp->height / 2;
+		dither(bmp, ega_palette, 16);
 
-            set_mode(MODE_EGA);
-            ega_set_palette(ega_palette, 16);
+		set_mode(MODE_EGA);
+		ega_set_palette(ega_palette, 16);
 
-            for (row = 0; row < bmp->height - 1; ++row) {
-                for (column = 1; column < bmp->width - 1; ++column) {
-                    BYTE color = bmp->image[row * bmp->width + column];
+		for (row = 0; row < bmp->height - 1; ++row) {
+			for (col = 1; col < bmp->width - 1; ++col) {
+				BYTE color =
+				    bmp->image[row * bmp->width + col];
 
-                    ega_plot(column + column_offset, row + row_offset, color);
-                }
-            }
-        break;
+				ega_plot(col + col_off, row + row_off, color);
+			}
+		}
+		break;
 
-        case VGA_GRAPHICS:
-            column_offset = VGA_WIDTH  / 2 - bmp->width  / 2;
-            row_offset = VGA_HEIGHT / 2 - bmp->height / 2;
+	case VGA_GRAPHICS:
+		col_off = VGA_WIDTH / 2 - bmp->width / 2;
+		row_off = VGA_HEIGHT / 2 - bmp->height / 2;
 
-            set_mode(MODE_VGA);
-            vga_set_palette(bmp->palette);
+		set_mode(MODE_VGA);
+		vga_set_palette(bmp->palette);
 
-            for (row = 0; row < bmp->height; ++row) {
-                memcpy(vga_vmem_ptr(column_offset, row + row_offset),
-                       bmp->image + row * bmp->width,
-                       bmp->width);
-            }
-        break;
-    }
+		for (row = 0; row < bmp->height; ++row) {
+			memcpy(vga_vmem_ptr(col_off, row + row_off),
+			    bmp->image + row * bmp->width, bmp->width);
+		}
+		break;
+	}
 
-    bitmap_free(bmp);
+	bitmap_free(bmp);
 
-    while (1) {
-        int ch;
+	while (1) {
+		int ch;
 
-        ch = tolower(get_key());
-        if (ch == 'q' || ch == KEY_ESC) {
-            break;
-        }
-    }
+		ch = tolower(get_key());
+		if (ch == 'q' || ch == KEY_ESC)
+			break;
+	}
 
-    set_mode(MODE_TEXT);
-    return 0;
+	set_mode(MODE_TEXT);
+	return 0;
 }

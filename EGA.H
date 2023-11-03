@@ -20,13 +20,11 @@
 #include "system.h"
 #include "color.h"
 
-#define EGA_WIDTH  640
+#define EGA_WIDTH 640
 #define EGA_HEIGHT 350
 
-void ega_plot         (int, int, int);
-void ega_plot         (int, int, int);
-void ega_clear_screen (void);
-void ega_set_palette  (struct color *, int);
+void ega_plot(int, int, int);
+void ega_plot(int, int, int);
+void ega_clear_screen(void);
+void ega_set_palette(struct color *, int);
 #endif
-
-

@@ -27,28 +27,27 @@
  * .BMP file structure
  */
 struct bitmap {
-    WORD  file_type;
-    DWORD file_size;
-    DWORD reserved;
-    DWORD pixel_offset;
-    DWORD header_size;
-    DWORD width;
-    DWORD height;
-    WORD  planes;
-    WORD  bpp;
-    DWORD compression;
-    DWORD image_size;
-    DWORD x_ppm;
-    DWORD y_ppm;
-    DWORD color_count;
-    DWORD color_count_important;
+	WORD file_type;
+	DWORD file_size;
+	DWORD reserved;
+	DWORD pixel_offset;
+	DWORD header_size;
+	DWORD width;
+	DWORD height;
+	WORD planes;
+	WORD bpp;
+	DWORD compression;
+	DWORD image_size;
+	DWORD x_ppm;
+	DWORD y_ppm;
+	DWORD ncolors;
+	DWORD ncolors_important;
 
-    struct color *palette;
-    BYTE         *image;
+	struct color *palette;
+	BYTE *image;
 };
 
-struct bitmap *bitmap_read (char *);
-void           bitmap_free (struct bitmap *);
-struct bitmap *bitmap_copy (struct bitmap *);
+struct bitmap *bitmap_read(char *);
+void bitmap_free(struct bitmap *);
+struct bitmap *bitmap_copy(struct bitmap *);
 #endif
-

@@ -21,25 +21,23 @@
 enum { false, true };
 
 /* int10 modes */
-#define MODE_TEXT  0x03
-#define MODE_CGA   0x05
-#define MODE_EGA   0x10
-#define MODE_VGA   0x13
+#define MODE_TEXT 0x03
+#define MODE_CGA 0x05
+#define MODE_EGA 0x10
+#define MODE_VGA 0x13
 
-typedef unsigned char  BYTE;
+typedef unsigned char BYTE;
 typedef unsigned short WORD;
-typedef unsigned long  DWORD;
+typedef unsigned long DWORD;
 
-void   die         (char *fmt, ...);
-void  *xmalloc     (size_t size);
-void  *xcalloc     (size_t nmemb, size_t size);
-void  *xrealloc    (void *ptr, size_t size);
-BYTE   read_byte   (FILE *input_file);
-WORD   read_word   (FILE *input_file);
-DWORD  read_dword  (FILE *input_file);
-void   set_mode    (int mode);
-int    file_exists (char *filename);
+void die(char *fmt, ...);
+void *xmalloc(size_t size);
+void *xcalloc(size_t nmemb, size_t size);
+void *xrealloc(void *ptr, size_t size);
+BYTE read_byte(FILE *input_file);
+WORD read_word(FILE *input_file);
+DWORD read_dword(FILE *input_file);
+void set_mode(int mode);
+int file_exists(char *filename);
 
 #endif
-
-

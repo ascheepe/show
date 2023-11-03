@@ -24,11 +24,11 @@
 /*
  * Convert a color to grayscale
  */
-BYTE color_to_luma(struct color *color)
+BYTE
+color_to_mono(struct color *color)
 {
-    return color->red   * 30 / 100
-         + color->green * 59 / 100
-         + color->blue  * 11 / 100;
+	return color->red * 30 / 100 + color->green * 59 / 100 +
+	    color->blue * 11 / 100;
 }
 
 #define SQR(n) ((DWORD)((n)*(n)))
@@ -37,31 +37,29 @@ BYTE color_to_luma(struct color *color)
  * Finds the closest color to 'color' in palette
  * 'palette', returning the index of it.
  */
-int find_closest_color(const struct color *color,
-                       const struct color *palette,
-                       int color_count)
+int
+find_closest_color(const struct color *color,
+    const struct color *palette, int ncolors)
 {
-    DWORD max_distance = -1;
-    DWORD distance;
-    int match;
-    int i;
+	DWORD maxdist = -1;
+	DWORD dist;
+	int match;
+	int i;
 
-    for (i = 0; i < color_count; ++i) {
-        const struct color *palette_color = &palette[i];
-        WORD red_diff   = abs(color->red   - palette_color->red);
-        WORD green_diff = abs(color->green - palette_color->green);
-        WORD blue_diff  = abs(color->blue  - palette_color->blue);
+	for (i = 0; i < ncolors; ++i) {
+		const struct color *palette_color = &palette[i];
+		WORD red_diff = abs(color->red - palette_color->red);
+		WORD green_diff = abs(color->green - palette_color->green);
+		WORD blue_diff = abs(color->blue - palette_color->blue);
 
-        distance = SQR(red_diff)   * 3
-                 + SQR(green_diff) * 4
-                 + SQR(blue_diff)  * 2;
+		dist = SQR(red_diff) * 3
+		    + SQR(green_diff) * 4 + SQR(blue_diff) * 2;
 
-        if (distance < max_distance) {
-            max_distance = distance;
-            match = i;
-        }
-    }
+		if (dist < maxdist) {
+			maxdist = dist;
+			match = i;
+		}
+	}
 
-    return match;
+	return match;
 }
-

@@ -23,10 +23,10 @@
 #define INDEX(x, y) ((y) * bmp->width + (x))
 
 struct error {
-    int red;
-    int green;
-    int blue;
-    int luma;
+	int red;
+	int green;
+	int blue;
+	int luma;
 };
 
 static struct error error[2][MAX_IMAGE_WIDTH];
@@ -34,161 +34,158 @@ static struct error error[2][MAX_IMAGE_WIDTH];
 /*
  * Clamp a value between 0 and 255, inclusive.
  */
-static BYTE clamp(int value)
+static BYTE
+clamp(int value)
 {
-    if (value > 255) {
-        return 255;
-    }
+	if (value > 255)
+		return 255;
 
-    if (value < 0) {
-        return 0;
-    }
+	if (value < 0)
+		return 0;
 
-    return value;
+	return value;
 }
 
 /*
  * Convert bitmap to grayscale with dithering in place.
  */
-void grayscale_dither(struct bitmap *bmp, int color_count)
+void
+grayscale_dither(struct bitmap *bmp, int ncolors)
 {
-    int row;
-    int column;
+	int row, col;
 
-    memset(error, 0, sizeof(error));
-    for (row = 0; row < bmp->height - 1; ++row) {
-        printf("Dithering %3d%%\r", row * 100 / bmp->height);
-        fflush(stdout);
-        for (column = 1; column < bmp->width - 1; ++column) {
-            struct color *color_ptr;
-	    int luma_error;
-            BYTE old_pixel;
-            BYTE new_pixel;
+	memset(error, 0, sizeof(error));
+	for (row = 0; row < bmp->height - 1; ++row) {
+		printf("Dithering %3d%%\r", row * 100 / bmp->height);
+		fflush(stdout);
+		for (col = 1; col < bmp->width - 1; ++col) {
+			struct color *color_ptr;
+			int luma_error;
+			BYTE old_pixel;
+			BYTE new_pixel;
 
-            color_ptr = &bmp->palette[bmp->image[INDEX(column, row)]];
-            old_pixel = clamp(color_to_luma(color_ptr)
-                              + error[0][column].luma);
-            new_pixel = (old_pixel * color_count / 256) * (256 / color_count);
-            bmp->image[INDEX(column, row)] = new_pixel;
+			color_ptr = &bmp->palette[bmp->image[INDEX(col, row)]];
+			old_pixel = clamp(color_to_mono(color_ptr)
+			    + error[0][col].luma);
+			new_pixel =
+			    (old_pixel * ncolors / 256) * (256 / ncolors);
+			bmp->image[INDEX(col, row)] = new_pixel;
 
-	    luma_error = old_pixel - new_pixel;
-            error[0][column + 1].luma += luma_error * 7 / 16;
-            error[1][column - 1].luma += luma_error * 3 / 16;
-            error[1][column    ].luma += luma_error * 5 / 16;
-            error[1][column + 1].luma += luma_error * 1 / 16;
-        }
+			luma_error = old_pixel - new_pixel;
+			error[0][col + 1].luma += luma_error * 7 / 16;
+			error[1][col - 1].luma += luma_error * 3 / 16;
+			error[1][col].luma += luma_error * 5 / 16;
+			error[1][col + 1].luma += luma_error * 1 / 16;
+		}
 
-	memcpy(&error[0][0], &error[1][0], sizeof(error[0]));
-	memset(&error[1][0], 0, sizeof(error[1]));
-    }
+		memcpy(&error[0][0], &error[1][0], sizeof(error[0]));
+		memset(&error[1][0], 0, sizeof(error[1]));
+	}
 }
 
 /*
  * Dither a bitmap in place
  */
-void dither(struct bitmap *bmp, struct color *palette, int color_count)
+void
+dither(struct bitmap *bmp, struct color *palette, int ncolors)
 {
-    int row;
-    int column;
+	int row, col;
 
-    memset(error, 0, sizeof(error));
-    for (row = 0; row < bmp->height - 1; ++row) {
-        printf("Dithering %3d%%\r", row * 100 / bmp->height);
-        fflush(stdout);
-        for (column = 1; column < bmp->width - 1; ++column) {
-            struct color old_pixel;
-            struct color new_pixel;
-            struct color *color_ptr;
-            int palette_index;
-	    int red_error;
-	    int green_error;
-	    int blue_error;
+	memset(error, 0, sizeof(error));
+	for (row = 0; row < bmp->height - 1; ++row) {
+		printf("Dithering %3d%%\r", row * 100 / bmp->height);
+		fflush(stdout);
+		for (col = 1; col < bmp->width - 1; ++col) {
+			struct color old_pixel;
+			struct color new_pixel;
+			struct color *color_ptr;
+			int palette_index;
+			int red_error;
+			int green_error;
+			int blue_error;
 
-            color_ptr = &bmp->palette[bmp->image[INDEX(column, row)]];
-            old_pixel.red   = clamp(color_ptr->red +
-                                    error[0][column].red);
-            old_pixel.green = clamp(color_ptr->green +
-                                    error[0][column].green);
-            old_pixel.blue  = clamp(color_ptr->blue +
-                                    error[0][column].blue);
+			color_ptr = &bmp->palette[bmp->image[INDEX(col, row)]];
+			old_pixel.red =
+			    clamp(color_ptr->red + error[0][col].red);
+			old_pixel.green =
+			    clamp(color_ptr->green + error[0][col].green);
+			old_pixel.blue =
+			    clamp(color_ptr->blue + error[0][col].blue);
 
-            palette_index = find_closest_color(&old_pixel, palette,
-                                               color_count);
-            bmp->image[INDEX(column, row)] = palette_index;
+			palette_index = find_closest_color(&old_pixel, palette,
+			    ncolors);
+			bmp->image[INDEX(col, row)] = palette_index;
 
-            color_ptr = &palette[palette_index];
-            new_pixel.red   = color_ptr->red;
-            new_pixel.green = color_ptr->green;
-            new_pixel.blue  = color_ptr->blue;
+			color_ptr = &palette[palette_index];
+			new_pixel.red = color_ptr->red;
+			new_pixel.green = color_ptr->green;
+			new_pixel.blue = color_ptr->blue;
 
-	    red_error   = old_pixel.red   - new_pixel.red;
-	    green_error = old_pixel.green - new_pixel.green;
-	    blue_error  = old_pixel.blue  - new_pixel.blue;
+			red_error = old_pixel.red - new_pixel.red;
+			green_error = old_pixel.green - new_pixel.green;
+			blue_error = old_pixel.blue - new_pixel.blue;
 
-            error[0][column + 1].red   += red_error   * 7 / 16;
-            error[0][column + 1].green += green_error * 7 / 16;
-            error[0][column + 1].blue  += blue_error  * 7 / 16;
+			error[0][col + 1].red += red_error * 7 / 16;
+			error[0][col + 1].green += green_error * 7 / 16;
+			error[0][col + 1].blue += blue_error * 7 / 16;
 
-            error[1][column - 1].red   += red_error   * 3 / 16;
-            error[1][column - 1].green += green_error * 3 / 16;
-            error[1][column - 1].blue  += blue_error  * 3 / 16;
+			error[1][col - 1].red += red_error * 3 / 16;
+			error[1][col - 1].green += green_error * 3 / 16;
+			error[1][col - 1].blue += blue_error * 3 / 16;
 
-            error[1][column    ].red   += red_error   * 5 / 16;
-            error[1][column    ].green += green_error * 5 / 16;
-            error[1][column    ].blue  += blue_error  * 5 / 16;
+			error[1][col].red += red_error * 5 / 16;
+			error[1][col].green += green_error * 5 / 16;
+			error[1][col].blue += blue_error * 5 / 16;
 
-            error[1][column + 1].red   += red_error   * 1 / 16;
-            error[1][column + 1].green += green_error * 1 / 16;
-            error[1][column + 1].blue  += blue_error  * 1 / 16;
-        }
+			error[1][col + 1].red += red_error * 1 / 16;
+			error[1][col + 1].green += green_error * 1 / 16;
+			error[1][col + 1].blue += blue_error * 1 / 16;
+		}
 
-	memcpy(&error[0][0], &error[1][0], sizeof(error[0]));
-	memset(&error[1][0], 0, sizeof(error[1]));
-    }
+		memcpy(&error[0][0], &error[1][0], sizeof(error[0]));
+		memset(&error[1][0], 0, sizeof(error[1]));
+	}
 }
 
-void ordered_dither(struct bitmap *bmp, struct color *palette,
-                    int color_count)
+void
+ordered_dither(struct bitmap *bmp, struct color *palette, int ncolors)
 {
-    BYTE M[8][8] = {
-        {  0, 32,  8, 40,  2, 34, 10, 42 },
-        { 48, 16, 56, 24, 50, 18, 58, 26 },
-        { 12, 44,  4, 36, 14, 46,  6, 38 },
-        { 60, 28, 52, 20, 62, 30, 54, 22 },
-        {  3, 35, 11, 43,  1, 33,  9, 41 },
-        { 51, 19, 59, 27, 49, 17, 57, 25 },
-        { 15, 47,  7, 39, 13, 45,  5, 37 },
-        { 63, 31, 55, 23, 61, 29, 53, 21 }
-    };
-    int row;
-    int column;
+	BYTE M[8][8] = {
+		{ 0, 32, 8, 40, 2, 34, 10, 42 },
+		{ 48, 16, 56, 24, 50, 18, 58, 26 },
+		{ 12, 44, 4, 36, 14, 46, 6, 38 },
+		{ 60, 28, 52, 20, 62, 30, 54, 22 },
+		{ 3, 35, 11, 43, 1, 33, 9, 41 },
+		{ 51, 19, 59, 27, 49, 17, 57, 25 },
+		{ 15, 47, 7, 39, 13, 45, 5, 37 },
+		{ 63, 31, 55, 23, 61, 29, 53, 21 }
+	};
+	int row, col;
 
-    for (row = 0; row < bmp->height; ++row) {
-        BYTE Mrow = row & 7;
+	for (row = 0; row < bmp->height; ++row) {
+		BYTE Mrow = row & 7;
 
-        printf("Dithering %3d%%\r", row * 100 / bmp->height);
-        fflush(stdout);
+		printf("Dithering %3d%%\r", row * 100 / bmp->height);
+		fflush(stdout);
 
-        for (column = 0; column < bmp->width; ++column) {
-            int palette_index = bmp->image[INDEX(column, row)];
-            struct color *color_ptr = &bmp->palette[palette_index];
-            struct color  new_color;
-            BYTE Mcolumn = column & 7;
+		for (col = 0; col < bmp->width; ++col) {
+			int palette_index = bmp->image[INDEX(col, row)];
+			struct color *color_ptr = &bmp->palette[palette_index];
+			struct color new_color;
+			BYTE Mcol = col & 7;
 
-            new_color.red = color_ptr->red > (4 * M[Mrow][Mcolumn])
-                ? 255
-                : 0;
-            new_color.green = color_ptr->green > (4 * M[Mrow][Mcolumn])
-                ? 255
-                : 0;
-            new_color.blue = color_ptr->blue > (4 * M[Mrow][Mcolumn])
-                ? 255
-                : 0;
+			new_color.red = color_ptr->red > (4 * M[Mrow][Mcol])
+			    ? 255 : 0;
+			new_color.green =
+			    color_ptr->green > (4 * M[Mrow][Mcol])
+			    ? 255 : 0;
+			new_color.blue = color_ptr->blue > (4 * M[Mrow][Mcol])
+			    ? 255 : 0;
 
-            palette_index =
-                find_closest_color(&new_color, palette, color_count);
-            bmp->image[INDEX(column, row)] = palette_index;
-        }
-    }
+			palette_index =
+			    find_closest_color(&new_color, palette, ncolors);
+			bmp->image[INDEX(col, row)] = palette_index;
+		}
+	}
 }
-
+
