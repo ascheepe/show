@@ -138,9 +138,13 @@ vga_show(struct bitmap *bmp)
 
 	vga_clear_screen();
 	vga_set_palette(bmp->palette);
-	for (row = 0; row < bmp->height; ++row)
-		memcpy(vga_vmem_ptr(col_off, row + row_off),
-		    bmp->image + row * bmp->width, bmp->width);
+	for (row = 0; row < bmp->height; ++row) {
+		void *src, *dst;
+
+		src = bmp->image + row * bmp->width;
+		dst = vga_vmem_ptr(col_off, row + row_off);
+		memcpy(dst, src, bmp->width);
+	}
 }
 
 #define KEY_ESC 27
