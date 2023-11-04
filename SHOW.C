@@ -34,6 +34,28 @@
 #include "ega.h"
 #include "vga.h"
 
+#define KEY_ESC 27
+void
+maybe_exit(void)
+{
+	if (kbhit()) {
+		int ch;
+
+		ch = tolower(getch());
+
+		/* read away 'special' key */
+		if (ch == 0 || ch == 224) {
+			getch();
+			ch = -1;
+		}
+
+		if (ch == 'q' || ch == KEY_ESC) {
+			setmode(MODE_TEXT);
+			exit(0);
+		}
+	}
+}
+
 static void
 mda_show(struct bitmap *bmp)
 {
@@ -48,6 +70,7 @@ mda_show(struct bitmap *bmp)
 	mda_clear_screen();
 
 	for (row = 0; row < bmp->height; ++row) {
+		maybe_exit();
 		for (col = 0; col < bmp->width; ++col) {
 			BYTE luma = bmp->image[row * bmp->width + col] >> 7;
 
@@ -74,6 +97,7 @@ cga_show(struct bitmap *bmp)
 
 	cga_clear_screen();
 	for (row = 0; row < bmp->height; ++row) {
+		maybe_exit();
 		for (col = 0; col < bmp->width; ++col) {
 			BYTE luma = bmp->image[row * bmp->width + col] >> 6;
 			BYTE color = pal[luma];
@@ -119,6 +143,7 @@ ega_show(struct bitmap *bmp)
 	ega_set_palette(ega_palette, 16);
 
 	for (row = 0; row < bmp->height - 1; ++row) {
+		maybe_exit();
 		for (col = 1; col < bmp->width - 1; ++col) {
 			BYTE color = bmp->image[row * bmp->width + col];
 
@@ -141,33 +166,13 @@ vga_show(struct bitmap *bmp)
 	for (row = 0; row < bmp->height; ++row) {
 		void *src, *dst;
 
+		maybe_exit();
 		src = bmp->image + row * bmp->width;
 		dst = vga_vmem_ptr(col_off, row + row_off);
 		memcpy(dst, src, bmp->width);
 	}
 }
 
-#define KEY_ESC 27
-void
-maybe_exit(void)
-{
-	if (kbhit()) {
-		int ch;
-
-		ch = tolower(getch());
-
-		/* read away 'special' key */
-		if (ch == 0 || ch == 224) {
-			getch();
-			ch = -1;
-		}
-
-		if (ch == 'q' || ch == KEY_ESC) {
-			setmode(MODE_TEXT);
-			exit(0);
-		}
-	}
-}
 
 int
 main(int argc, char **argv)
