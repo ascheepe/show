@@ -68,7 +68,7 @@ get_max_range(int row_start, int row_end)
 }
 
 /*
- * Calculate a running average for the pixel colors between
+ * Calculate a running average for the px colors between
  * row_start and row_end.
  * Scale color components by 8 to have a low precision fixed-point
  * value which we can round back in the end.
@@ -109,7 +109,7 @@ get_average_color(int row_start, int row_end)
 }
 
 /*
- * Sort pixels by a color component.
+ * Sort pxs by a color component.
  */
 static int
 by_red(const void *index_a_ptr, const void *index_b_ptr)
@@ -146,7 +146,7 @@ by_blue(const void *index_a_ptr, const void *index_b_ptr)
 
 /*
  * Do a median-cut to generate an optimal palette. This is
- * very slow with regard to sorting all the pixels under
+ * very slow with regard to sorting all the pxs under
  * Turbo C.
  *
  * The selected colors are ok but further mapping to a
@@ -171,13 +171,13 @@ median_cut(int row_start, int row_end, int ncuts,
 	if (ncuts == 0) {
 		struct color *avg;
 		struct color *palette_entry;
-		int palette_index;
+		int palidx;
 
-		palette_index = *ncolors;
+		palidx = *ncolors;
 		++(*ncolors);
 		*palette = xrealloc(*palette, sizeof(struct color) * *ncolors);
 		avg = get_average_color(row_start, row_end);
-		palette_entry = &(*palette)[palette_index];
+		palette_entry = &(*palette)[palidx];
 		palette_entry->red = avg->red;
 		palette_entry->green = avg->green;
 		palette_entry->blue = avg->blue;
@@ -230,3 +230,4 @@ quantize(struct bitmap *original_bmp, int ncuts)
 
 	return palette;
 }
+

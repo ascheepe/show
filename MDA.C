@@ -80,13 +80,13 @@ mda_set_mode(int mode)
 void
 mda_plot(int x, int y, int color)
 {
-	BYTE *pixel = vmem + (0x2000 * (y & 3)) + (90 * (y >> 2)) + (x >> 3);
+	BYTE *px = vmem + (0x2000 * (y & 3)) + (90 * (y >> 2)) + (x >> 3);
 	BYTE val = 1 << (7 - (x & 7));
 
 	if (color)
-		*pixel |= val;
+		*px |= val;
 	else
-		*pixel &= ~val;
+		*px &= ~val;
 }
 
 void
@@ -94,3 +94,4 @@ mda_clear_screen(void)
 {
 	memset(vmem, 0, 32 * 1024);
 }
+

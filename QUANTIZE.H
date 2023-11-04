@@ -23,3 +23,4 @@
 struct color *quantize(struct bitmap *, int);
 
 #endif
+

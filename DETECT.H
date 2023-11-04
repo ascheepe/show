@@ -28,3 +28,4 @@ enum graphics_type {
 enum graphics_type detect_graphics(void);
 
 #endif
+

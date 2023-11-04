@@ -31,7 +31,7 @@ die(char *fmt, ...)
 {
 	va_list vp;
 
-	set_mode(MODE_TEXT);
+	setmode(MODE_TEXT);
 
 	va_start(vp, fmt);
 	vfprintf(stderr, fmt, vp);
@@ -137,7 +137,7 @@ read_dword(FILE *f)
  * Set mode via bios call.
  */
 void
-set_mode(int mode)
+setmode(int mode)
 {
 	union REGS regs = { 0 };
 
@@ -160,3 +160,4 @@ file_exists(char *filename)
 	fclose(test);
 	return true;
 }
+

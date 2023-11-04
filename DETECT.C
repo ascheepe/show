@@ -76,3 +76,4 @@ detect_graphics(void)
 	/* if all else fails assume CGA */
 	return CGA_GRAPHICS;
 }
+

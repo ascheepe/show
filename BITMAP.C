@@ -103,7 +103,7 @@ bitmap_read(char *filename)
 	while (row-- > 0) {
 		BYTE *row_ptr = bmp->image + row * bmp->width;
 
-		printf("Loading %3d%%\r", 100 - row * 100 / bmp->height);
+		printf("L:%3d%%\r", 100 - row * 100 / bmp->height);
 		fflush(stdout);
 
 		if (fread(row_ptr, bmp->width, 1, f) != 1)
@@ -142,3 +142,4 @@ bitmap_copy(struct bitmap *bmp)
 
 	return copy;
 }
+

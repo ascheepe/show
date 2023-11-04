@@ -84,3 +84,4 @@ vga_set_palette(struct color *palette)
 		outp(VGA_DAC, palette[i].blue >> 2);
 	}
 }
+

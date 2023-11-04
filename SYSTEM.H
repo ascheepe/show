@@ -37,7 +37,8 @@ void *xrealloc(void *ptr, size_t size);
 BYTE read_byte(FILE *input_file);
 WORD read_word(FILE *input_file);
 DWORD read_dword(FILE *input_file);
-void set_mode(int mode);
+void setmode(int mode);
 int file_exists(char *filename);
 
 #endif
+

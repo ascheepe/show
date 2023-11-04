@@ -51,3 +51,4 @@ struct bitmap *bitmap_read(char *);
 void bitmap_free(struct bitmap *);
 struct bitmap *bitmap_copy(struct bitmap *);
 #endif
+
