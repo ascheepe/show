@@ -60,9 +60,9 @@ static void
 cga_show(struct bitmap *bmp)
 {
 	/*
-	 * The cga palette is for monochrome monitors, so basically a grayscale
-	 * gradient. The darker version of the default color palette is meant for
-	 * this usage.
+	 * The cga palette is for monochrome monitors, so basically a
+	 * grayscale gradient. The darker version of the default color
+	 * palette is meant for this usage.
 	 */
 	BYTE pal[4] = { 0, 2, 1, 3 };
 	int row_off, col_off;
@@ -147,21 +147,21 @@ vga_show(struct bitmap *bmp)
 void
 maybe_exit(void)
 {
-	int ch = -1;
-
 	if (kbhit()) {
+		int ch;
+
 		ch = tolower(getch());
 
-		/* read away special key */
+		/* read away 'special' key */
 		if (ch == 0 || ch == 224) {
 			getch();
 			ch = -1;
 		}
-	}
 
-	if (ch == 'q' || ch == KEY_ESC) {
-		setmode(MODE_TEXT);
-		exit(0);
+		if (ch == 'q' || ch == KEY_ESC) {
+			setmode(MODE_TEXT);
+			exit(0);
+		}
 	}
 }
 
@@ -177,7 +177,7 @@ main(int argc, char **argv)
 	if (argc == 2) {
 		waitms = atoi(argv[1]);
 		if (waitms == 0) {
-			fprintf(stderr, "\binvalid delay.\n");
+			fprintf(stderr, "\bInvalid delay.\n");
 			return 1;
 		}
 		waitms *= 1000;
