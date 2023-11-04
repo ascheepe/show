@@ -38,21 +38,22 @@
 void
 maybe_exit(void)
 {
-	if (kbhit()) {
-		int ch;
+	int ch = -1;
 
-		ch = tolower(getch());
+	if (!kbhit())
+		return;
 
-		/* read away 'special' key */
-		if (ch == 0 || ch == 224) {
-			getch();
-			ch = -1;
-		}
+	ch = tolower(getch());
 
-		if (ch == 'q' || ch == KEY_ESC) {
-			setmode(MODE_TEXT);
-			exit(0);
-		}
+	/* read away 'special' key */
+	if (ch == 0 || ch == 224) {
+		getch();
+		ch = -1;
+	}
+
+	if (ch == 'q' || ch == KEY_ESC) {
+		setmode(MODE_TEXT);
+		exit(0);
 	}
 }
 
