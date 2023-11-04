@@ -68,7 +68,7 @@ get_max_range(int row_start, int row_end)
 }
 
 /*
- * Calculate a running average for the px colors between
+ * Calculate a running average for the pixel colors between
  * row_start and row_end.
  * Scale color components by 8 to have a low precision fixed-point
  * value which we can round back in the end.
@@ -109,7 +109,7 @@ get_average_color(int row_start, int row_end)
 }
 
 /*
- * Sort pxs by a color component.
+ * Sort pixels by a color component.
  */
 static int
 by_red(const void *index_a_ptr, const void *index_b_ptr)
@@ -146,7 +146,7 @@ by_blue(const void *index_a_ptr, const void *index_b_ptr)
 
 /*
  * Do a median-cut to generate an optimal palette. This is
- * very slow with regard to sorting all the pxs under
+ * very slow with regard to sorting all the pixels under
  * Turbo C.
  *
  * The selected colors are ok but further mapping to a

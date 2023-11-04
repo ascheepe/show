@@ -63,17 +63,17 @@ grayscale_dither(struct bitmap *bmp, int ncolors)
 		for (col = 1; col < bmp->width - 1; ++col) {
 			struct color *color_ptr;
 			int luma_error;
-			BYTE old_px;
-			BYTE new_px;
+			BYTE old_pixel;
+			BYTE new_pixel;
 
 			color_ptr = &bmp->palette[bmp->image[INDEX(col, row)]];
-			old_px = clamp(color_to_mono(color_ptr)
+			old_pixel = clamp(color_to_mono(color_ptr)
 			    + error[0][col].luma);
-			new_px =
-			    (old_px * ncolors / 256) * (256 / ncolors);
-			bmp->image[INDEX(col, row)] = new_px;
+			new_pixel =
+			    (old_pixel * ncolors / 256) * (256 / ncolors);
+			bmp->image[INDEX(col, row)] = new_pixel;
 
-			luma_error = old_px - new_px;
+			luma_error = old_pixel - new_pixel;
 			error[0][col + 1].luma += luma_error * 7 / 16;
 			error[1][col - 1].luma += luma_error * 3 / 16;
 			error[1][col].luma += luma_error * 5 / 16;
@@ -99,31 +99,31 @@ dither(struct bitmap *bmp, struct color *palette, int ncolors)
 		printf("D:%3d%%\r", row * 100 / bmp->height);
 		fflush(stdout);
 		for (col = 1; col < bmp->width - 1; ++col) {
-			struct color old_px, new_px;
+			struct color old_pixel, new_pixel;
 			struct color *color_ptr;
 			int red_error, green_error, blue_error;
 			int palidx;
 
 			color_ptr = &bmp->palette[bmp->image[INDEX(col, row)]];
-			old_px.red =
+			old_pixel.red =
 			    clamp(color_ptr->red + error[0][col].red);
-			old_px.green =
+			old_pixel.green =
 			    clamp(color_ptr->green + error[0][col].green);
-			old_px.blue =
+			old_pixel.blue =
 			    clamp(color_ptr->blue + error[0][col].blue);
 
-			palidx = find_closest_color(&old_px, palette,
+			palidx = find_closest_color(&old_pixel, palette,
 			    ncolors);
 			bmp->image[INDEX(col, row)] = palidx;
 
 			color_ptr = &palette[palidx];
-			new_px.red = color_ptr->red;
-			new_px.green = color_ptr->green;
-			new_px.blue = color_ptr->blue;
+			new_pixel.red = color_ptr->red;
+			new_pixel.green = color_ptr->green;
+			new_pixel.blue = color_ptr->blue;
 
-			red_error = old_px.red - new_px.red;
-			green_error = old_px.green - new_px.green;
-			blue_error = old_px.blue - new_px.blue;
+			red_error = old_pixel.red - new_pixel.red;
+			green_error = old_pixel.green - new_pixel.green;
+			blue_error = old_pixel.blue - new_pixel.blue;
 
 			error[0][col + 1].red += red_error * 7 / 16;
 			error[0][col + 1].green += green_error * 7 / 16;
