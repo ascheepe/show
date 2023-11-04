@@ -176,7 +176,7 @@ main(int argc, char **argv)
 
 	if (argc == 2) {
 		waitms = atoi(argv[1]);
-		if (waitms <= 0) {
+		if (waitms == 0) {
 			fprintf(stderr, "\binvalid delay.\n");
 			return 1;
 		}
