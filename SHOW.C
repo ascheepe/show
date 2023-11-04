@@ -114,9 +114,9 @@ ega_show(struct bitmap *bmp)
 	col_off = EGA_WIDTH / 2 - bmp->width / 2;
 	row_off = EGA_HEIGHT / 2 - bmp->height / 2;
 
+	dither(bmp, ega_palette, 16);
 	ega_clear_screen(); /* XXX: resets palette */
 	ega_set_palette(ega_palette, 16);
-	dither(bmp, ega_palette, 16);
 
 	for (row = 0; row < bmp->height - 1; ++row) {
 		for (col = 1; col < bmp->width - 1; ++col) {
@@ -144,23 +144,25 @@ vga_show(struct bitmap *bmp)
 }
 
 #define KEY_ESC 27
-#define NO_KEY -1
-static int
-getkey(void)
+void
+maybe_exit(void)
 {
-	int ch = NO_KEY;
+	int ch = -1;
 
 	if (kbhit()) {
-		ch = getch();
+		ch = tolower(getch());
 
 		/* read away special key */
 		if (ch == 0 || ch == 224) {
 			getch();
-			ch = NO_KEY;
+			ch = -1;
 		}
 	}
 
-	return ch;
+	if (ch == 'q' || ch == KEY_ESC) {
+		setmode(MODE_TEXT);
+		exit(0);
+	}
 }
 
 int
@@ -214,13 +216,7 @@ main(int argc, char **argv)
 			bitmap_free(bmp);
 
 			for (i = 0; i < waitms; i += 100) {
-				int ch;
-
-				ch = tolower(getkey());
-				if (ch == 'q' || ch == KEY_ESC) {
-					setmode(MODE_TEXT);
-					return 0;
-				}
+				maybe_exit();
 				delay(100);
 			}
 		}

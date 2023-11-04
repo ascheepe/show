@@ -19,6 +19,7 @@
 #include "bitmap.h"
 #include "color.h"
 #include "dither.h"
+#include "system.h"
 
 #define INDEX(x, y) ((y) * bmp->width + (x))
 
@@ -56,6 +57,7 @@ grayscale_dither(struct bitmap *bmp, int ncolors)
 
 	memset(error, 0, sizeof(error));
 	for (row = 0; row < bmp->height - 1; ++row) {
+		maybe_exit();
 		printf("D:%3d%%\r", row * 100 / bmp->height);
 		fflush(stdout);
 		for (col = 1; col < bmp->width - 1; ++col) {
@@ -93,6 +95,7 @@ dither(struct bitmap *bmp, struct color *palette, int ncolors)
 
 	memset(error, 0, sizeof(error));
 	for (row = 0; row < bmp->height - 1; ++row) {
+		maybe_exit();
 		printf("D:%3d%%\r", row * 100 / bmp->height);
 		fflush(stdout);
 		for (col = 1; col < bmp->width - 1; ++col) {
@@ -162,7 +165,8 @@ ordered_dither(struct bitmap *bmp, struct color *palette, int ncolors)
 	for (row = 0; row < bmp->height; ++row) {
 		BYTE Mrow = row & 7;
 
-		printf("Dithering %3d%%\r", row * 100 / bmp->height);
+		maybe_exit();
+		printf("D:%3d%%\r", row * 100 / bmp->height);
 		fflush(stdout);
 
 		for (col = 0; col < bmp->width; ++col) {

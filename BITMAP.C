@@ -21,6 +21,7 @@
 #include "system.h"
 #include "bitmap.h"
 #include "color.h"
+#include "system.h"
 
 #define FILEHEADERSIZE 14
 
@@ -103,6 +104,7 @@ bitmap_read(char *filename)
 	while (row-- > 0) {
 		BYTE *row_ptr = bmp->image + row * bmp->width;
 
+		maybe_exit();
 		printf("L:%3d%%\r", 100 - row * 100 / bmp->height);
 		fflush(stdout);
 
