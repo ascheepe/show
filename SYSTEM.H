@@ -31,14 +31,14 @@ typedef unsigned short WORD;
 typedef unsigned long DWORD;
 
 void die(char *fmt, ...);
-void *xmalloc(size_t size);
-void *xcalloc(size_t nmemb, size_t size);
-void *xrealloc(void *ptr, size_t size);
-BYTE read_byte(FILE *input_file);
-WORD read_word(FILE *input_file);
-DWORD read_dword(FILE *input_file);
-void setmode(int mode);
-int file_exists(char *filename);
+void *xmalloc(size_t);
+void *xcalloc(size_t, size_t);
+void *xrealloc(void *, size_t);
+BYTE read_byte(FILE *);
+WORD read_word(FILE *);
+DWORD read_dword(FILE *);
+void setmode(int);
+int file_exists(char *);
 
 extern void maybe_exit(void);
 #endif

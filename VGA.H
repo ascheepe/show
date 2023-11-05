@@ -23,11 +23,11 @@
 #define VGA_WIDTH 320
 #define VGA_HEIGHT 200
 
-void *vga_vmem_ptr(int x, int y);
-void vga_plot(int x, int y, int color);
+void *vga_vmem_ptr(int, int);
+void vga_plot(int, int, int);
 void vga_clear_screen(void);
-void vga_set_color(BYTE index, BYTE red, BYTE green, BYTE blue);
-void vga_set_palette(struct color *palette);
+void vga_set_color(BYTE, BYTE, BYTE, BYTE);
+void vga_set_palette(struct color *);
 void vga_wait_vblank(void);
 
 #endif
