@@ -32,6 +32,5 @@ enum {
 };
 
 BYTE color_to_mono(struct color *);
-int find_closest_color(const struct color *, const struct color *, int);
 #endif
 

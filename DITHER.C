@@ -14,6 +14,7 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+#include <stdlib.h>
 #include <string.h>
 
 #include "bitmap.h"
@@ -47,6 +48,34 @@ clamp(int value)
 	return value;
 }
 
+#define SQR(n) ((DWORD)((n)*(n)))
+
+/*
+ * Finds the closest color to 'color' in palette
+ * 'palette', returning the index of it.
+ */
+int pick(const struct color *color, const struct color *palette, int ncolors)
+{
+	DWORD dist, maxdist = -1;
+	int i, match;
+
+	for (i = 0; i < ncolors; ++i) {
+		const struct color *palette_color = &palette[i];
+		WORD red_diff = abs(color->red - palette_color->red);
+		WORD green_diff = abs(color->green - palette_color->green);
+		WORD blue_diff = abs(color->blue - palette_color->blue);
+
+		dist = SQR(red_diff) * 3 + SQR(green_diff) * 4 +
+		    SQR(blue_diff) * 2;
+
+		if (dist < maxdist) {
+			maxdist = dist;
+			match = i;
+		}
+	}
+
+	return match;
+}
 /*
  * Convert bitmap to grayscale with dithering in place.
  */
@@ -112,7 +141,7 @@ dither(struct bitmap *bmp, struct color *palette, int ncolors)
 			old_pixel.blue =
 			    clamp(color_ptr->blue + error[0][col].blue);
 
-			palidx = find_closest_color(&old_pixel, palette,
+			palidx = pick(&old_pixel, palette,
 			    ncolors);
 			bmp->image[INDEX(col, row)] = palidx;
 
@@ -184,7 +213,7 @@ ordered_dither(struct bitmap *bmp, struct color *palette, int ncolors)
 			    ? 255 : 0;
 
 			palidx =
-			    find_closest_color(&new_color, palette, ncolors);
+			    pick(&new_color, palette, ncolors);
 			bmp->image[INDEX(col, row)] = palidx;
 		}
 	}

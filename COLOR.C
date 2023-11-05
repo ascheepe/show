@@ -14,10 +14,6 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 #include "system.h"
 #include "color.h"
 
@@ -31,36 +27,4 @@ color_to_mono(struct color *color)
 	    color->blue * 11 / 100;
 }
 
-#define SQR(n) ((DWORD)((n)*(n)))
-
-/*
- * Finds the closest color to 'color' in palette
- * 'palette', returning the index of it.
- */
-int
-find_closest_color(const struct color *color,
-    const struct color *palette, int ncolors)
-{
-	DWORD maxdist = -1;
-	DWORD dist;
-	int match;
-	int i;
-
-	for (i = 0; i < ncolors; ++i) {
-		const struct color *palette_color = &palette[i];
-		WORD red_diff = abs(color->red - palette_color->red);
-		WORD green_diff = abs(color->green - palette_color->green);
-		WORD blue_diff = abs(color->blue - palette_color->blue);
-
-		dist = SQR(red_diff) * 3
-		    + SQR(green_diff) * 4 + SQR(blue_diff) * 2;
-
-		if (dist < maxdist) {
-			maxdist = dist;
-			match = i;
-		}
-	}
-
-	return match;
-}
 
