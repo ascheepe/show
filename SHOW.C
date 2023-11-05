@@ -178,11 +178,8 @@ vga_show(struct bitmap *bmp)
 int
 main(int argc, char **argv)
 {
-	struct ffblk ffblk;
-	struct bitmap *bmp;
 	void (*show)(struct bitmap *);
 	unsigned int waitms = 5 * 1000;
-	int status;
 
 	if (argc == 2) {
 		waitms = atoi(argv[1]);
@@ -216,9 +213,13 @@ main(int argc, char **argv)
 	}
 
 	for (;;) {
+		struct ffblk ffblk;
+		int status;
+
 		for (status = findfirst("*.bmp", &ffblk, 0);
 		     status == 0;
 		     status = findnext(&ffblk)) {
+			struct bitmap *bmp;
 			unsigned int i;
 
 			bmp = bitmap_read(ffblk.ff_name);
