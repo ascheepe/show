@@ -91,9 +91,8 @@ grayscale_dither(struct bitmap *bmp, int ncolors)
 		fflush(stdout);
 		for (col = 1; col < bmp->width - 1; ++col) {
 			struct color *color_ptr;
+			BYTE old_pixel, new_pixel;
 			int Y_error;
-			BYTE old_pixel;
-			BYTE new_pixel;
 
 			color_ptr = &bmp->palette[bmp->image[INDEX(col, row)]];
 			old_pixel = clamp(color_to_mono(color_ptr)
