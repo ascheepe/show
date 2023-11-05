@@ -73,9 +73,9 @@ mda_show(struct bitmap *bmp)
 	for (row = 0; row < bmp->height; ++row) {
 		maybe_exit();
 		for (col = 0; col < bmp->width; ++col) {
-			BYTE luma = bmp->image[row * bmp->width + col] >> 7;
+			BYTE Y = bmp->image[row * bmp->width + col] >> 7;
 
-			mda_plot(col + col_off, row + row_off, luma);
+			mda_plot(col + col_off, row + row_off, Y);
 		}
 	}
 }
@@ -100,8 +100,8 @@ cga_show(struct bitmap *bmp)
 	for (row = 0; row < bmp->height; ++row) {
 		maybe_exit();
 		for (col = 0; col < bmp->width; ++col) {
-			BYTE luma = bmp->image[row * bmp->width + col] >> 6;
-			BYTE color = pal[luma];
+			BYTE Y = bmp->image[row * bmp->width + col] >> 6;
+			BYTE color = pal[Y];
 
 			cga_plot(col + col_off, row + row_off, color);
 		}

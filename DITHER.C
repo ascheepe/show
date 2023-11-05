@@ -27,7 +27,7 @@ struct error {
 	int red;
 	int green;
 	int blue;
-	int luma;
+	int Y;
 };
 
 static struct error error[2][MAX_IMAGE_WIDTH];
@@ -62,22 +62,22 @@ grayscale_dither(struct bitmap *bmp, int ncolors)
 		fflush(stdout);
 		for (col = 1; col < bmp->width - 1; ++col) {
 			struct color *color_ptr;
-			int luma_error;
+			int Y_error;
 			BYTE old_pixel;
 			BYTE new_pixel;
 
 			color_ptr = &bmp->palette[bmp->image[INDEX(col, row)]];
 			old_pixel = clamp(color_to_mono(color_ptr)
-			    + error[0][col].luma);
+			    + error[0][col].Y);
 			new_pixel =
 			    (old_pixel * ncolors / 256) * (256 / ncolors);
 			bmp->image[INDEX(col, row)] = new_pixel;
 
-			luma_error = old_pixel - new_pixel;
-			error[0][col + 1].luma += luma_error * 7 / 16;
-			error[1][col - 1].luma += luma_error * 3 / 16;
-			error[1][col].luma += luma_error * 5 / 16;
-			error[1][col + 1].luma += luma_error * 1 / 16;
+			Y_error = old_pixel - new_pixel;
+			error[0][col + 1].Y += Y_error * 7 / 16;
+			error[1][col - 1].Y += Y_error * 3 / 16;
+			error[1][col].Y += Y_error * 5 / 16;
+			error[1][col + 1].Y += Y_error * 1 / 16;
 		}
 
 		memcpy(&error[0][0], &error[1][0], sizeof(error[0]));
