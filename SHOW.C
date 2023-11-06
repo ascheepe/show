@@ -217,7 +217,6 @@ main(int argc, char **argv)
 		break;
 	}
 
-
 	for (;;) {
 		int status;
 
