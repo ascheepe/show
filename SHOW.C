@@ -38,20 +38,20 @@
 void
 maybe_exit(void)
 {
-	int ch = -1;
+	int ch;
 
 	if (!kbhit())
 		return;
 
-	ch = tolower(getch());
+	ch = getch();
 
-	/* read away 'special' key */
+	/* read away function/arrow keys */
 	if (ch == 0 || ch == 224) {
 		getch();
-		ch = -1;
+		return;
 	}
 
-	if (ch == 'q' || ch == KEY_ESC) {
+	if (ch == KEY_ESC || ch == 'q' || ch == 'Q') {
 		setmode(MODE_TEXT);
 		exit(0);
 	}
