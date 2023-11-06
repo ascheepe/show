@@ -177,6 +177,7 @@ vga_show(struct bitmap *bmp)
 int
 main(int argc, char **argv)
 {
+	struct ffblk ffblk;
 	void (*show)(struct bitmap *);
 	unsigned int waitms = 5 * 1000;
 
@@ -187,6 +188,11 @@ main(int argc, char **argv)
 			return 1;
 		}
 		waitms *= 1000;
+	}
+
+	if (findfirst("*.bmp", &ffblk, 0) == -1) {
+		fprintf(stderr, "No images found.\n");
+		return 1;
 	}
 
 	switch (detect_graphics()) {
@@ -211,8 +217,8 @@ main(int argc, char **argv)
 		break;
 	}
 
+
 	for (;;) {
-		struct ffblk ffblk;
 		int status;
 
 		for (status = findfirst("*.bmp", &ffblk, 0);
