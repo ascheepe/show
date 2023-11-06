@@ -61,12 +61,12 @@ int pick(const struct color *color, const struct color *palette, int ncolors)
 
 	for (i = 0; i < ncolors; ++i) {
 		const struct color *palette_color = &palette[i];
-		WORD red_diff = abs(color->red - palette_color->red);
+		WORD red_diff   = abs(color->red   - palette_color->red);
 		WORD green_diff = abs(color->green - palette_color->green);
-		WORD blue_diff = abs(color->blue - palette_color->blue);
+		WORD blue_diff  = abs(color->blue  - palette_color->blue);
 
 		dist = SQR(red_diff) * 3 + SQR(green_diff) * 4 +
-		    SQR(blue_diff) * 2;
+		       SQR(blue_diff) * 2;
 
 		if (dist < maxdist) {
 			maxdist = dist;
@@ -95,8 +95,8 @@ grayscale_dither(struct bitmap *bmp, int ncolors)
 			int Y_error;
 
 			color_ptr = &bmp->palette[bmp->image[INDEX(col, row)]];
-			old_pixel = clamp(color_to_mono(color_ptr)
-			    + error[0][col].Y);
+			old_pixel = clamp(color_to_mono(color_ptr) +
+			    error[0][col].Y);
 			new_pixel =
 			    (old_pixel * ncolors / 256) * (256 / ncolors);
 			bmp->image[INDEX(col, row)] = new_pixel;
@@ -104,7 +104,7 @@ grayscale_dither(struct bitmap *bmp, int ncolors)
 			Y_error = old_pixel - new_pixel;
 			error[0][col + 1].Y += Y_error * 7 / 16;
 			error[1][col - 1].Y += Y_error * 3 / 16;
-			error[1][col].Y += Y_error * 5 / 16;
+			error[1][col    ].Y += Y_error * 5 / 16;
 			error[1][col + 1].Y += Y_error * 1 / 16;
 		}
 
@@ -140,34 +140,33 @@ dither(struct bitmap *bmp, struct color *palette, int ncolors)
 			old_pixel.blue =
 			    clamp(color_ptr->blue + error[0][col].blue);
 
-			palidx = pick(&old_pixel, palette,
-			    ncolors);
+			palidx = pick(&old_pixel, palette, ncolors);
 			bmp->image[INDEX(col, row)] = palidx;
 
 			color_ptr = &palette[palidx];
-			new_pixel.red = color_ptr->red;
+			new_pixel.red   = color_ptr->red;
 			new_pixel.green = color_ptr->green;
-			new_pixel.blue = color_ptr->blue;
+			new_pixel.blue  = color_ptr->blue;
 
-			red_error = old_pixel.red - new_pixel.red;
+			red_error   = old_pixel.red   - new_pixel.red;
 			green_error = old_pixel.green - new_pixel.green;
-			blue_error = old_pixel.blue - new_pixel.blue;
+			blue_error  = old_pixel.blue  - new_pixel.blue;
 
-			error[0][col + 1].red += red_error * 7 / 16;
+			error[0][col + 1].red   += red_error   * 7 / 16;
 			error[0][col + 1].green += green_error * 7 / 16;
-			error[0][col + 1].blue += blue_error * 7 / 16;
+			error[0][col + 1].blue  += blue_error  * 7 / 16;
 
-			error[1][col - 1].red += red_error * 3 / 16;
+			error[1][col - 1].red   += red_error   * 3 / 16;
 			error[1][col - 1].green += green_error * 3 / 16;
-			error[1][col - 1].blue += blue_error * 3 / 16;
+			error[1][col - 1].blue  += blue_error  * 3 / 16;
 
-			error[1][col].red += red_error * 5 / 16;
-			error[1][col].green += green_error * 5 / 16;
-			error[1][col].blue += blue_error * 5 / 16;
+			error[1][col    ].red   += red_error   * 5 / 16;
+			error[1][col    ].green += green_error * 5 / 16;
+			error[1][col    ].blue  += blue_error  * 5 / 16;
 
-			error[1][col + 1].red += red_error * 1 / 16;
+			error[1][col + 1].red   += red_error   * 1 / 16;
 			error[1][col + 1].green += green_error * 1 / 16;
-			error[1][col + 1].blue += blue_error * 1 / 16;
+			error[1][col + 1].blue  += blue_error  * 1 / 16;
 		}
 
 		memcpy(&error[0][0], &error[1][0], sizeof(error[0]));
@@ -179,13 +178,13 @@ void
 ordered_dither(struct bitmap *bmp, struct color *palette, int ncolors)
 {
 	BYTE M[8][8] = {
-		{ 0, 32, 8, 40, 2, 34, 10, 42 },
+		{  0, 32,  8, 40,  2, 34, 10, 42 },
 		{ 48, 16, 56, 24, 50, 18, 58, 26 },
-		{ 12, 44, 4, 36, 14, 46, 6, 38 },
+		{ 12, 44,  4, 36, 14, 46, 6, 38 },
 		{ 60, 28, 52, 20, 62, 30, 54, 22 },
-		{ 3, 35, 11, 43, 1, 33, 9, 41 },
+		{  3, 35, 11, 43,  1, 33,  9, 41 },
 		{ 51, 19, 59, 27, 49, 17, 57, 25 },
-		{ 15, 47, 7, 39, 13, 45, 5, 37 },
+		{ 15, 47,  7, 39, 13, 45,  5, 37 },
 		{ 63, 31, 55, 23, 61, 29, 53, 21 }
 	};
 	int row, col;
@@ -211,8 +210,7 @@ ordered_dither(struct bitmap *bmp, struct color *palette, int ncolors)
 			new_color.blue = color_ptr->blue > (4 * M[Mrow][Mcol])
 			    ? 255 : 0;
 
-			palidx =
-			    pick(&new_color, palette, ncolors);
+			palidx = pick(&new_color, palette, ncolors);
 			bmp->image[INDEX(col, row)] = palidx;
 		}
 	}
