@@ -95,10 +95,8 @@ grayscale_dither(struct bitmap *bmp, int ncolors)
 			int Y_error;
 
 			color = &bmp->palette[bmp->image[INDEX(col, row)]];
-			old_pixel = clamp(color_to_mono(color) +
-			    error[0][col].Y);
-			new_pixel =
-			    (old_pixel * ncolors / 256) * (256 / ncolors);
+			old_pixel = clamp(color_to_mono(color) + error[0][col].Y);
+			new_pixel = (old_pixel * ncolors / 256) * (256 / ncolors);
 			bmp->image[INDEX(col, row)] = new_pixel;
 
 			Y_error = old_pixel - new_pixel;
@@ -133,12 +131,9 @@ dither(struct bitmap *bmp, struct color *palette, int ncolors)
 			int palidx;
 
 			color = &bmp->palette[bmp->image[INDEX(col, row)]];
-			old_pixel.red =
-			    clamp(color->red + error[0][col].red);
-			old_pixel.green =
-			    clamp(color->green + error[0][col].green);
-			old_pixel.blue =
-			    clamp(color->blue + error[0][col].blue);
+			old_pixel.red   = clamp(color->red   + error[0][col].red);
+			old_pixel.green = clamp(color->green + error[0][col].green);
+			old_pixel.blue  = clamp(color->blue  + error[0][col].blue);
 
 			palidx = pick(&old_pixel, palette, ncolors);
 			bmp->image[INDEX(col, row)] = palidx;
@@ -202,13 +197,9 @@ ordered_dither(struct bitmap *bmp, struct color *palette, int ncolors)
 			struct color new_color;
 			BYTE Mcol = col & 7;
 
-			new_color.red = color->red > (4 * M[Mrow][Mcol])
-			    ? 255 : 0;
-			new_color.green =
-			    color->green > (4 * M[Mrow][Mcol])
-			    ? 255 : 0;
-			new_color.blue = color->blue > (4 * M[Mrow][Mcol])
-			    ? 255 : 0;
+			new_color.red   = color->red   > (4 * M[Mrow][Mcol]) ? 255 : 0;
+			new_color.green = color->green > (4 * M[Mrow][Mcol]) ? 255 : 0;
+			new_color.blue  = color->blue  > (4 * M[Mrow][Mcol]) ? 255 : 0;
 
 			palidx = pick(&new_color, palette, ncolors);
 			bmp->image[INDEX(col, row)] = palidx;
