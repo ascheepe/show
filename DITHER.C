@@ -60,13 +60,13 @@ int pick(const struct color *color, const struct color *palette, int ncolors)
 	int i, match;
 
 	for (i = 0; i < ncolors; ++i) {
-		const struct color *palette_color = &palette[i];
-		WORD red_diff   = abs(color->red   - palette_color->red);
-		WORD green_diff = abs(color->green - palette_color->green);
-		WORD blue_diff  = abs(color->blue  - palette_color->blue);
+		WORD red_diff   = abs(color->red   - palette[i].red);
+		WORD green_diff = abs(color->green - palette[i].green);
+		WORD blue_diff  = abs(color->blue  - palette[i].blue);
 
-		dist = SQR(red_diff) * 3 + SQR(green_diff) * 4 +
-		       SQR(blue_diff) * 2;
+		dist = SQR(red_diff)   * 3
+		     + SQR(green_diff) * 4
+		     + SQR(blue_diff)  * 2;
 
 		if (dist < maxdist) {
 			maxdist = dist;
@@ -90,12 +90,12 @@ grayscale_dither(struct bitmap *bmp, int ncolors)
 		printf("D:%3d%%\r", row * 100 / bmp->height);
 		fflush(stdout);
 		for (col = 1; col < bmp->width - 1; ++col) {
-			struct color *color_ptr;
+			struct color *color;
 			BYTE old_pixel, new_pixel;
 			int Y_error;
 
-			color_ptr = &bmp->palette[bmp->image[INDEX(col, row)]];
-			old_pixel = clamp(color_to_mono(color_ptr) +
+			color = &bmp->palette[bmp->image[INDEX(col, row)]];
+			old_pixel = clamp(color_to_mono(color) +
 			    error[0][col].Y);
 			new_pixel =
 			    (old_pixel * ncolors / 256) * (256 / ncolors);
@@ -128,25 +128,25 @@ dither(struct bitmap *bmp, struct color *palette, int ncolors)
 		fflush(stdout);
 		for (col = 1; col < bmp->width - 1; ++col) {
 			struct color old_pixel, new_pixel;
-			struct color *color_ptr;
+			struct color *color;
 			int red_error, green_error, blue_error;
 			int palidx;
 
-			color_ptr = &bmp->palette[bmp->image[INDEX(col, row)]];
+			color = &bmp->palette[bmp->image[INDEX(col, row)]];
 			old_pixel.red =
-			    clamp(color_ptr->red + error[0][col].red);
+			    clamp(color->red + error[0][col].red);
 			old_pixel.green =
-			    clamp(color_ptr->green + error[0][col].green);
+			    clamp(color->green + error[0][col].green);
 			old_pixel.blue =
-			    clamp(color_ptr->blue + error[0][col].blue);
+			    clamp(color->blue + error[0][col].blue);
 
 			palidx = pick(&old_pixel, palette, ncolors);
 			bmp->image[INDEX(col, row)] = palidx;
 
-			color_ptr = &palette[palidx];
-			new_pixel.red   = color_ptr->red;
-			new_pixel.green = color_ptr->green;
-			new_pixel.blue  = color_ptr->blue;
+			color = &palette[palidx];
+			new_pixel.red   = color->red;
+			new_pixel.green = color->green;
+			new_pixel.blue  = color->blue;
 
 			red_error   = old_pixel.red   - new_pixel.red;
 			green_error = old_pixel.green - new_pixel.green;
@@ -198,16 +198,16 @@ ordered_dither(struct bitmap *bmp, struct color *palette, int ncolors)
 
 		for (col = 0; col < bmp->width; ++col) {
 			int palidx = bmp->image[INDEX(col, row)];
-			struct color *color_ptr = &bmp->palette[palidx];
+			struct color *color = &bmp->palette[palidx];
 			struct color new_color;
 			BYTE Mcol = col & 7;
 
-			new_color.red = color_ptr->red > (4 * M[Mrow][Mcol])
+			new_color.red = color->red > (4 * M[Mrow][Mcol])
 			    ? 255 : 0;
 			new_color.green =
-			    color_ptr->green > (4 * M[Mrow][Mcol])
+			    color->green > (4 * M[Mrow][Mcol])
 			    ? 255 : 0;
-			new_color.blue = color_ptr->blue > (4 * M[Mrow][Mcol])
+			new_color.blue = color->blue > (4 * M[Mrow][Mcol])
 			    ? 255 : 0;
 
 			palidx = pick(&new_color, palette, ncolors);
