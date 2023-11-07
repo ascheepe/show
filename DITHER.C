@@ -54,7 +54,8 @@ clamp(int value)
  * Finds the closest color to 'color' in palette
  * 'palette', returning the index of it.
  */
-int pick(const struct color *color, const struct color *palette, int ncolors)
+int
+pick(const struct color *color, const struct color *palette, int ncolors)
 {
 	DWORD dist, maxdist = -1;
 	int i, match;
