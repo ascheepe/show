@@ -51,7 +51,7 @@ maybe_exit(void)
 		return;
 	}
 
-	if (ch == KEY_ESC || ch == 'q' || ch == 'Q') {
+	if (ch == KEY_ESC || tolower(ch) == 'q') {
 		setmode(MODE_TEXT);
 		exit(0);
 	}
