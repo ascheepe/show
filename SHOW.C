@@ -218,11 +218,11 @@ main(int argc, char **argv)
 	}
 
 	for (;;) {
-		int status;
+		int rc;
 
-		for (status = findfirst("*.bmp", &ffblk, 0);
-		     status == 0;
-		     status = findnext(&ffblk)) {
+		for (rc = findfirst("*.bmp", &ffblk, 0);
+		     rc == 0;
+		     rc = findnext(&ffblk)) {
 			struct bitmap *bmp;
 			unsigned int i;
 
