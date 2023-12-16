@@ -22,8 +22,6 @@
 #include "dither.h"
 #include "system.h"
 
-#define INDEX(x, y) ((y) * bmp->width + (x))
-
 struct error {
 	int r, g, b, Y;
 };
@@ -82,6 +80,8 @@ grayscale_dither(struct bitmap *bmp, int ncolors)
 
 	memset(error, 0, sizeof(error));
 	for (row = 0; row < bmp->height - 1; ++row) {
+		size_t ofs = row * bmp->width;
+
 		maybe_exit();
 		printf("D:%3d%%\r", row * 100 / bmp->height);
 		fflush(stdout);
@@ -90,10 +90,10 @@ grayscale_dither(struct bitmap *bmp, int ncolors)
 			BYTE old_pixel, new_pixel;
 			int Y_error;
 
-			color = &bmp->palette[bmp->image[INDEX(col, row)]];
+			color = &bmp->palette[bmp->image[ofs + col]];
 			old_pixel = clamp(color_to_mono(color) + error[0][col].Y);
 			new_pixel = (old_pixel * ncolors / 256) * (256 / ncolors);
-			bmp->image[INDEX(col, row)] = new_pixel;
+			bmp->image[ofs + col] = new_pixel;
 
 			Y_error = old_pixel - new_pixel;
 			error[0][col + 1].Y += Y_error * 7 / 16;
@@ -117,6 +117,8 @@ dither(struct bitmap *bmp, struct rgb *palette, int ncolors)
 
 	memset(error, 0, sizeof(error));
 	for (row = 0; row < bmp->height - 1; ++row) {
+		size_t ofs = row * bmp->width;
+
 		maybe_exit();
 		printf("D:%3d%%\r", row * 100 / bmp->height);
 		fflush(stdout);
@@ -126,13 +128,13 @@ dither(struct bitmap *bmp, struct rgb *palette, int ncolors)
 			int red_error, green_error, blue_error;
 			int palidx;
 
-			color = &bmp->palette[bmp->image[INDEX(col, row)]];
+			color = &bmp->palette[bmp->image[ofs + col]];
 			old_pixel.r = clamp(color->r + error[0][col].r);
 			old_pixel.g = clamp(color->g + error[0][col].g);
 			old_pixel.b = clamp(color->b + error[0][col].b);
 
 			palidx = pick(&old_pixel, palette, ncolors);
-			bmp->image[INDEX(col, row)] = palidx;
+			bmp->image[ofs + col] = palidx;
 
 			color = &palette[palidx];
 			new_pixel.r = color->r;
@@ -182,13 +184,14 @@ ordered_dither(struct bitmap *bmp, struct rgb *palette, int ncolors)
 
 	for (row = 0; row < bmp->height; ++row) {
 		BYTE Mrow = row & 7;
+		size_t ofs = row * bmp->width;
 
 		maybe_exit();
 		printf("D:%3d%%\r", row * 100 / bmp->height);
 		fflush(stdout);
 
 		for (col = 0; col < bmp->width; ++col) {
-			int palidx = bmp->image[INDEX(col, row)];
+			int palidx = bmp->image[ofs + col];
 			struct rgb *color = &bmp->palette[palidx];
 			struct rgb new_color;
 			BYTE Mcol = col & 7;
@@ -198,7 +201,7 @@ ordered_dither(struct bitmap *bmp, struct rgb *palette, int ncolors)
 			new_color.b = color->b > (4 * M[Mrow][Mcol]) ? 255 : 0;
 
 			palidx = pick(&new_color, palette, ncolors);
-			bmp->image[INDEX(col, row)] = palidx;
+			bmp->image[ofs + col] = palidx;
 		}
 	}
 }
