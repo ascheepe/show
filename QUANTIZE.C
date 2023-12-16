@@ -154,7 +154,7 @@ median_cut(WORD row_start, WORD row_end, int ncuts,
     struct rgb **palette, int *ncolors)
 {
 	BYTE *img_ofs;
-	size_t img_len;
+	WORD img_len;
 	int max_range;
 	int median;
 

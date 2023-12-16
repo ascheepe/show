@@ -66,7 +66,7 @@ grayscale_dither(struct bitmap *bmp, int ncolors)
 
 	memset(err, 0, sizeof(err));
 	for (row = 0; row < bmp->height - 1; ++row) {
-		size_t ofs = row * bmp->width;
+		WORD ofs = row * bmp->width;
 
 		maybe_exit();
 		printf("D:%3d%%\r", row * 100 / bmp->height);
@@ -103,7 +103,7 @@ dither(struct bitmap *bmp, struct rgb *palette, int ncolors)
 
 	memset(err, 0, sizeof(err));
 	for (row = 0; row < bmp->height - 1; ++row) {
-		size_t ofs = row * bmp->width;
+		WORD ofs = row * bmp->width;
 
 		maybe_exit();
 		printf("D:%3d%%\r", row * 100 / bmp->height);
@@ -169,7 +169,7 @@ ordered_dither(struct bitmap *bmp, struct rgb *palette, int ncolors)
 	WORD row, col;
 
 	for (row = 0; row < bmp->height; ++row) {
-		size_t ofs = row * bmp->width;
+		WORD ofs = row * bmp->width;
 		BYTE Mrow = row & 7;
 
 		maybe_exit();

@@ -71,7 +71,7 @@ mda_show(struct bitmap *bmp)
 	mda_clear_screen();
 
 	for (row = 0; row < bmp->height; ++row) {
-		size_t ofs = row * bmp->width;
+		WORD ofs = row * bmp->width;
 
 		maybe_exit();
 		for (col = 0; col < bmp->width; ++col) {
@@ -100,7 +100,7 @@ cga_show(struct bitmap *bmp)
 
 	cga_clear_screen();
 	for (row = 0; row < bmp->height; ++row) {
-		size_t ofs = row * bmp->width;
+		WORD ofs = row * bmp->width;
 
 		maybe_exit();
 		for (col = 0; col < bmp->width; ++col) {
@@ -147,7 +147,7 @@ ega_show(struct bitmap *bmp)
 	ega_set_palette(pal, 16);
 
 	for (row = 0; row < bmp->height - 1; ++row) {
-		size_t ofs = row * bmp->width;
+		WORD ofs = row * bmp->width;
 
 		maybe_exit();
 		for (col = 1; col < bmp->width - 1; ++col) {
