@@ -153,7 +153,7 @@ static void
 median_cut(WORD row_start, WORD row_end, int ncuts,
     struct rgb **palette, int *ncolors)
 {
-	BYTE *img_off;
+	BYTE *img_ofs;
 	size_t img_len;
 	int max_range;
 	int median;
@@ -183,20 +183,20 @@ median_cut(WORD row_start, WORD row_end, int ncuts,
 
 	max_range = get_max_range(row_start, row_end);
 
-	img_off = bmp->image + bmp->width * row_start;
+	img_ofs = bmp->image + bmp->width * row_start;
 	img_len = bmp->width * (row_end - row_start);
 
 	switch (max_range) {
 	case MAX_RANGE_RED:
-		qsort(img_off, img_len, 1, by_red);
+		qsort(img_ofs, img_len, 1, by_red);
 		break;
 
 	case MAX_RANGE_GREEN:
-		qsort(img_off, img_len, 1, by_green);
+		qsort(img_ofs, img_len, 1, by_green);
 		break;
 
 	case MAX_RANGE_BLUE:
-		qsort(img_off, img_len, 1, by_blue);
+		qsort(img_ofs, img_len, 1, by_blue);
 		break;
 
 	default:

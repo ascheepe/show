@@ -60,11 +60,11 @@ maybe_exit(void)
 static void
 mda_show(struct bitmap *bmp)
 {
-	WORD row_off, col_off;
+	WORD row_ofs, col_ofs;
 	WORD row, col;
 
-	col_off = MDA_WIDTH / 2 - bmp->width / 2;
-	row_off = MDA_HEIGHT / 2 - bmp->height / 2;
+	col_ofs = MDA_WIDTH / 2 - bmp->width / 2;
+	row_ofs = MDA_HEIGHT / 2 - bmp->height / 2;
 	grayscale_dither(bmp, 2);
 
 	mda_set_mode(MDA_GRAPHICS_MODE);
@@ -77,7 +77,7 @@ mda_show(struct bitmap *bmp)
 		for (col = 0; col < bmp->width; ++col) {
 			BYTE Y = bmp->image[ofs + col] >> 7;
 
-			mda_plot(col + col_off, row + row_off, Y);
+			mda_plot(col + col_ofs, row + row_ofs, Y);
 		}
 	}
 }
@@ -91,11 +91,11 @@ cga_show(struct bitmap *bmp)
 	 * palette is meant for this usage.
 	 */
 	BYTE pal[4] = { 0, 2, 1, 3 };
-	WORD row_off, col_off;
+	WORD row_ofs, col_ofs;
 	WORD row, col;
 
-	col_off = CGA_WIDTH / 2 - bmp->width / 2;
-	row_off = CGA_HEIGHT / 2 - bmp->height / 2;
+	col_ofs = CGA_WIDTH / 2 - bmp->width / 2;
+	row_ofs = CGA_HEIGHT / 2 - bmp->height / 2;
 	grayscale_dither(bmp, 4);
 
 	cga_clear_screen();
@@ -107,7 +107,7 @@ cga_show(struct bitmap *bmp)
 			BYTE Y = bmp->image[ofs + col] >> 6;
 			BYTE color = pal[Y];
 
-			cga_plot(col + col_off, row + row_off, color);
+			cga_plot(col + col_ofs, row + row_ofs, color);
 		}
 	}
 }
@@ -136,11 +136,11 @@ ega_show(struct bitmap *bmp)
 		{ 0xFF, 0x00, 0xFF },
 		{ 0x00, 0xFF, 0xFF },
 	};
-	WORD row_off, col_off;
+	WORD row_ofs, col_ofs;
 	WORD row, col;
 
-	col_off = EGA_WIDTH / 2 - bmp->width / 2;
-	row_off = EGA_HEIGHT / 2 - bmp->height / 2;
+	col_ofs = EGA_WIDTH / 2 - bmp->width / 2;
+	row_ofs = EGA_HEIGHT / 2 - bmp->height / 2;
 
 	dither(bmp, pal, 16);
 	ega_clear_screen(); /* XXX: resets palette */
@@ -153,7 +153,7 @@ ega_show(struct bitmap *bmp)
 		for (col = 1; col < bmp->width - 1; ++col) {
 			BYTE color = bmp->image[ofs + col];
 
-			ega_plot(col + col_off, row + row_off, color);
+			ega_plot(col + col_ofs, row + row_ofs, color);
 		}
 	}
 }
@@ -161,11 +161,11 @@ ega_show(struct bitmap *bmp)
 static void
 vga_show(struct bitmap *bmp)
 {
-	WORD row_off, col_off;
+	WORD row_ofs, col_ofs;
 	WORD row;
 
-	col_off = VGA_WIDTH  / 2 - bmp->width  / 2;
-	row_off = VGA_HEIGHT / 2 - bmp->height / 2;
+	col_ofs = VGA_WIDTH  / 2 - bmp->width  / 2;
+	row_ofs = VGA_HEIGHT / 2 - bmp->height / 2;
 
 	vga_clear_screen();
 	vga_set_palette(bmp->palette);
@@ -174,7 +174,7 @@ vga_show(struct bitmap *bmp)
 
 		maybe_exit();
 		src = bmp->image + row * bmp->width;
-		dst = vga_vmem_ptr(col_off, row + row_off);
+		dst = vga_vmem_ptr(col_ofs, row + row_ofs);
 		memcpy(dst, src, bmp->width);
 	}
 }
