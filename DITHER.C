@@ -39,7 +39,7 @@ int
 pick(const struct rgb *color, const struct rgb *palette, int ncolors)
 {
 	DWORD dist, maxdist = -1;
-	int i, match;
+	WORD i, match;
 
 	for (i = 0; i < ncolors; ++i) {
 		WORD rdiff = abs(color->r - palette[i].r);
@@ -62,7 +62,7 @@ pick(const struct rgb *color, const struct rgb *palette, int ncolors)
 void
 grayscale_dither(struct bitmap *bmp, int ncolors)
 {
-	int row, col;
+	WORD row, col;
 
 	memset(err, 0, sizeof(err));
 	for (row = 0; row < bmp->height - 1; ++row) {
@@ -99,7 +99,7 @@ grayscale_dither(struct bitmap *bmp, int ncolors)
 void
 dither(struct bitmap *bmp, struct rgb *palette, int ncolors)
 {
-	int row, col;
+	WORD row, col;
 
 	memset(err, 0, sizeof(err));
 	for (row = 0; row < bmp->height - 1; ++row) {
@@ -112,7 +112,7 @@ dither(struct bitmap *bmp, struct rgb *palette, int ncolors)
 			struct rgb oldpixel, newpixel;
 			struct rgb *color;
 			int rerr, gerr, berr;
-			int palidx;
+			BYTE palidx;
 
 			color = &bmp->palette[bmp->image[ofs + col]];
 			oldpixel.r = CLAMP(color->r + err[0][col].r);
@@ -166,7 +166,7 @@ ordered_dither(struct bitmap *bmp, struct rgb *palette, int ncolors)
 		{ 15, 47,  7, 39, 13, 45,  5, 37 },
 		{ 63, 31, 55, 23, 61, 29, 53, 21 }
 	};
-	int row, col;
+	WORD row, col;
 
 	for (row = 0; row < bmp->height; ++row) {
 		size_t ofs = row * bmp->width;
@@ -177,7 +177,7 @@ ordered_dither(struct bitmap *bmp, struct rgb *palette, int ncolors)
 		fflush(stdout);
 
 		for (col = 0; col < bmp->width; ++col) {
-			int palidx = bmp->image[ofs + col];
+			BYTE palidx = bmp->image[ofs + col];
 			struct rgb *color = &bmp->palette[palidx];
 			struct rgb newcolor;
 			BYTE Mcol = col & 7;
