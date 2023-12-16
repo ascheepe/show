@@ -63,7 +63,7 @@ mda_show(struct bitmap *bmp)
 	WORD row_ofs, col_ofs;
 	WORD row, col;
 
-	col_ofs = MDA_WIDTH / 2 - bmp->width / 2;
+	col_ofs = MDA_WIDTH  / 2 - bmp->width  / 2;
 	row_ofs = MDA_HEIGHT / 2 - bmp->height / 2;
 	grayscale_dither(bmp, 2);
 
@@ -94,7 +94,7 @@ cga_show(struct bitmap *bmp)
 	WORD row_ofs, col_ofs;
 	WORD row, col;
 
-	col_ofs = CGA_WIDTH / 2 - bmp->width / 2;
+	col_ofs = CGA_WIDTH  / 2 - bmp->width  / 2;
 	row_ofs = CGA_HEIGHT / 2 - bmp->height / 2;
 	grayscale_dither(bmp, 4);
 
@@ -139,7 +139,7 @@ ega_show(struct bitmap *bmp)
 	WORD row_ofs, col_ofs;
 	WORD row, col;
 
-	col_ofs = EGA_WIDTH / 2 - bmp->width / 2;
+	col_ofs = EGA_WIDTH  / 2 - bmp->width  / 2;
 	row_ofs = EGA_HEIGHT / 2 - bmp->height / 2;
 
 	dither(bmp, pal, 16);
