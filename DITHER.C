@@ -28,9 +28,8 @@ struct error {
 
 static struct error err[2][MAX_IMAGE_WIDTH];
 
-#define clamp(n) ((n) > 255 ? 255 : (n) < 0 ? 0 : (n))
-
-#define SQR(n) ((DWORD)((n)*(n)))
+#define CLAMP(n) ((n) > 255 ? 255 : (n) < 0 ? 0 : (n))
+#define SQR(n)   ((DWORD)((n)*(n)))
 
 /*
  * Finds the closest color to 'color' in palette
@@ -78,7 +77,7 @@ grayscale_dither(struct bitmap *bmp, int ncolors)
 			int Yerr;
 
 			color = &bmp->palette[bmp->image[ofs + col]];
-			oldpixel = clamp(color_to_mono(color) + err[0][col].Y);
+			oldpixel = CLAMP(color_to_mono(color) + err[0][col].Y);
 			newpixel = (oldpixel * ncolors / 256) * (256 / ncolors);
 			bmp->image[ofs + col] = newpixel;
 
@@ -116,9 +115,9 @@ dither(struct bitmap *bmp, struct rgb *palette, int ncolors)
 			int palidx;
 
 			color = &bmp->palette[bmp->image[ofs + col]];
-			oldpixel.r = clamp(color->r + err[0][col].r);
-			oldpixel.g = clamp(color->g + err[0][col].g);
-			oldpixel.b = clamp(color->b + err[0][col].b);
+			oldpixel.r = CLAMP(color->r + err[0][col].r);
+			oldpixel.g = CLAMP(color->g + err[0][col].g);
+			oldpixel.b = CLAMP(color->b + err[0][col].b);
 
 			palidx = pick(&oldpixel, palette, ncolors);
 			bmp->image[ofs + col] = palidx;
