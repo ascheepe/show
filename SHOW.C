@@ -35,26 +35,28 @@
 #include "vga.h"
 
 #define KEY_ESC 27
-void
+int
 maybe_exit(void)
 {
 	int ch;
 
 	if (!kbhit())
-		return;
+		return -1;
 
 	ch = getch();
 
 	/* read away function/arrow keys */
 	if (ch == 0 || ch == 224) {
-		getch();
-		return;
+		ch = getch();
+		return ch;
 	}
 
 	if (ch == KEY_ESC || tolower(ch) == 'q') {
 		setmode(MODE_TEXT);
 		exit(0);
 	}
+
+	return ch;
 }
 
 static void
@@ -234,7 +236,11 @@ main(int argc, char **argv)
 			bitmap_free(bmp);
 
 			for (i = 0; i < waitms; i += 100) {
-				maybe_exit();
+				int ch;
+
+				ch = maybe_exit();
+				if (ch != -1)
+					break;
 				delay(100);
 			}
 		}

@@ -40,6 +40,6 @@ DWORD read_dword(FILE *);
 void setmode(int);
 int file_exists(char *);
 
-extern void maybe_exit(void);
+extern int maybe_exit(void);
 #endif
 
