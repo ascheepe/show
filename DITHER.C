@@ -28,20 +28,7 @@ struct error {
 
 static struct error err[2][MAX_IMAGE_WIDTH];
 
-/*
- * Clamp a value between 0 and 255, inclusive.
- */
-static BYTE
-clamp(int value)
-{
-	if (value > 255)
-		return 255;
-
-	if (value < 0)
-		return 0;
-
-	return value;
-}
+#define clamp(n) ((n) > 255 ? 255 : (n) < 0 ? 0 : (n))
 
 #define SQR(n) ((DWORD)((n)*(n)))
 
