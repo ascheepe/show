@@ -46,10 +46,8 @@ maybe_exit(void)
 	ch = getch();
 
 	/* read away function/arrow keys */
-	if (ch == 0 || ch == 224) {
-		ch = getch();
-		return ch;
-	}
+	if (ch == 0 || ch == 224)
+		return getch();
 
 	if (ch == KEY_ESC || tolower(ch) == 'q') {
 		setmode(MODE_TEXT);
