@@ -79,17 +79,17 @@ bitmap_read(char *filename)
 	/* palette data is bgr(a), located after all the headers */
 	fseek(f, bmp->header_size + FILEHEADERSIZE, SEEK_SET);
 	for (i = 0; i < bmp->ncolors; ++i) {
-		bmp->palette[i].blue = read_byte(f);
-		bmp->palette[i].green = read_byte(f);
-		bmp->palette[i].red = read_byte(f);
+		bmp->palette[i].b = read_byte(f);
+		bmp->palette[i].g = read_byte(f);
+		bmp->palette[i].r = read_byte(f);
 		read_byte(f);	/* read away alpha value */
 	}
 
 	/* fill remaining palette with black */
 	for (; i < 256; ++i) {
-		bmp->palette[i].red = 0;
-		bmp->palette[i].green = 0;
-		bmp->palette[i].blue = 0;
+		bmp->palette[i].r = 0;
+		bmp->palette[i].g = 0;
+		bmp->palette[i].b = 0;
 	}
 
 	bmp->image = xmalloc(bmp->width * bmp->height);
@@ -138,9 +138,9 @@ bitmap_copy(struct bitmap *bmp)
 	copy->image = xmalloc(bmp->height * bmp->width);
 	memcpy(copy->image, bmp->image, bmp->height * bmp->width);
 
-	copy->palette = xmalloc(sizeof(struct color) * bmp->ncolors);
+	copy->palette = xmalloc(sizeof(struct rgb) * bmp->ncolors);
 	memcpy(copy->palette, bmp->palette,
-	    sizeof(struct color) * bmp->ncolors);
+	    sizeof(struct rgb) * bmp->ncolors);
 
 	return copy;
 }

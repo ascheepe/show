@@ -37,22 +37,22 @@ static BYTE *vmem = (BYTE *) 0xA0000000L;
  * +--------------- Reserved
  */
 static BYTE
-ega_make_color(struct color *color)
+ega_make_color(struct rgb *color)
 {
-	BYTE red = color->red >> 6;
-	BYTE green = color->green >> 6;
-	BYTE blue = color->blue >> 6;
+	BYTE r = color->r >> 6;
+	BYTE g = color->g >> 6;
+	BYTE b = color->b >> 6;
 
-	BYTE red_msb = red >> 1;
-	BYTE green_msb = green >> 1;
-	BYTE blue_msb = blue >> 1;
+	BYTE rmsb = r >> 1;
+	BYTE gmsb = g >> 1;
+	BYTE bmsb = b >> 1;
 
-	BYTE red_lsb = red & 1;
-	BYTE green_lsb = green & 1;
-	BYTE blue_lsb = blue & 1;
+	BYTE rlsb = r & 1;
+	BYTE glsb = g & 1;
+	BYTE blsb = b & 1;
 
-	return (blue_msb << 0) | (green_msb << 1) | (red_msb << 2) |
-	    (blue_lsb << 3) | (green_lsb << 4) | (red_lsb << 5);
+	return (bmsb << 0) | (gmsb << 1) | (rmsb << 2) |
+	       (blsb << 3) | (glsb << 4) | (rlsb << 5);
 }
 
 /*
@@ -69,7 +69,7 @@ ega_make_color(struct color *color)
  * the format as the make_color function provides.
  */
 void
-ega_set_palette(struct color *palette, int ncolors)
+ega_set_palette(struct rgb *palette, int ncolors)
 {
 	int i;
 

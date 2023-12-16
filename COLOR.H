@@ -19,10 +19,8 @@
 
 #include "system.h"
 
-struct color {
-	BYTE red;
-	BYTE green;
-	BYTE blue;
+struct rgb {
+	BYTE r, g, b;
 };
 
 enum {
@@ -31,6 +29,6 @@ enum {
 	MAX_RANGE_BLUE
 };
 
-BYTE color_to_mono(struct color *);
+BYTE color_to_mono(struct rgb *);
 #endif
 

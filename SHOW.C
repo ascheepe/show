@@ -114,7 +114,7 @@ ega_show(struct bitmap *bmp)
 	/*
 	 * Custom palette for ega mode tries to have a broad color spectrum.
 	 */
-	struct color pal[] = {
+	struct rgb pal[] = {
 		{ 0x00, 0x00, 0x00 },
 		{ 0x55, 0x55, 0x55 },
 		{ 0xAA, 0xAA, 0xAA },

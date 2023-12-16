@@ -20,7 +20,7 @@
 #include "system.h"
 #include "bitmap.h"
 
-struct color *quantize(struct bitmap *, int);
+struct rgb *quantize(struct bitmap *, int);
 
 #endif
 

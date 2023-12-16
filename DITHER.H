@@ -22,7 +22,7 @@
 
 void convert_to_grayscale(struct bitmap *);
 void grayscale_dither(struct bitmap *, int);
-void dither(struct bitmap *, struct color *, int);
-void ordered_dither(struct bitmap *, struct color *, int);
+void dither(struct bitmap *, struct rgb *, int);
+void ordered_dither(struct bitmap *, struct rgb *, int);
 #endif
 

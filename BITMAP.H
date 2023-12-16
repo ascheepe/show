@@ -43,7 +43,7 @@ struct bitmap {
 	DWORD ncolors;
 	DWORD ncolors_important;
 
-	struct color *palette;
+	struct rgb *palette;
 	BYTE *image;
 };
 

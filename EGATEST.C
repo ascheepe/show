@@ -9,7 +9,7 @@ typedef unsigned long DWORD;
 
 enum { false, true };
 
-struct color {
+struct rgb {
 	BYTE red;
 	BYTE green;
 	BYTE blue;
@@ -40,7 +40,7 @@ set_mode(int mode)
  * +--------------- Reserved
  */
 BYTE
-ega_make_color(struct color *color)
+ega_make_color(struct rgb *color)
 {
 	BYTE red = color->red >> 6;
 	BYTE green = color->green >> 6;
@@ -72,7 +72,7 @@ ega_make_color(struct color *color)
  * the format as the make_color function provides.
  */
 void
-ega_set_palette(struct color *palette, int ncolors)
+ega_set_palette(struct rgb *palette, int ncolors)
 {
 	int i;
 
@@ -114,7 +114,7 @@ ega_hi_plot(int x, int y, int color)
 static void
 ega_hi_show(void)
 {
-	struct color palette[] = {
+	struct rgb palette[] = {
 		{ 0x00, 0x00, 0x00 },
 		{ 0x55, 0x55, 0x55 },
 		{ 0xAA, 0xAA, 0xAA },

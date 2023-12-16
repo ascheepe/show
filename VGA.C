@@ -55,13 +55,13 @@ vga_wait_vblank(void)
 }
 
 void
-vga_set_color(BYTE index, BYTE red, BYTE green, BYTE blue)
+vga_set_color(BYTE index, BYTE r, BYTE g, BYTE b)
 {
 	vga_wait_vblank();
 	outp(VGA_DAC_PEL_ADDRESS, index);
-	outp(VGA_DAC, red >> 2);
-	outp(VGA_DAC, green >> 2);
-	outp(VGA_DAC, blue >> 2);
+	outp(VGA_DAC, r >> 2);
+	outp(VGA_DAC, g >> 2);
+	outp(VGA_DAC, b >> 2);
 }
 
 void
@@ -72,16 +72,16 @@ vga_clear_screen(void)
 }
 
 void
-vga_set_palette(struct color *palette)
+vga_set_palette(struct rgb *palette)
 {
 	int i;
 
 	vga_wait_vblank();
 	outp(VGA_DAC_PEL_ADDRESS, 0);
 	for (i = 0; i < 256; ++i) {
-		outp(VGA_DAC, palette[i].red >> 2);
-		outp(VGA_DAC, palette[i].green >> 2);
-		outp(VGA_DAC, palette[i].blue >> 2);
+		outp(VGA_DAC, palette[i].r >> 2);
+		outp(VGA_DAC, palette[i].g >> 2);
+		outp(VGA_DAC, palette[i].b >> 2);
 	}
 }
 
