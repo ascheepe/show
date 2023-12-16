@@ -60,8 +60,8 @@ maybe_exit(void)
 static void
 mda_show(struct bitmap *bmp)
 {
-	int row_off, col_off;
-	int row, col;
+	WORD row_off, col_off;
+	WORD row, col;
 
 	col_off = MDA_WIDTH / 2 - bmp->width / 2;
 	row_off = MDA_HEIGHT / 2 - bmp->height / 2;
@@ -71,9 +71,11 @@ mda_show(struct bitmap *bmp)
 	mda_clear_screen();
 
 	for (row = 0; row < bmp->height; ++row) {
+		size_t ofs = row * bmp->width;
+
 		maybe_exit();
 		for (col = 0; col < bmp->width; ++col) {
-			BYTE Y = bmp->image[row * bmp->width + col] >> 7;
+			BYTE Y = bmp->image[ofs + col] >> 7;
 
 			mda_plot(col + col_off, row + row_off, Y);
 		}
@@ -89,8 +91,8 @@ cga_show(struct bitmap *bmp)
 	 * palette is meant for this usage.
 	 */
 	BYTE pal[4] = { 0, 2, 1, 3 };
-	int row_off, col_off;
-	int row, col;
+	WORD row_off, col_off;
+	WORD row, col;
 
 	col_off = CGA_WIDTH / 2 - bmp->width / 2;
 	row_off = CGA_HEIGHT / 2 - bmp->height / 2;
@@ -98,9 +100,11 @@ cga_show(struct bitmap *bmp)
 
 	cga_clear_screen();
 	for (row = 0; row < bmp->height; ++row) {
+		size_t ofs = row * bmp->width;
+
 		maybe_exit();
 		for (col = 0; col < bmp->width; ++col) {
-			BYTE Y = bmp->image[row * bmp->width + col] >> 6;
+			BYTE Y = bmp->image[ofs + col] >> 6;
 			BYTE color = pal[Y];
 
 			cga_plot(col + col_off, row + row_off, color);
@@ -132,8 +136,8 @@ ega_show(struct bitmap *bmp)
 		{ 0xFF, 0x00, 0xFF },
 		{ 0x00, 0xFF, 0xFF },
 	};
-	int row_off, col_off;
-	int row, col;
+	WORD row_off, col_off;
+	WORD row, col;
 
 	col_off = EGA_WIDTH / 2 - bmp->width / 2;
 	row_off = EGA_HEIGHT / 2 - bmp->height / 2;
@@ -143,9 +147,11 @@ ega_show(struct bitmap *bmp)
 	ega_set_palette(pal, 16);
 
 	for (row = 0; row < bmp->height - 1; ++row) {
+		size_t ofs = row * bmp->width;
+
 		maybe_exit();
 		for (col = 1; col < bmp->width - 1; ++col) {
-			BYTE color = bmp->image[row * bmp->width + col];
+			BYTE color = bmp->image[ofs + col];
 
 			ega_plot(col + col_off, row + row_off, color);
 		}
@@ -155,10 +161,10 @@ ega_show(struct bitmap *bmp)
 static void
 vga_show(struct bitmap *bmp)
 {
-	int row_off, col_off;
-	int row;
+	WORD row_off, col_off;
+	WORD row;
 
-	col_off = VGA_WIDTH / 2 - bmp->width / 2;
+	col_off = VGA_WIDTH  / 2 - bmp->width  / 2;
 	row_off = VGA_HEIGHT / 2 - bmp->height / 2;
 
 	vga_clear_screen();
@@ -200,17 +206,14 @@ main(int argc, char **argv)
 		setmode(MDA_GRAPHICS_MODE);
 		show = mda_show;
 		break;
-
 	case CGA_GRAPHICS:
 		setmode(MODE_CGA);
 		show = cga_show;
 		break;
-
 	case EGA_GRAPHICS:
 		setmode(MODE_EGA);
 		show = ega_show;
 		break;
-
 	case VGA_GRAPHICS:
 		setmode(MODE_VGA);
 		show = vga_show;

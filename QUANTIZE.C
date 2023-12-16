@@ -32,13 +32,12 @@ static struct bitmap *bmp;
  * See which color component has the largest range.
  */
 static int
-get_max_range(int row_start, int row_end)
+get_max_range(WORD row_start, WORD row_end)
 {
 	BYTE rmax = 0;
 	BYTE gmax = 0;
 	BYTE bmax = 0;
-	int row;
-	int col;
+	WORD row, col;
 
 	for (row = row_start; row < row_end; ++row) {
 		for (col = 0; col < bmp->width; ++col) {
@@ -81,7 +80,7 @@ get_average_color(int row_start, int row_end)
 	DWORD gavg = 0;
 	DWORD bavg = 0;
 	DWORD ncolors = 0;
-	int row, col;
+	WORD row, col;
 
 	for (row = row_start; row < row_end; ++row) {
 		for (col = 0; col < bmp->width; ++col) {
@@ -151,7 +150,7 @@ by_blue(const void *index_a_ptr, const void *index_b_ptr)
  * more work.
  */
 static void
-median_cut(int row_start, int row_end, int ncuts,
+median_cut(WORD row_start, WORD row_end, int ncuts,
     struct rgb **palette, int *ncolors)
 {
 	BYTE *img_off;

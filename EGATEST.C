@@ -133,7 +133,7 @@ ega_hi_show(void)
 		{ 0xFF, 0x55, 0xFF }
 	};
 	BYTE color;
-	int row, col;
+	WORD row, col;
 
 	set_mode(0x10);
 	ega_set_palette(palette, 16);
