@@ -41,7 +41,7 @@ maybe_exit(void)
 	int ch;
 
 	if (!kbhit())
-		return -1;
+		return 0;
 
 	ch = getch();
 
@@ -234,7 +234,7 @@ main(int argc, char **argv)
 			bitmap_free(bmp);
 
 			for (i = 0; i < waitms; i += 100) {
-				if (maybe_exit() != -1)
+				if (maybe_exit())
 					break;
 				delay(100);
 			}
