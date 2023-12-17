@@ -234,10 +234,7 @@ main(int argc, char **argv)
 			bitmap_free(bmp);
 
 			for (i = 0; i < waitms; i += 100) {
-				int ch;
-
-				ch = maybe_exit();
-				if (ch != -1)
+				if (maybe_exit() != -1)
 					break;
 				delay(100);
 			}
