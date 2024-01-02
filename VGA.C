@@ -32,56 +32,51 @@
 #define INDEX(x, y) (((y) << 8) + ((y) << 6) + (x))
 static BYTE *vmem = (BYTE *) 0xA0000000L;
 
-void *
-vga_vmem_ptr(int x, int y)
+void *vga_vmem_ptr(int x, int y)
 {
-	return &vmem[INDEX(x, y)];
+    return &vmem[INDEX(x, y)];
 }
 
-void
-vga_plot(int x, int y, int color)
+void vga_plot(int x, int y, int color)
 {
-	vmem[INDEX(x, y)] = color;
+    vmem[INDEX(x, y)] = color;
 }
 
-void
-vga_wait_vblank(void)
+void vga_wait_vblank(void)
 {
-	while ((inp(VIDEO_STATUS_REGISTER) & 0x08))
-		continue;
+    while ((inp(VIDEO_STATUS_REGISTER) & 0x08)) {
+        continue;
+    }
 
-	while (!(inp(VIDEO_STATUS_REGISTER) & 0x08))
-		continue;
+    while (!(inp(VIDEO_STATUS_REGISTER) & 0x08)) {
+        continue;
+    }
 }
 
-void
-vga_set_color(BYTE index, BYTE r, BYTE g, BYTE b)
+void vga_set_color(BYTE index, BYTE r, BYTE g, BYTE b)
 {
-	vga_wait_vblank();
-	outp(VGA_DAC_PEL_ADDRESS, index);
-	outp(VGA_DAC, r >> 2);
-	outp(VGA_DAC, g >> 2);
-	outp(VGA_DAC, b >> 2);
+    vga_wait_vblank();
+    outp(VGA_DAC_PEL_ADDRESS, index);
+    outp(VGA_DAC, r >> 2);
+    outp(VGA_DAC, g >> 2);
+    outp(VGA_DAC, b >> 2);
 }
 
-void
-vga_clear_screen(void)
+void vga_clear_screen(void)
 {
-	vga_set_color(0, 0, 0, 0);
-	memset(vmem, 0, 320 * 200);
+    vga_set_color(0, 0, 0, 0);
+    memset(vmem, 0, 320 * 200);
 }
 
-void
-vga_set_palette(struct rgb *palette)
+void vga_set_palette(struct rgb *palette)
 {
-	int i;
+    int i;
 
-	vga_wait_vblank();
-	outp(VGA_DAC_PEL_ADDRESS, 0);
-	for (i = 0; i < 256; ++i) {
-		outp(VGA_DAC, palette[i].r >> 2);
-		outp(VGA_DAC, palette[i].g >> 2);
-		outp(VGA_DAC, palette[i].b >> 2);
-	}
+    vga_wait_vblank();
+    outp(VGA_DAC_PEL_ADDRESS, 0);
+    for (i = 0; i < 256; ++i) {
+        outp(VGA_DAC, palette[i].r >> 2);
+        outp(VGA_DAC, palette[i].g >> 2);
+        outp(VGA_DAC, palette[i].b >> 2);
+    }
 }
-

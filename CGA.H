@@ -26,4 +26,3 @@ void cga_plot(int, int, int);
 void cga_clear_screen(void);
 
 #endif
-

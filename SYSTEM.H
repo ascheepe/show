@@ -42,4 +42,3 @@ int file_exists(char *);
 
 extern int maybe_exit(void);
 #endif
-
