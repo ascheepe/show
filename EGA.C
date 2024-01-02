@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2020-2022 Axel Scheepers
+ * Copyright (c) 2020-2024 Axel Scheepers
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
