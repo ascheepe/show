@@ -70,7 +70,7 @@ void grayscale_dither(struct bitmap *bmp, int ncolors)
 
     memset(error, 0, sizeof(error));
     for (row = 0; row < bmp->height - 1; ++row) {
-        WORD row_ptr = row * bmp->width;
+        WORD current_row = row * bmp->width;
 
         maybe_exit();
         printf("D:%3d%%\r", row * 100 / bmp->height);
@@ -80,10 +80,10 @@ void grayscale_dither(struct bitmap *bmp, int ncolors)
             BYTE old_color, new_color;
             int Yerror;
 
-            color = &bmp->palette[bmp->image[row_ptr + column]];
+            color = &bmp->palette[bmp->image[current_row + column]];
             old_color = CLAMP(color_to_mono(color) + error[0][column].Y);
             new_color = (old_color * ncolors / 256) * (256 / ncolors);
-            bmp->image[row_ptr + column] = new_color;
+            bmp->image[current_row + column] = new_color;
 
             Yerror = old_color - new_color;
             error[0][column + 1].Y += Yerror * 7 / 16;
@@ -107,7 +107,7 @@ void dither(struct bitmap *bmp, struct rgb *palette, int ncolors)
 
     memset(error, 0, sizeof(error));
     for (row = 0; row < bmp->height - 1; ++row) {
-        WORD row_ptr = row * bmp->width;
+        WORD current_row = row * bmp->width;
 
         maybe_exit();
         printf("D:%3d%%\r", row * 100 / bmp->height);
@@ -121,13 +121,13 @@ void dither(struct bitmap *bmp, struct rgb *palette, int ncolors)
             int blue_error;
             BYTE palette_index;
 
-            color = &bmp->palette[bmp->image[row_ptr + column]];
+            color = &bmp->palette[bmp->image[current_row + column]];
             old_color.r = CLAMP(color->r + error[0][column].r);
             old_color.g = CLAMP(color->g + error[0][column].g);
             old_color.b = CLAMP(color->b + error[0][column].b);
 
             palette_index = find_closest_color(&old_color, palette, ncolors);
-            bmp->image[row_ptr + column] = palette_index;
+            bmp->image[current_row + column] = palette_index;
 
             color = &palette[palette_index];
             new_color.r = color->r;
@@ -176,7 +176,7 @@ void ordered_dither(struct bitmap *bmp, struct rgb *palette, int ncolors)
     WORD column;
 
     for (row = 0; row < bmp->height; ++row) {
-        WORD row_ptr = row * bmp->width;
+        WORD current_row = row * bmp->width;
         BYTE Mrow = row & 7;
 
         maybe_exit();
@@ -184,7 +184,7 @@ void ordered_dither(struct bitmap *bmp, struct rgb *palette, int ncolors)
         fflush(stdout);
 
         for (column = 0; column < bmp->width; ++column) {
-            BYTE palette_index = bmp->image[row_ptr + column];
+            BYTE palette_index = bmp->image[current_row + column];
             struct rgb *color = &bmp->palette[palette_index];
             struct rgb new_color;
             BYTE Mcolumn = column & 7;
@@ -194,7 +194,7 @@ void ordered_dither(struct bitmap *bmp, struct rgb *palette, int ncolors)
             new_color.b = color->b > (4 * M[Mrow][Mcolumn]) ? 255 : 0;
 
             palette_index = find_closest_color(&new_color, palette, ncolors);
-            bmp->image[row_ptr + column] = palette_index;
+            bmp->image[current_row + column] = palette_index;
         }
     }
 }
