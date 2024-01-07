@@ -39,13 +39,18 @@ static int find_closest_color(const struct rgb *color,
                               const struct rgb *palette,
                               int ncolors)
 {
-    DWORD distance, max_distance = -1;
-    WORD i, match = -1;
+    DWORD max_distance;
+    DWORD distance;
+    WORD match;
+    WORD i;
+
+    max_distance = -1;
+    match = -1;
 
     for (i = 0; i < ncolors; ++i) {
-        WORD red_distance = abs(color->r - palette[i].r);
+        WORD red_distance   = abs(color->r - palette[i].r);
         WORD green_distance = abs(color->g - palette[i].g);
-        WORD blue_distance = abs(color->b - palette[i].b);
+        WORD blue_distance  = abs(color->b - palette[i].b);
 
         distance = SQUARE(red_distance)   * 3
                  + SQUARE(green_distance) * 4
@@ -88,7 +93,7 @@ void grayscale_dither(struct bitmap *bmp, int ncolors)
             Yerror = old_color - new_color;
             error[0][column + 1].Y += Yerror * 7 / 16;
             error[1][column - 1].Y += Yerror * 3 / 16;
-            error[1][column].Y += Yerror * 5 / 16;
+            error[1][column    ].Y += Yerror * 5 / 16;
             error[1][column + 1].Y += Yerror * 1 / 16;
         }
 
@@ -146,9 +151,9 @@ void dither(struct bitmap *bmp, struct rgb *palette, int ncolors)
             error[1][column - 1].g += green_error * 3 / 16;
             error[1][column - 1].b += blue_error  * 3 / 16;
 
-            error[1][column].r += red_error   * 5 / 16;
-            error[1][column].g += green_error * 5 / 16;
-            error[1][column].b += blue_error  * 5 / 16;
+            error[1][column    ].r += red_error   * 5 / 16;
+            error[1][column    ].g += green_error * 5 / 16;
+            error[1][column    ].b += blue_error  * 5 / 16;
 
             error[1][column + 1].r += red_error   * 1 / 16;
             error[1][column + 1].g += green_error * 1 / 16;
@@ -198,3 +203,4 @@ void ordered_dither(struct bitmap *bmp, struct rgb *palette, int ncolors)
         }
     }
 }
+
