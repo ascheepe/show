@@ -60,10 +60,10 @@ maybe_exit(void)
 static void
 mda_show(struct bitmap *bmp)
 {
-	WORD row_offset, column_offset;
-	WORD row, column;
+	WORD row_offset, col_offset;
+	WORD row, col;
 
-	column_offset = MDA_WIDTH / 2 - bmp->width / 2;
+	col_offset = MDA_WIDTH / 2 - bmp->width / 2;
 	row_offset = MDA_HEIGHT / 2 - bmp->height / 2;
 	grayscale_dither(bmp, 2);
 
@@ -74,10 +74,10 @@ mda_show(struct bitmap *bmp)
 		WORD current_row = row * bmp->width;
 
 		maybe_exit();
-		for (column = 0; column < bmp->width; ++column) {
-			BYTE Y = bmp->image[current_row + column] >> 7;
+		for (col = 0; col < bmp->width; ++col) {
+			BYTE Y = bmp->image[current_row + col] >> 7;
 
-			mda_plot(column + column_offset, row + row_offset, Y);
+			mda_plot(col + col_offset, row + row_offset, Y);
 		}
 	}
 }
@@ -91,10 +91,10 @@ cga_show(struct bitmap *bmp)
 	 * palette is meant for this usage.
 	 */
 	BYTE palette[4] = { 0, 2, 1, 3 };
-	WORD row_offset, column_offset;
-	WORD row, column;
+	WORD row_offset, col_offset;
+	WORD row, col;
 
-	column_offset = CGA_WIDTH / 2 - bmp->width / 2;
+	col_offset = CGA_WIDTH / 2 - bmp->width / 2;
 	row_offset = CGA_HEIGHT / 2 - bmp->height / 2;
 	grayscale_dither(bmp, 4);
 
@@ -103,11 +103,11 @@ cga_show(struct bitmap *bmp)
 		WORD current_row = row * bmp->width;
 
 		maybe_exit();
-		for (column = 0; column < bmp->width; ++column) {
-			BYTE Y = bmp->image[current_row + column] >> 6;
+		for (col = 0; col < bmp->width; ++col) {
+			BYTE Y = bmp->image[current_row + col] >> 6;
 			BYTE color = palette[Y];
 
-			cga_plot(column + column_offset, row + row_offset,
+			cga_plot(col + col_offset, row + row_offset,
 			    color);
 		}
 	}
@@ -137,10 +137,10 @@ ega_show(struct bitmap *bmp)
 		{ 0xFF, 0x00, 0xFF },
 		{ 0x00, 0xFF, 0xFF },
 	};
-	WORD row_offset, column_offset;
-	WORD row, column;
+	WORD row_offset, col_offset;
+	WORD row, col;
 
-	column_offset = EGA_WIDTH / 2 - bmp->width / 2;
+	col_offset = EGA_WIDTH / 2 - bmp->width / 2;
 	row_offset = EGA_HEIGHT / 2 - bmp->height / 2;
 
 	dither(bmp, palette, 16);
@@ -151,10 +151,10 @@ ega_show(struct bitmap *bmp)
 		WORD current_row = row * bmp->width;
 
 		maybe_exit();
-		for (column = 1; column < bmp->width - 1; ++column) {
-			BYTE color = bmp->image[current_row + column];
+		for (col = 1; col < bmp->width - 1; ++col) {
+			BYTE color = bmp->image[current_row + col];
 
-			ega_plot(column + column_offset, row + row_offset,
+			ega_plot(col + col_offset, row + row_offset,
 			    color);
 		}
 	}
@@ -163,10 +163,10 @@ ega_show(struct bitmap *bmp)
 static void
 vga_show(struct bitmap *bmp)
 {
-	WORD row_offset, column_offset;
+	WORD row_offset, col_offset;
 	WORD row;
 
-	column_offset = VGA_WIDTH / 2 - bmp->width / 2;
+	col_offset = VGA_WIDTH / 2 - bmp->width / 2;
 	row_offset = VGA_HEIGHT / 2 - bmp->height / 2;
 
 	vga_clear_screen();
@@ -176,7 +176,7 @@ vga_show(struct bitmap *bmp)
 
 		maybe_exit();
 		src = bmp->image + row * bmp->width;
-		dst = vga_vmem_ptr(column_offset, row + row_offset);
+		dst = vga_vmem_ptr(col_offset, row + row_offset);
 		memcpy(dst, src, bmp->width);
 	}
 }
