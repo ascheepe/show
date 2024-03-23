@@ -115,7 +115,7 @@ read_word(FILE *input_file)
 	if (fread(buf, 2, 1, input_file) != 1)
 		die("read_word: input error.");
 
-	return (buf[0] << 0) | (buf[1] << 8);
+	return buf[0] | (buf[1] << 8);
 }
 
 /*
@@ -129,8 +129,8 @@ read_dword(FILE *input_file)
 	if (fread(buf, 4, 1, input_file) != 1)
 		die("read_dword: input error.");
 
-	return ((DWORD) buf[0] << 0) | ((DWORD) buf[1] << 8)
-	    | ((DWORD) buf[2] << 16) | ((DWORD) buf[3] << 24);
+	return (DWORD) buf[0] | ((DWORD) buf[1] << 8) |
+	    ((DWORD) buf[2] << 16) | ((DWORD) buf[3] << 24);
 }
 
 /*
