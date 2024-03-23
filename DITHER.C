@@ -21,11 +21,9 @@
 #include "color.h"
 #include "dither.h"
 #include "system.h"
-
 struct error {
-    int r, g, b, Y;
+	int r, g, b, Y;
 };
-
 static struct error error[2][MAX_IMAGE_WIDTH];
 
 #define CLAMP(n)  ((n) > 255 ? 255 : (n) < 0 ? 0 : (n))
@@ -35,172 +33,162 @@ static struct error error[2][MAX_IMAGE_WIDTH];
  * Finds the closest color to 'color' in palette
  * 'palette', returning the index of it.
  */
-static int find_closest_color(const struct rgb *color,
-                              const struct rgb *palette,
-                              int ncolors)
+static int
+find_closest_color(const struct rgb *color, const struct rgb *palette,
+    int ncolors)
 {
-    DWORD max_distance;
-    DWORD distance;
-    WORD match;
-    WORD i;
+	DWORD dist = -1, maxdist = -1;
+	WORD i, match;
 
-    max_distance = -1;
-    match = -1;
+	for (i = 0; i < ncolors; ++i) {
+		WORD r_dist = abs(color->r - palette[i].r);
+		WORD g_dist = abs(color->g - palette[i].g);
+		WORD b_dist = abs(color->b - palette[i].b);
 
-    for (i = 0; i < ncolors; ++i) {
-        WORD red_distance   = abs(color->r - palette[i].r);
-        WORD green_distance = abs(color->g - palette[i].g);
-        WORD blue_distance  = abs(color->b - palette[i].b);
+		dist = SQUARE(r_dist) * 3 + SQUARE(g_dist) * 4 +
+		    SQUARE(b_dist) * 2;
 
-        distance = SQUARE(red_distance)   * 3
-                 + SQUARE(green_distance) * 4
-                 + SQUARE(blue_distance)  * 2;
-
-        if (distance < max_distance) {
-            max_distance = distance;
-            match = i;
-        }
-    }
-
-    return match;
+		if (dist < maxdist) {
+			maxdist = dist;
+			match = i;
+		}
+	}
+	return match;
 }
+
 
 /*
  * Convert bitmap to grayscale with dithering in place.
  */
-void grayscale_dither(struct bitmap *bmp, int ncolors)
+void
+grayscale_dither(struct bitmap *bmp, int ncolors)
 {
-    WORD row;
-    WORD column;
+	WORD row, column;
 
-    memset(error, 0, sizeof(error));
-    for (row = 0; row < bmp->height - 1; ++row) {
-        WORD current_row = row * bmp->width;
+	memset(error, 0, sizeof(error));
+	for (row = 0; row < bmp->height - 1; ++row) {
+		WORD current_row = row * bmp->width;
+		maybe_exit();
+		printf("D:%3d%%\r", row * 100 / bmp->height);
+		fflush(stdout);
+		for (column = 1; column < bmp->width - 1; ++column) {
+			struct rgb *color;
+			BYTE old_color, new_color;
+			int Yerror;
 
-        maybe_exit();
-        printf("D:%3d%%\r", row * 100 / bmp->height);
-        fflush(stdout);
-        for (column = 1; column < bmp->width - 1; ++column) {
-            struct rgb *color;
-            BYTE old_color, new_color;
-            int Yerror;
+			color =
+			    &bmp->palette[bmp->image[current_row + column]];
+			old_color =
+			    CLAMP(color_to_mono(color) + error[0][column].Y);
+			new_color =
+			    (old_color * ncolors / 256) * (256 / ncolors);
+			bmp->image[current_row + column] = new_color;
 
-            color = &bmp->palette[bmp->image[current_row + column]];
-            old_color = CLAMP(color_to_mono(color) + error[0][column].Y);
-            new_color = (old_color * ncolors / 256) * (256 / ncolors);
-            bmp->image[current_row + column] = new_color;
-
-            Yerror = old_color - new_color;
-            error[0][column + 1].Y += Yerror * 7 / 16;
-            error[1][column - 1].Y += Yerror * 3 / 16;
-            error[1][column    ].Y += Yerror * 5 / 16;
-            error[1][column + 1].Y += Yerror * 1 / 16;
-        }
-
-        memcpy(&error[0][0], &error[1][0], sizeof(error[0]));
-        memset(&error[1][0], 0, sizeof(error[1]));
-    }
+			Yerror = old_color - new_color;
+			error[0][column + 1].Y += Yerror * 7 / 16;
+			error[1][column - 1].Y += Yerror * 3 / 16;
+			error[1][column + 0].Y += Yerror * 5 / 16;
+			error[1][column + 1].Y += Yerror * 1 / 16;
+		}
+		memcpy(&error[0][0], &error[1][0], sizeof(error[0]));
+		memset(&error[1][0], 0, sizeof(error[1]));
+	}
 }
+
 
 /*
  * Dither a bitmap in place
  */
-void dither(struct bitmap *bmp, struct rgb *palette, int ncolors)
+void
+dither(struct bitmap *bmp, struct rgb *palette, int ncolors)
 {
-    WORD row;
-    WORD column;
+	WORD row, column;
 
-    memset(error, 0, sizeof(error));
-    for (row = 0; row < bmp->height - 1; ++row) {
-        WORD current_row = row * bmp->width;
+	memset(error, 0, sizeof(error));
+	for (row = 0; row < bmp->height - 1; ++row) {
+		WORD current_row = row * bmp->width;
 
-        maybe_exit();
-        printf("D:%3d%%\r", row * 100 / bmp->height);
-        fflush(stdout);
-        for (column = 1; column < bmp->width - 1; ++column) {
-            struct rgb old_color;
-            struct rgb new_color;
-            struct rgb *color;
-            int red_error;
-            int green_error;
-            int blue_error;
-            BYTE palette_index;
+		maybe_exit();
+		printf("D:%3d%%\r", row * 100 / bmp->height);
+		fflush(stdout);
+		for (column = 1; column < bmp->width - 1; ++column) {
+			struct rgb old_color, new_color, *color;
+			int r_error, g_error, b_error;
+			BYTE i;
 
-            color = &bmp->palette[bmp->image[current_row + column]];
-            old_color.r = CLAMP(color->r + error[0][column].r);
-            old_color.g = CLAMP(color->g + error[0][column].g);
-            old_color.b = CLAMP(color->b + error[0][column].b);
+			color =
+			    &bmp->palette[bmp->image[current_row + column]];
+			old_color.r = CLAMP(color->r + error[0][column].r);
+			old_color.g = CLAMP(color->g + error[0][column].g);
+			old_color.b = CLAMP(color->b + error[0][column].b);
 
-            palette_index = find_closest_color(&old_color, palette, ncolors);
-            bmp->image[current_row + column] = palette_index;
+			i = find_closest_color(&old_color, palette, ncolors);
+			bmp->image[current_row + column] = i;
 
-            color = &palette[palette_index];
-            new_color.r = color->r;
-            new_color.g = color->g;
-            new_color.b = color->b;
+			color = &palette[i];
+			new_color.r = color->r;
+			new_color.g = color->g;
+			new_color.b = color->b;
 
-            red_error   = old_color.r - new_color.r;
-            green_error = old_color.g - new_color.g;
-            blue_error  = old_color.b - new_color.b;
+			r_error = old_color.r - new_color.r;
+			g_error = old_color.g - new_color.g;
+			b_error = old_color.b - new_color.b;
 
-            error[0][column + 1].r += red_error   * 7 / 16;
-            error[0][column + 1].g += green_error * 7 / 16;
-            error[0][column + 1].b += blue_error  * 7 / 16;
-
-            error[1][column - 1].r += red_error   * 3 / 16;
-            error[1][column - 1].g += green_error * 3 / 16;
-            error[1][column - 1].b += blue_error  * 3 / 16;
-
-            error[1][column    ].r += red_error   * 5 / 16;
-            error[1][column    ].g += green_error * 5 / 16;
-            error[1][column    ].b += blue_error  * 5 / 16;
-
-            error[1][column + 1].r += red_error   * 1 / 16;
-            error[1][column + 1].g += green_error * 1 / 16;
-            error[1][column + 1].b += blue_error  * 1 / 16;
-        }
-
-        memcpy(&error[0][0], &error[1][0], sizeof(error[0]));
-        memset(&error[1][0], 0, sizeof(error[1]));
-    }
+			error[0][column + 1].r += r_error * 7 / 16;
+			error[0][column + 1].g += g_error * 7 / 16;
+			error[0][column + 1].b += b_error * 7 / 16;
+			error[1][column - 1].r += r_error * 3 / 16;
+			error[1][column - 1].g += g_error * 3 / 16;
+			error[1][column - 1].b += b_error * 3 / 16;
+			error[1][column + 0].r += r_error * 5 / 16;
+			error[1][column + 0].g += g_error * 5 / 16;
+			error[1][column + 0].b += b_error * 5 / 16;
+			error[1][column + 1].r += r_error * 1 / 16;
+			error[1][column + 1].g += g_error * 1 / 16;
+			error[1][column + 1].b += b_error * 1 / 16;
+		}
+		memcpy(&error[0][0], &error[1][0], sizeof(error[0]));
+		memset(&error[1][0], 0, sizeof(error[1]));
+	}
 }
 
-void ordered_dither(struct bitmap *bmp, struct rgb *palette, int ncolors)
+void
+ordered_dither(struct bitmap *bmp, struct rgb *palette, int ncolors)
 {
-    BYTE M[8][8] = {
-        { 0, 32, 8, 40, 2, 34, 10, 42 },
-        { 48, 16, 56, 24, 50, 18, 58, 26 },
-        { 12, 44, 4, 36, 14, 46, 6, 38 },
-        { 60, 28, 52, 20, 62, 30, 54, 22 },
-        { 3, 35, 11, 43, 1, 33, 9, 41 },
-        { 51, 19, 59, 27, 49, 17, 57, 25 },
-        { 15, 47, 7, 39, 13, 45, 5, 37 },
-        { 63, 31, 55, 23, 61, 29, 53, 21 }
-    };
-    WORD row;
-    WORD column;
+	BYTE M[8][8] = {
+		{ 0, 32, 8, 40, 2, 34, 10, 42 },
+		{ 48, 16, 56, 24, 50, 18, 58, 26 },
+		{ 12, 44, 4, 36, 14, 46, 6, 38 },
+		{ 60, 28, 52, 20, 62, 30, 54, 22 },
+		{ 3, 35, 11, 43, 1, 33, 9, 41 },
+		{ 51, 19, 59, 27, 49, 17, 57, 25 },
+		{ 15, 47, 7, 39, 13, 45, 5, 37 },
+		{ 63, 31, 55, 23, 61, 29, 53, 21 }
+	};
+	WORD row;
+	WORD column;
 
-    for (row = 0; row < bmp->height; ++row) {
-        WORD current_row = row * bmp->width;
-        BYTE Mrow = row & 7;
+	for (row = 0; row < bmp->height; ++row) {
+		WORD current_row = row * bmp->width;
+		BYTE Mrow = row & 7;
 
-        maybe_exit();
-        printf("D:%3d%%\r", row * 100 / bmp->height);
-        fflush(stdout);
-
-        for (column = 0; column < bmp->width; ++column) {
-            BYTE palette_index = bmp->image[current_row + column];
-            struct rgb *color = &bmp->palette[palette_index];
-            struct rgb new_color;
-            BYTE Mcolumn = column & 7;
-
-            new_color.r = color->r > (4 * M[Mrow][Mcolumn]) ? 255 : 0;
-            new_color.g = color->g > (4 * M[Mrow][Mcolumn]) ? 255 : 0;
-            new_color.b = color->b > (4 * M[Mrow][Mcolumn]) ? 255 : 0;
-
-            palette_index = find_closest_color(&new_color, palette, ncolors);
-            bmp->image[current_row + column] = palette_index;
-        }
-    }
+		maybe_exit();
+		printf("D:%3d%%\r", row * 100 / bmp->height);
+		fflush(stdout);
+		for (column = 0; column < bmp->width; ++column) {
+			BYTE i = bmp->image[current_row + column];
+			struct rgb *color = &bmp->palette[i];
+			struct rgb new_color;
+			BYTE Mcolumn = column & 7;
+			new_color.r =
+			    color->r > (4 * M[Mrow][Mcolumn]) ? 255 : 0;
+			new_color.g =
+			    color->g > (4 * M[Mrow][Mcolumn]) ? 255 : 0;
+			new_color.b =
+			    color->b > (4 * M[Mrow][Mcolumn]) ? 255 : 0;
+			i = find_closest_color(&new_color, palette, ncolors);
+			bmp->image[current_row + column] = i;
+		}
+	}
 }
 

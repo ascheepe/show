@@ -26,136 +26,139 @@
  * Return to text mode, print a message and
  * exit with error.
  */
-void die(char *fmt, ...)
+void
+die(char *fmt, ...)
 {
-    va_list vp;
+	va_list vp;
 
-    setmode(MODE_TEXT);
+	setmode(MODE_TEXT);
 
-    va_start(vp, fmt);
-    vfprintf(stderr, fmt, vp);
-    va_end(vp);
+	va_start(vp, fmt);
+	vfprintf(stderr, fmt, vp);
+	va_end(vp);
 
-    if (fmt[0] && fmt[strlen(fmt) - 1] == ':') {
-        fprintf(stderr, " %s", strerror(errno));
-    } else {
-        fputc(' ', stderr);
-    }
+	if (fmt[0] && fmt[strlen(fmt) - 1] == ':')
+		fprintf(stderr, " %s", strerror(errno));
+	else
+		fputc(' ', stderr);
 
-    exit(1);
+	exit(1);
 }
 
 /*
  * Allocate memory with error checking.
  */
-void *xmalloc(size_t size)
+void *
+xmalloc(size_t size)
 {
-    void *ptr;
+	void *ptr;
 
-    ptr = malloc(size);
-    if (ptr == NULL) {
-        die("malloc: out of memory.");
-    }
+	ptr = malloc(size);
+	if (ptr == NULL)
+		die("malloc: out of memory.");
 
-    return ptr;
+	return ptr;
 }
 
 /*
  * Allocate and clear memory with error checking.
  */
-void *xcalloc(size_t nmemb, size_t size)
+void *
+xcalloc(size_t nmemb, size_t size)
 {
-    void *ptr;
+	void *ptr;
 
-    ptr = calloc(nmemb, size);
-    if (ptr == NULL) {
-        die("calloc: out of memory.");
-    }
+	ptr = calloc(nmemb, size);
+	if (ptr == NULL)
+		die("calloc: out of memory.");
 
-    return ptr;
+	return ptr;
 }
 
 /*
  * Reallocate memory with error checking.
  */
-void *xrealloc(void *ptr, size_t size)
+void *
+xrealloc(void *ptr, size_t size)
 {
-    void *new_ptr;
+	void *new_ptr;
 
-    new_ptr = realloc(ptr, size);
-    if (new_ptr == NULL) {
-        die("realloc: out of memory");
-    }
+	new_ptr = realloc(ptr, size);
+	if (new_ptr == NULL)
+		die("realloc: out of memory");
 
-    return new_ptr;
+	return new_ptr;
 }
 
 /*
  * Read a byte with error checking.
  */
-BYTE read_byte(FILE *input_file)
+BYTE
+read_byte(FILE *input_file)
 {
-    int ch;
+	int ch;
 
-    if ((ch = fgetc(input_file)) == EOF) {
-        die("read_byte: input error.");
-    }
+	if ((ch = fgetc(input_file)) == EOF)
+		die("read_byte: input error.");
 
-    return ch;
+	return ch;
 }
 
 /*
  * Read a word with error checking.
  */
-WORD read_word(FILE *input_file)
+WORD
+read_word(FILE *input_file)
 {
-    BYTE buf[2];
+	BYTE buf[2];
 
-    if (fread(buf, 2, 1, input_file) != 1) {
-        die("read_word: input error.");
-    }
+	if (fread(buf, 2, 1, input_file) != 1)
+		die("read_word: input error.");
 
-    return (buf[0] << 0) | (buf[1] << 8);
+	return (buf[0] << 0) | (buf[1] << 8);
 }
 
 /*
  * Read a double word with error checking.
  */
-DWORD read_dword(FILE *input_file)
+DWORD
+read_dword(FILE *input_file)
 {
-    BYTE buf[4];
+	BYTE buf[4];
 
-    if (fread(buf, 4, 1, input_file) != 1) {
-        die("read_dword: input error.");
-    }
+	if (fread(buf, 4, 1, input_file) != 1)
+		die("read_dword: input error.");
 
-    return ((DWORD) buf[0] <<  0) | ((DWORD) buf[1] <<  8)
-         | ((DWORD) buf[2] << 16) | ((DWORD) buf[3] << 24);
+	return ((DWORD) buf[0] << 0) | ((DWORD) buf[1] << 8)
+	    | ((DWORD) buf[2] << 16) | ((DWORD) buf[3] << 24);
 }
 
 /*
  * Set mode via bios call.
  */
-void setmode(int mode)
+void
+setmode(int mode)
 {
-    union REGS regs;
+	union REGS regs;
 
-    regs.h.ah = 0;
-    regs.h.al = mode;
-    int86(0x10, &regs, &regs);
+	regs.h.ah = 0;
+	regs.h.al = mode;
+	int86(0x10, &regs, &regs);
 }
 
 /*
  * Test if a file exists.
  */
-int file_exists(char *filename)
+int
+file_exists(char *filename)
 {
-    FILE *test = fopen(filename, "rb");
+	FILE *fp;
 
-    if (test == NULL) {
-        return false;
-    }
+	fp = fopen(filename, "rb");
+	if (fp == NULL)
+		return false;
 
-    fclose(test);
-    return true;
+	fclose(fp);
+	return true;
 }
+

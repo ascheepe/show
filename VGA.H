@@ -31,3 +31,4 @@ void vga_set_palette(struct rgb *);
 void vga_wait_vblank(void);
 
 #endif
+
