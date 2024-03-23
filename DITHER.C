@@ -36,8 +36,7 @@ static struct dither_err error[2][MAX_IMAGE_WIDTH];
  * 'palette', returning the index of it.
  */
 static int
-find_closest_color(const struct rgb *color, const struct rgb *palette,
-    int ncolors)
+pick_color(const struct rgb *color, const struct rgb *palette, int ncolors)
 {
 	DWORD dist = -1, maxdist = -1;
 	WORD i, match;
@@ -120,7 +119,7 @@ dither(struct bitmap *bmp, struct rgb *palette, int ncolors)
 			old.g = CLAMP(color->g + error[0][col].g);
 			old.b = CLAMP(color->b + error[0][col].b);
 
-			i = find_closest_color(&old, palette, ncolors);
+			i = pick_color(&old, palette, ncolors);
 			bmp->image[offset + col] = i;
 
 			color = &palette[i];
@@ -181,7 +180,7 @@ ordered_dither(struct bitmap *bmp, struct rgb *palette, int ncolors)
 			new.r = color->r > (4 * M[Mrow][Mcol]) ? 255 : 0;
 			new.g = color->g > (4 * M[Mrow][Mcol]) ? 255 : 0;
 			new.b = color->b > (4 * M[Mrow][Mcol]) ? 255 : 0;
-			i = find_closest_color(&new, palette, ncolors);
+			i = pick_color(&new, palette, ncolors);
 			bmp->image[offset + col] = i;
 		}
 	}
