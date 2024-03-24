@@ -94,11 +94,11 @@ xrealloc(void *ptr, size_t size)
  * Read a byte with error checking.
  */
 BYTE
-read_byte(FILE *input_file)
+read_byte(FILE *fp)
 {
 	int ch;
 
-	if ((ch = fgetc(input_file)) == EOF)
+	if ((ch = fgetc(fp)) == EOF)
 		die("read_byte: input error.");
 
 	return ch;
@@ -108,11 +108,11 @@ read_byte(FILE *input_file)
  * Read a word with error checking.
  */
 WORD
-read_word(FILE *input_file)
+read_word(FILE *fp)
 {
 	BYTE buf[2];
 
-	if (fread(buf, 2, 1, input_file) != 1)
+	if (fread(buf, 2, 1, fp) != 1)
 		die("read_word: input error.");
 
 	return buf[0] | (buf[1] << 8);
@@ -122,11 +122,11 @@ read_word(FILE *input_file)
  * Read a double word with error checking.
  */
 DWORD
-read_dword(FILE *input_file)
+read_dword(FILE *fp)
 {
 	BYTE buf[4];
 
-	if (fread(buf, 4, 1, input_file) != 1)
+	if (fread(buf, 4, 1, fp) != 1)
 		die("read_dword: input error.");
 
 	return (DWORD) buf[0] | ((DWORD) buf[1] << 8) |

@@ -34,57 +34,57 @@ struct bitmap *
 bitmap_read(char *filename)
 {
 	struct bitmap *bmp;
-	FILE *bmp_file;
+	FILE *fp;
 	DWORD width, row;
 	int i, skip;
 
-	bmp_file = fopen(filename, "rb");
-	if (bmp_file == NULL)
+	fp = fopen(filename, "rb");
+	if (fp == NULL)
 		die("bitmap_read:");
 
 	bmp = xmalloc(sizeof(struct bitmap));
 
-	bmp->file_type = read_word(bmp_file);
+	bmp->file_type = read_word(fp);
 	if (bmp->file_type != 0x4d42)
 		die("bitmap_read: not a bitmap file.");
 
-	bmp->file_size = read_dword(bmp_file);
-	bmp->reserved = read_dword(bmp_file);
-	bmp->pixel_offset = read_dword(bmp_file);
-	bmp->header_size = read_dword(bmp_file);
-	bmp->width = read_dword(bmp_file);
-	bmp->height = read_dword(bmp_file);
+	bmp->file_size = read_dword(fp);
+	bmp->reserved = read_dword(fp);
+	bmp->pixel_offset = read_dword(fp);
+	bmp->header_size = read_dword(fp);
+	bmp->width = read_dword(fp);
+	bmp->height = read_dword(fp);
 
 	if (bmp->width == 0 || bmp->height == 0 ||
 	    bmp->width > MAX_IMAGE_WIDTH || bmp->height > MAX_IMAGE_HEIGHT)
 		die("bitmap_read: image must be 320x200 or less.");
 
-	bmp->planes = read_word(bmp_file);
-	bmp->bpp = read_word(bmp_file);
+	bmp->planes = read_word(fp);
+	bmp->bpp = read_word(fp);
 	if (bmp->bpp > 8)
 		die("bitmap_read: unsupported bit depth (%d).", bmp->bpp);
 
-	bmp->compression = read_dword(bmp_file);
+	bmp->compression = read_dword(fp);
 	if (bmp->compression != 0)
 		die("bitmap_read: compression is not supported.");
 
-	bmp->image_size = read_dword(bmp_file);
-	bmp->x_ppm = read_dword(bmp_file);
-	bmp->y_ppm = read_dword(bmp_file);
-	bmp->ncolors = read_dword(bmp_file);
+	bmp->image_size = read_dword(fp);
+	bmp->x_ppm = read_dword(fp);
+	bmp->y_ppm = read_dword(fp);
+	bmp->ncolors = read_dword(fp);
 	bmp->palette = xmalloc(sizeof(*bmp->palette) * bmp->ncolors);
 
-	bmp->ncolors_important = read_dword(bmp_file);
+	bmp->ncolors_important = read_dword(fp);
 
 	/* palette data is bgr(a), located after all the headers */
-	fseek(bmp_file, bmp->header_size + FILEHEADERSIZE, SEEK_SET);
+	fseek(fp, bmp->header_size + FILEHEADERSIZE, SEEK_SET);
 	for (i = 0; i < bmp->ncolors; ++i) {
-		bmp->palette[i].b = read_byte(bmp_file);
-		bmp->palette[i].g = read_byte(bmp_file);
-		bmp->palette[i].r = read_byte(bmp_file);
+		bmp->palette[i].b = read_byte(fp);
+		bmp->palette[i].g = read_byte(fp);
+		bmp->palette[i].r = read_byte(fp);
 
 		/* read away alpha value */
-		read_byte(bmp_file);
+		read_byte(fp);
 	}
 
 	/* fill remaining palette with black */
@@ -101,7 +101,7 @@ bitmap_read(char *filename)
 	skip = width - bmp->width;
 
 	/* read the image data */
-	fseek(bmp_file, bmp->pixel_offset, SEEK_SET);
+	fseek(fp, bmp->pixel_offset, SEEK_SET);
 	row = bmp->height;
 	while (row-- > 0) {
 		BYTE *row_ptr = bmp->image + row * bmp->width;
@@ -110,14 +110,14 @@ bitmap_read(char *filename)
 		printf("L:%3d%%\r", 100 - row * 100 / bmp->height);
 		fflush(stdout);
 
-		if (fread(row_ptr, bmp->width, 1, bmp_file) != 1)
+		if (fread(row_ptr, bmp->width, 1, fp) != 1)
 			die("bitmap_read: input error.");
 
 		if (skip > 0)
-			fseek(bmp_file, skip, SEEK_CUR);
+			fseek(fp, skip, SEEK_CUR);
 	}
 
-	fclose(bmp_file);
+	fclose(fp);
 	return bmp;
 }
 
