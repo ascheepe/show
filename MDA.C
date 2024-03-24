@@ -48,7 +48,7 @@ void
 mda_set_mode(int mode)
 {
 	BYTE *data;
-	size_t data_length;
+	size_t len;
 	int i;
 
 	/* half mode configuration */
@@ -57,16 +57,16 @@ mda_set_mode(int mode)
 	/* change mode w/o screen on */
 	if (mode == MDA_GRAPHICS_MODE) {
 		data = graphics_init;
-		data_length = sizeof(graphics_init);
+		len = sizeof(graphics_init);
 		outp(PORT_CONTROL, MDA_MODE_GRAPHICS);
 	} else {
 		data = text_init;
-		data_length = sizeof(text_init);
+		len = sizeof(text_init);
 		outp(PORT_CONTROL, MDA_MODE_TEXT);
 	}
 
 	/* setup 6845 */
-	for (i = 0; i < data_length; ++i) {
+	for (i = 0; i < len; ++i) {
 		outp(PORT_INDEX, i);
 		outp(PORT_DATA, data[i]);
 	}
