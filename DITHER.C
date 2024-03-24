@@ -46,7 +46,10 @@ pick_color(const struct rgb *color, const struct rgb *palette, int ncolors)
 		WORD g_dist = abs(color->g - palette[i].g);
 		WORD b_dist = abs(color->b - palette[i].b);
 
-		dist = SQUARE(r_dist) + SQUARE(g_dist) + SQUARE(b_dist);
+		dist =
+		    SQUARE(r_dist) * 3 +
+		    SQUARE(g_dist) * 6 +
+		    SQUARE(b_dist) * 1;
 
 		if (dist < maxdist) {
 			maxdist = dist;
