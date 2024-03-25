@@ -39,8 +39,6 @@ die(char *fmt, ...)
 
 	if (fmt[0] && fmt[strlen(fmt) - 1] == ':')
 		fprintf(stderr, " %s", strerror(errno));
-	else
-		fputc(' ', stderr);
 
 	exit(1);
 }
