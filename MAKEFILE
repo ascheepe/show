@@ -12,4 +12,3 @@ clean:
 	del *.exe
 	del *.obj
 
-
