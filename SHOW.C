@@ -63,8 +63,8 @@ mda_show(struct bitmap *bmp)
 	WORD row_offset, col_offset;
 	WORD row, col;
 
-	col_offset = MDA_WIDTH / 2 - 2 * bmp->width / 2;
-	row_offset = MDA_HEIGHT / 2 - 174 * bmp->height / 200;
+	col_offset = MDA_WIDTH / 2 - bmp->width / 2;
+	row_offset = MDA_HEIGHT / 2 - bmp->height / 2;
 	grayscale_dither(bmp, 2);
 
 	mda_set_mode(MDA_GRAPHICS_MODE);
@@ -72,21 +72,12 @@ mda_show(struct bitmap *bmp)
 
 	for (row = 0; row < bmp->height; ++row) {
 		WORD row_index = row * bmp->width;
-		WORD plotrow = 174 * row / 100;
 
 		maybe_exit();
 		for (col = 0; col < bmp->width; ++col) {
 			BYTE Y = bmp->image[row_index + col] >> 7;
-                        WORD plotcol = col * 2;
 
-			mda_plot(plotcol + col_offset,
-			    plotrow + row_offset, Y);
-			mda_plot(plotcol + 1 + col_offset,
-			    plotrow + row_offset, Y);
-			mda_plot(plotcol + col_offset,
-			    plotrow + 1 + row_offset, Y);
-			mda_plot(plotcol + 1 + col_offset,
-			    plotrow + 1 + row_offset, Y);
+			mda_plot(col + col_offset, row + row_offset, Y);
 		}
 	}
 }
@@ -260,3 +251,4 @@ main(int argc, char **argv)
 		}
 	}
 }
+
