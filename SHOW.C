@@ -71,11 +71,11 @@ mda_show(struct bitmap *bmp)
 	mda_clear_screen();
 
 	for (row = 0; row < bmp->height; ++row) {
-		WORD row_index = row * bmp->width;
+		WORD current_row = row * bmp->width;
 
 		maybe_exit();
 		for (col = 0; col < bmp->width; ++col) {
-			BYTE Y = bmp->image[row_index + col] >> 7;
+			BYTE Y = bmp->image[current_row + col] >> 7;
 
 			mda_plot(col + col_offset, row + row_offset, Y);
 		}
@@ -100,11 +100,11 @@ cga_show(struct bitmap *bmp)
 
 	cga_clear_screen();
 	for (row = 0; row < bmp->height; ++row) {
-		WORD row_index = row * bmp->width;
+		WORD current_row = row * bmp->width;
 
 		maybe_exit();
 		for (col = 0; col < bmp->width; ++col) {
-			BYTE Y = bmp->image[row_index + col] >> 6;
+			BYTE Y = bmp->image[current_row + col] >> 6;
 			BYTE color = palette[Y];
 
 			cga_plot(col + col_offset, row + row_offset,
@@ -140,30 +140,22 @@ ega_show(struct bitmap *bmp)
 	WORD row_offset, col_offset;
 	WORD row, col;
 
-	col_offset = EGA_WIDTH / 2 - 2 * bmp->width / 2;
-	row_offset = EGA_HEIGHT / 2 - 2 * bmp->height / 2;
+	col_offset = EGA_WIDTH / 2 - bmp->width / 2;
+	row_offset = EGA_HEIGHT / 2 - bmp->height / 2;
 
 	dither(bmp, palette, 16);
 	ega_clear_screen();	/* XXX: resets palette */
 	ega_set_palette(palette, 16);
 
 	for (row = 0; row < bmp->height - 1; ++row) {
-		WORD row_index = row * bmp->width;
-		WORD plotrow = 2 * row;
+		WORD current_row = row * bmp->width;
 
 		maybe_exit();
 		for (col = 1; col < bmp->width - 1; ++col) {
-			BYTE color = bmp->image[row_index + col];
-			WORD plotcol = 2 * col;
+			BYTE color = bmp->image[current_row + col];
 
-			ega_plot(plotcol + col_offset,
-			    plotrow + row_offset, color);
-			ega_plot(plotcol + 1 + col_offset,
-			    plotrow + row_offset, color);
-			ega_plot(plotcol + col_offset,
-			    plotrow + 1 + row_offset, color);
-			ega_plot(plotcol + 1 + col_offset,
-			    plotrow + 1 + row_offset, color);
+			ega_plot(col + col_offset, row + row_offset,
+			    color);
 		}
 	}
 }
