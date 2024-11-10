@@ -232,7 +232,7 @@ main(int argc, char **argv)
 			unsigned int i;
 
 			bmp = bitmap_read(ffblk.ff_name);
-			show(bmp);
+			(*show)(bmp);
 			bitmap_free(bmp);
 
 			for (i = 0; i < waitms; i += 100) {
