@@ -4,7 +4,9 @@ color.c
 detect.c
 dither.c
 ega.c
+globals.c
 mda.c
 show.c
 system.c
 vga.c
+

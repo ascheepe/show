@@ -20,13 +20,14 @@
 #include "bitmap.h"
 #include "color.h"
 #include "dither.h"
+#include "globals.h"
 #include "system.h"
 
-struct dither_err {
+struct dither_error {
 	int r, g, b, Y;
 };
 
-static struct dither_err error[2][MAX_IMAGE_WIDTH];
+static struct dither_error error[2][MAX_IMAGE_WIDTH];
 
 #define CLAMP(n) ((n) > 255 ? 255 : (n) < 0 ? 0 : (n))
 #define SQUARE(n) ((DWORD)((n)*(n)))
@@ -61,10 +62,10 @@ pick_color(const struct rgb *color, const struct rgb *palette, int ncolors)
 
 
 /*
- * Convert bitmap to grayscale with dithering in place.
+ * Dither and plot a bitmap in grayscale.
  */
 void
-grayscale_dither(struct bitmap *bmp, int ncolors)
+grayscale_dither(struct bitmap *bmp, int *palette, int ncolors)
 {
 	WORD row, col;
 
@@ -73,8 +74,6 @@ grayscale_dither(struct bitmap *bmp, int ncolors)
 		WORD offset = row * bmp->width;
 
 		maybe_exit();
-		printf("D:%3d%%\r", row * 100 / bmp->height);
-		fflush(stdout);
 		for (col = 1; col < bmp->width - 1; ++col) {
 			struct rgb *color;
 			BYTE old, new;
@@ -83,13 +82,16 @@ grayscale_dither(struct bitmap *bmp, int ncolors)
 			color = &bmp->palette[bmp->image[offset + col]];
 			old = CLAMP(color_to_mono(color) + error[0][col].Y);
 			new = (old * ncolors / 256) * (256 / ncolors);
-			bmp->image[offset + col] = new;
+			/* bmp->image[offset + col] = new; */
 
 			Yerr = old - new;
 			error[0][col + 1].Y += Yerr * 7 / 16;
 			error[1][col + 0].Y += Yerr * 5 / 16;
 			error[1][col - 1].Y += Yerr * 3 / 16;
 			error[1][col + 1].Y += Yerr * 1 / 16;
+
+			plot(col + x_offset, row + y_offset,
+			    palette[new / (256 / ncolors)]);
 		}
 		memcpy(&error[0][0], &error[1][0], sizeof(error[0]));
 		memset(&error[1][0], 0, sizeof(error[1]));
@@ -98,7 +100,7 @@ grayscale_dither(struct bitmap *bmp, int ncolors)
 
 
 /*
- * Dither a bitmap in place
+ * Dither and plot a bitmap.
  */
 void
 dither(struct bitmap *bmp, struct rgb *palette, int ncolors)
@@ -110,8 +112,6 @@ dither(struct bitmap *bmp, struct rgb *palette, int ncolors)
 		WORD offset = row * bmp->width;
 
 		maybe_exit();
-		printf("D:%3d%%\r", row * 100 / bmp->height);
-		fflush(stdout);
 		for (col = 1; col < bmp->width - 1; ++col) {
 			struct rgb old, new, *color;
 			int r_err, g_err, b_err;
@@ -123,7 +123,7 @@ dither(struct bitmap *bmp, struct rgb *palette, int ncolors)
 			old.b = CLAMP(color->b + error[0][col].b);
 
 			i = pick_color(&old, palette, ncolors);
-			bmp->image[offset + col] = i;
+			/* bmp->image[offset + col] = i; */
 
 			color = &palette[i];
 			new.r = color->r;
@@ -146,12 +146,15 @@ dither(struct bitmap *bmp, struct rgb *palette, int ncolors)
 			error[1][col + 1].r += r_err * 1 / 16;
 			error[1][col + 1].g += g_err * 1 / 16;
 			error[1][col + 1].b += b_err * 1 / 16;
+
+			plot(col + x_offset, row + y_offset, i);
 		}
 		memcpy(&error[0][0], &error[1][0], sizeof(error[0]));
 		memset(&error[1][0], 0, sizeof(error[1]));
 	}
 }
 
+#if 0
 void
 ordered_dither(struct bitmap *bmp, struct rgb *palette, int ncolors)
 {
@@ -188,4 +191,4 @@ ordered_dither(struct bitmap *bmp, struct rgb *palette, int ncolors)
 		}
 	}
 }
-
+#endif

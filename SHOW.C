@@ -28,6 +28,7 @@
 #include "bitmap.h"
 #include "detect.h"
 #include "dither.h"
+#include "globals.h"
 #include "quantize.h"
 #include "mda.h"
 #include "cga.h"
@@ -60,26 +61,15 @@ maybe_exit(void)
 static void
 mda_show(struct bitmap *bmp)
 {
-	WORD row_offset, col_offset;
+	int palette[2] = { 0, 1 };
 	WORD row, col;
 
-	col_offset = MDA_WIDTH / 2 - bmp->width / 2;
-	row_offset = MDA_HEIGHT / 2 - bmp->height / 2;
-	grayscale_dither(bmp, 2);
-
+	x_offset = MDA_WIDTH / 2 - bmp->width / 2;
+	y_offset = MDA_HEIGHT / 2 - bmp->height / 2;
+	plot = mda_plot;
 	mda_set_mode(MDA_GRAPHICS_MODE);
 	mda_clear_screen();
-
-	for (row = 0; row < bmp->height; ++row) {
-		WORD current_row = row * bmp->width;
-
-		maybe_exit();
-		for (col = 0; col < bmp->width; ++col) {
-			BYTE Y = bmp->image[current_row + col] >> 7;
-
-			mda_plot(col + col_offset, row + row_offset, Y);
-		}
-	}
+	grayscale_dither(bmp, palette, 2);
 }
 
 static void
@@ -90,27 +80,14 @@ cga_show(struct bitmap *bmp)
 	 * grayscale gradient. The darker version of the default color
 	 * palette is meant for this usage.
 	 */
-	BYTE palette[4] = { 0, 2, 1, 3 };
-	WORD row_offset, col_offset;
+	int palette[4] = { 0, 2, 1, 3 };
 	WORD row, col;
 
-	col_offset = CGA_WIDTH / 2 - bmp->width / 2;
-	row_offset = CGA_HEIGHT / 2 - bmp->height / 2;
-	grayscale_dither(bmp, 4);
-
+	x_offset = CGA_WIDTH / 2 - bmp->width / 2;
+	y_offset = CGA_HEIGHT / 2 - bmp->height / 2;
+	plot = cga_plot;
 	cga_clear_screen();
-	for (row = 0; row < bmp->height; ++row) {
-		WORD current_row = row * bmp->width;
-
-		maybe_exit();
-		for (col = 0; col < bmp->width; ++col) {
-			BYTE Y = bmp->image[current_row + col] >> 6;
-			BYTE color = palette[Y];
-
-			cga_plot(col + col_offset, row + row_offset,
-			    color);
-		}
-	}
+	grayscale_dither(bmp, palette, 4);
 }
 
 static void
@@ -137,37 +114,24 @@ ega_show(struct bitmap *bmp)
 		{ 0xFF, 0x00, 0xFF },
 		{ 0x00, 0xFF, 0xFF },
 	};
-	WORD row_offset, col_offset;
 	WORD row, col;
 
-	col_offset = EGA_WIDTH / 2 - bmp->width / 2;
-	row_offset = EGA_HEIGHT / 2 - bmp->height / 2;
+	x_offset = EGA_WIDTH / 2 - bmp->width / 2;
+	y_offset = EGA_HEIGHT / 2 - bmp->height / 2;
 
-	dither(bmp, palette, 16);
 	ega_clear_screen();	/* XXX: resets palette */
 	ega_set_palette(palette, 16);
-
-	for (row = 0; row < bmp->height - 1; ++row) {
-		WORD current_row = row * bmp->width;
-
-		maybe_exit();
-		for (col = 1; col < bmp->width - 1; ++col) {
-			BYTE color = bmp->image[current_row + col];
-
-			ega_plot(col + col_offset, row + row_offset,
-			    color);
-		}
-	}
+	plot = ega_plot;
+	dither(bmp, palette, 16);
 }
 
 static void
 vga_show(struct bitmap *bmp)
 {
-	WORD row_offset, col_offset;
 	WORD row;
 
-	col_offset = VGA_WIDTH / 2 - bmp->width / 2;
-	row_offset = VGA_HEIGHT / 2 - bmp->height / 2;
+	x_offset = VGA_WIDTH / 2 - bmp->width / 2;
+	y_offset = VGA_HEIGHT / 2 - bmp->height / 2;
 
 	vga_clear_screen();
 	vga_set_palette(bmp->palette);
@@ -176,7 +140,7 @@ vga_show(struct bitmap *bmp)
 
 		maybe_exit();
 		src = bmp->image + row * bmp->width;
-		dst = vga_vmem_ptr(col_offset, row + row_offset);
+		dst = vga_vmem_ptr(x_offset, row + y_offset);
 		memcpy(dst, src, bmp->width);
 	}
 }
