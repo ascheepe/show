@@ -156,7 +156,7 @@ main(int argc, char **argv)
 	if (argc == 2) {
 		waitms = atoi(argv[1]);
 		if (waitms == 0) {
-			fprintf(stderr, "\bInvalid delay.\n");
+			fprintf(stderr, "\aInvalid delay.\n");
 			return 1;
 		}
 		waitms *= 1000;
