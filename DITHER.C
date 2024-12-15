@@ -1,9 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "bitmap.h"
 #include "color.h"
-#include "dither.h"
 #include "detect.h"
 #include "globals.h"
 #include "system.h"

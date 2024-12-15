@@ -72,7 +72,6 @@ main(int argc, char **argv)
 	case EGA_GRAPHICS:
 		setmode(MODE_EGA);
 		plot = ega_plot;
-		ega_set_palette(ega_palette, 16);
 		break;
 	case VGA_GRAPHICS:
 		setmode(MODE_VGA);

@@ -101,6 +101,7 @@ bitmap_show(char *filename)
 		x_offset = EGA_WIDTH / 2 - image_width / 2;
 		y_offset = EGA_HEIGHT / 2 - image_height / 2;
 		ega_clear_screen();
+		ega_set_palette(ega_palette, 16);
 		break;
 
 	case VGA_GRAPHICS:
