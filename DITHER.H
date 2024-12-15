@@ -20,9 +20,10 @@
 #include "bitmap.h"
 #include "color.h"
 
-void convert_to_grayscale(struct bitmap *);
-void grayscale_dither(struct bitmap *, int *, int);
-void dither(struct bitmap *, struct rgb *, int);
-void ordered_dither(struct bitmap *, struct rgb *, int);
+void grayscale_dither(int, BYTE *, int);
+void color_dither(int, struct rgb *, int);
+void show(int);
+void dither_init(void);
+
 #endif
 

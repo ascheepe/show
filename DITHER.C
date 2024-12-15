@@ -20,8 +20,14 @@
 #include "bitmap.h"
 #include "color.h"
 #include "dither.h"
+#include "detect.h"
 #include "globals.h"
 #include "system.h"
+
+#include "mda.h"
+#include "cga.h"
+#include "ega.h"
+#include "vga.h"
 
 struct dither_error {
 	int r, g, b, Y;
@@ -48,9 +54,9 @@ pick_color(const struct rgb *color, const struct rgb *palette, int ncolors)
 		WORD b_dist = abs(color->b - palette[i].b);
 
 		dist =
-		    SQUARE(r_dist) * 3 +
-		    SQUARE(g_dist) * 6 +
-		    SQUARE(b_dist) * 1;
+			SQUARE(r_dist) * 3 +
+			SQUARE(g_dist) * 6 +
+			SQUARE(b_dist) * 1;
 
 		if (dist < maxdist) {
 			maxdist = dist;
@@ -61,41 +67,42 @@ pick_color(const struct rgb *color, const struct rgb *palette, int ncolors)
 }
 
 
+void
+dither_init(void)
+{
+	memset(error, 0, sizeof(error));
+}
+
 /*
- * Dither and plot a bitmap in grayscale.
+ * Dither and plot a row in grayscale.
  */
 void
-grayscale_dither(struct bitmap *bmp, int *palette, int ncolors)
+grayscale_dither(int row, BYTE *palette, int ncolors)
 {
-	WORD row, col;
+	WORD col;
 
-	memset(error, 0, sizeof(error));
-	for (row = 0; row < bmp->height - 1; ++row) {
-		WORD offset = row * bmp->width;
+	for (col = 1; col < image_width - 1; ++col) {
+		struct rgb *color;
+		BYTE old, new;
+		int Yerr;
 
-		maybe_exit();
-		for (col = 1; col < bmp->width - 1; ++col) {
-			struct rgb *color;
-			BYTE old, new;
-			int Yerr;
+		color = &image_palette[image_row[col]];
+		old = CLAMP(color_to_mono(color) + error[0][col].Y);
+		new = (old * ncolors / 256) * (256 / ncolors);
 
-			color = &bmp->palette[bmp->image[offset + col]];
-			old = CLAMP(color_to_mono(color) + error[0][col].Y);
-			new = (old * ncolors / 256) * (256 / ncolors);
-			/* bmp->image[offset + col] = new; */
+		Yerr = old - new;
+		error[0][col + 1].Y += Yerr * 7 / 16;
+		error[1][col + 0].Y += Yerr * 5 / 16;
+		error[1][col - 1].Y += Yerr * 3 / 16;
+		error[1][col + 1].Y += Yerr * 1 / 16;
 
-			Yerr = old - new;
-			error[0][col + 1].Y += Yerr * 7 / 16;
-			error[1][col + 0].Y += Yerr * 5 / 16;
-			error[1][col - 1].Y += Yerr * 3 / 16;
-			error[1][col + 1].Y += Yerr * 1 / 16;
+		plot(col + x_offset, row + y_offset,
+		    palette[new / (256 / ncolors)]);
 
-			plot(col + x_offset, row + y_offset,
-			    palette[new / (256 / ncolors)]);
-		}
-		memcpy(&error[0][0], &error[1][0], sizeof(error[0]));
-		memset(&error[1][0], 0, sizeof(error[1]));
 	}
+
+	memcpy(&error[0][0], &error[1][0], sizeof(error[0]));
+	memset(&error[1][0], 0, sizeof(error[1]));
 }
 
 
@@ -103,92 +110,76 @@ grayscale_dither(struct bitmap *bmp, int *palette, int ncolors)
  * Dither and plot a bitmap.
  */
 void
-dither(struct bitmap *bmp, struct rgb *palette, int ncolors)
+color_dither(int row, struct rgb *palette, int ncolors)
 {
-	WORD row, col;
+	WORD col;
 
-	memset(error, 0, sizeof(error));
-	for (row = 0; row < bmp->height - 1; ++row) {
-		WORD offset = row * bmp->width;
+	for (col = 1; col < image_width - 1; ++col) {
+		struct rgb old, new, *color;
+		int r_err, g_err, b_err;
+		BYTE i;
 
-		maybe_exit();
-		for (col = 1; col < bmp->width - 1; ++col) {
-			struct rgb old, new, *color;
-			int r_err, g_err, b_err;
-			BYTE i;
+		color = &image_palette[image_row[col]];
+		old.r = CLAMP(color->r + error[0][col].r);
+		old.g = CLAMP(color->g + error[0][col].g);
+		old.b = CLAMP(color->b + error[0][col].b);
 
-			color = &bmp->palette[bmp->image[offset + col]];
-			old.r = CLAMP(color->r + error[0][col].r);
-			old.g = CLAMP(color->g + error[0][col].g);
-			old.b = CLAMP(color->b + error[0][col].b);
+		i = pick_color(&old, palette, ncolors);
+		color = &palette[i];
+		new.r = color->r;
+		new.g = color->g;
+		new.b = color->b;
 
-			i = pick_color(&old, palette, ncolors);
-			/* bmp->image[offset + col] = i; */
+		r_err = old.r - new.r;
+		g_err = old.g - new.g;
+		b_err = old.b - new.b;
 
-			color = &palette[i];
-			new.r = color->r;
-			new.g = color->g;
-			new.b = color->b;
+		error[0][col + 1].r += r_err * 7 / 16;
+		error[0][col + 1].g += g_err * 7 / 16;
+		error[0][col + 1].b += b_err * 7 / 16;
+		error[1][col + 0].r += r_err * 5 / 16;
+		error[1][col + 0].g += g_err * 5 / 16;
+		error[1][col + 0].b += b_err * 5 / 16;
+		error[1][col - 1].r += r_err * 3 / 16;
+		error[1][col - 1].g += g_err * 3 / 16;
+		error[1][col - 1].b += b_err * 3 / 16;
+		error[1][col + 1].r += r_err * 1 / 16;
+		error[1][col + 1].g += g_err * 1 / 16;
+		error[1][col + 1].b += b_err * 1 / 16;
 
-			r_err = old.r - new.r;
-			g_err = old.g - new.g;
-			b_err = old.b - new.b;
+		plot(col + x_offset, row + y_offset, i);
 
-			error[0][col + 1].r += r_err * 7 / 16;
-			error[0][col + 1].g += g_err * 7 / 16;
-			error[0][col + 1].b += b_err * 7 / 16;
-			error[1][col + 0].r += r_err * 5 / 16;
-			error[1][col + 0].g += g_err * 5 / 16;
-			error[1][col + 0].b += b_err * 5 / 16;
-			error[1][col - 1].r += r_err * 3 / 16;
-			error[1][col - 1].g += g_err * 3 / 16;
-			error[1][col - 1].b += b_err * 3 / 16;
-			error[1][col + 1].r += r_err * 1 / 16;
-			error[1][col + 1].g += g_err * 1 / 16;
-			error[1][col + 1].b += b_err * 1 / 16;
-
-			plot(col + x_offset, row + y_offset, i);
-		}
-		memcpy(&error[0][0], &error[1][0], sizeof(error[0]));
-		memset(&error[1][0], 0, sizeof(error[1]));
 	}
+
+	memcpy(&error[0][0], &error[1][0], sizeof(error[0]));
+	memset(&error[1][0], 0, sizeof(error[1]));
 }
 
-#if 0
 void
-ordered_dither(struct bitmap *bmp, struct rgb *palette, int ncolors)
+show(int row)
 {
-	BYTE M[8][8] = {
-		{  0, 32,  8, 40,  2, 34, 10, 42 },
-		{ 48, 16, 56, 24, 50, 18, 58, 26 },
-		{ 12, 44,  4, 36, 14, 46,  6, 38 },
-		{ 60, 28, 52, 20, 62, 30, 54, 22 },
-		{  3, 35, 11, 43,  1, 33,  9, 41 },
-		{ 51, 19, 59, 27, 49, 17, 57, 25 },
-		{ 15, 47,  7, 39, 13, 45,  5, 37 },
-		{ 63, 31, 55, 23, 61, 29, 53, 21 }
-	};
-	WORD row, col;
+	switch (graphics_mode) {
+	case MDA_GRAPHICS:
+		grayscale_dither(row, mda_palette, 2);
+		break;
 
-	for (row = 0; row < bmp->height; ++row) {
-		WORD offset = row * bmp->width;
-		BYTE Mrow = row & 7;
+	case CGA_GRAPHICS:
+		grayscale_dither(row, cga_palette, 4);
+		break;
 
-		maybe_exit();
-		printf("D:%3d%%\r", row * 100 / bmp->height);
-		fflush(stdout);
-		for (col = 0; col < bmp->width; ++col) {
-			BYTE i = bmp->image[offset + col];
-			struct rgb *color = &bmp->palette[i];
-			struct rgb new;
-			BYTE Mcol = col & 7;
+	case EGA_GRAPHICS:
+		color_dither(row, ega_palette, 16);
+		break;
 
-			new.r = color->r > (4 * M[Mrow][Mcol]) ? 255 : 0;
-			new.g = color->g > (4 * M[Mrow][Mcol]) ? 255 : 0;
-			new.b = color->b > (4 * M[Mrow][Mcol]) ? 255 : 0;
-			i = pick_color(&new, palette, ncolors);
-			bmp->image[offset + col] = i;
+	case VGA_GRAPHICS:
+		{
+			int col;
+
+			for (col = 0; col < image_width; ++col)
+				plot(col + x_offset, row + y_offset,
+				    image_row[col]);
 		}
+		break;
 	}
 }
-#endif
+
