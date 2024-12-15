@@ -1,19 +1,3 @@
-/*
- * Copyright (c) 2020-2024 Axel Scheepers
- *
- * Permission to use, copy, modify, and distribute this software for any
- * purpose with or without fee is hereby granted, provided that the above
- * copyright notice and this permission notice appear in all copies.
- *
- * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
- * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
- * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
- * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
- * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
- * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
- * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
- */
-
 #ifndef SYSTEM_H
 #define SYSTEM_H
 #include <stdio.h>
@@ -39,7 +23,8 @@ WORD read_word(FILE *);
 DWORD read_dword(FILE *);
 void setmode(int);
 int file_exists(char *);
-
+void far *memsetf(void far *, int, size_t);
+void far *memcpyf(void far *, void far *, size_t);
 extern int maybe_exit(void);
 #endif
 
