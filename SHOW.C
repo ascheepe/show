@@ -41,8 +41,8 @@ maybe_exit(void)
 int
 main(int argc, char **argv)
 {
-	struct ffblk ffblk;
 	unsigned int waitms = 5 * 1000;
+	struct ffblk ffblk;
 
 	if (argc == 2) {
 		waitms = atoi(argv[1]);
@@ -65,14 +65,17 @@ main(int argc, char **argv)
 		mda_set_mode(MDA_GRAPHICS_MODE);
 		plot = mda_plot;
 		break;
+
 	case CGA_GRAPHICS:
 		setmode(MODE_CGA);
 		plot = cga_plot;
 		break;
+
 	case EGA_GRAPHICS:
 		setmode(MODE_EGA);
 		plot = ega_plot;
 		break;
+
 	case VGA_GRAPHICS:
 		setmode(MODE_VGA);
 		plot = vga_plot;
@@ -80,11 +83,13 @@ main(int argc, char **argv)
 	}
 
 	for (;;) {
-		int status;
+		int r;
 
-		for (status = findfirst("*.bmp", &ffblk, 0);
-		    status == 0;
-		    status = findnext(&ffblk)) {
+		for (
+			r = findfirst("*.bmp", &ffblk, 0);
+			r == 0;
+			r = findnext(&ffblk)
+		) {
 			unsigned int i;
 
 			bitmap_show(ffblk.ff_name);

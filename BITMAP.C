@@ -13,9 +13,7 @@
 #define FILEHEADERSIZE 14
 
 /*
- * Read a .BMP file into a bitmap struct.
- * Also checks if it's a valid file
- * (320x200, 256c + alpha, uncompressed).
+ * Read, dither and display a .BMP file.
  */
 void
 bitmap_show(char *filename)

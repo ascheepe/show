@@ -66,7 +66,7 @@ void
 mda_plot(int x, int y, int color)
 {
 	BYTE far *pixel =
-		vmem + (0x2000 * (y & 3)) + (90 * (y >> 2)) + (x >> 3);
+	    vmem + (0x2000 * (y & 3)) + (90 * (y >> 2)) + (x >> 3);
 	BYTE val = 1 << (7 - (x & 7));
 
 	if (color)
