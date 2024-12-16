@@ -41,7 +41,7 @@ maybe_exit(void)
 int
 main(int argc, char **argv)
 {
-	unsigned int waitms = 5 * 1000;
+	WORD waitms = 5 * 1000;
 	struct ffblk ffblk;
 
 	if (argc == 2) {
@@ -90,7 +90,7 @@ main(int argc, char **argv)
 			r == 0;
 			r = findnext(&ffblk)
 		) {
-			unsigned int i;
+			WORD i;
 
 			bitmap_show(ffblk.ff_name);
 
