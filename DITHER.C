@@ -12,7 +12,11 @@
 #include "vga.h"
 
 #define CLAMP(n) ((n) > 255 ? 255 : (n) < 0 ? 0 : (n))
-#define SQUARE(n) ((DWORD)((n)*(n)))
+#define SQR(n) ((DWORD)((n)*(n)))
+
+#define R 0
+#define G 1
+#define B 2
 
 /*
  * Finds the closest color to 'color' in palette
@@ -25,20 +29,19 @@ pick_color(const struct rgb *color, const struct rgb *palette, int ncolors)
 	WORD i, match;
 
 	for (i = 0; i < ncolors; ++i) {
-		WORD r_dist = abs(color->r - palette[i].r);
-		WORD g_dist = abs(color->g - palette[i].g);
-		WORD b_dist = abs(color->b - palette[i].b);
+		WORD d[3];
 
-		dist =
-			SQUARE(r_dist) * 3 +
-			SQUARE(g_dist) * 6 +
-			SQUARE(b_dist) * 1;
+		d[R] = abs(color->r - palette[i].r);
+		d[G] = abs(color->g - palette[i].g);
+		d[B] = abs(color->b - palette[i].b);
 
+		dist = SQR(d[R]) * 3 + SQR(d[G]) * 6 + SQR(d[B]) * 1;
 		if (dist < maxdist) {
 			maxdist = dist;
 			match = i;
 		}
 	}
+
 	return match;
 }
 
@@ -120,22 +123,22 @@ color_dither(int row, struct rgb *palette, int ncolors)
 		newcolor.g = color->g;
 		newcolor.b = color->b;
 
-		err[0] = oldcolor.r - newcolor.r;
-		err[1] = oldcolor.g - newcolor.g;
-		err[2] = oldcolor.b - newcolor.b;
+		err[R] = oldcolor.r - newcolor.r;
+		err[G] = oldcolor.g - newcolor.g;
+		err[B] = oldcolor.b - newcolor.b;
 
-		p0[col + 1].r += err[0] * 7 / 16;
-		p0[col + 1].g += err[1] * 7 / 16;
-		p0[col + 1].b += err[2] * 7 / 16;
-		p1[col + 0].r += err[0] * 5 / 16;
-		p1[col + 0].g += err[1] * 5 / 16;
-		p1[col + 0].b += err[2] * 5 / 16;
-		p1[col - 1].r += err[0] * 3 / 16;
-		p1[col - 1].g += err[1] * 3 / 16;
-		p1[col - 1].b += err[2] * 3 / 16;
-		p1[col + 1].r += err[0] * 1 / 16;
-		p1[col + 1].g += err[1] * 1 / 16;
-		p1[col + 1].b += err[2] * 1 / 16;
+		p0[col + 1].r += err[R] * 7 / 16;
+		p0[col + 1].g += err[G] * 7 / 16;
+		p0[col + 1].b += err[B] * 7 / 16;
+		p1[col + 0].r += err[R] * 5 / 16;
+		p1[col + 0].g += err[G] * 5 / 16;
+		p1[col + 0].b += err[B] * 5 / 16;
+		p1[col - 1].r += err[R] * 3 / 16;
+		p1[col - 1].g += err[G] * 3 / 16;
+		p1[col - 1].b += err[B] * 3 / 16;
+		p1[col + 1].r += err[R] * 1 / 16;
+		p1[col + 1].g += err[G] * 1 / 16;
+		p1[col + 1].b += err[B] * 1 / 16;
 
 		plot(col + x_offset, row + y_offset, i);
 	}
