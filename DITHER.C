@@ -14,9 +14,8 @@
 #define CLAMP(n) ((n) > 255 ? 255 : (n) < 0 ? 0 : (n))
 #define SQR(n) ((DWORD)((n)*(n)))
 
-#define R 0
-#define G 1
-#define B 2
+/* For array indexes */
+enum { R, G, B };
 
 /*
  * Finds the closest color to 'color' in palette
