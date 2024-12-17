@@ -100,10 +100,10 @@ ega_clear_screen(void)
 	outp(0x3c4, 2);
 	outp(0x3c5, 0xf);
 
-	for (y = 0; y < 350; ++y) {
+	for (y = 0; y < EGA_HEIGHT; ++y) {
 		BYTE far *offset = vmem + (y << 6) + (y << 4);
 
-		for (x = 0; x < 640/8; ++x) {
+		for (x = 0; x < EGA_WIDTH / 8; ++x) {
 			BYTE far *pixel = offset + x;
 
 			*pixel = 0x00;
