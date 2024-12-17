@@ -4,12 +4,13 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-#include "system.h"
-#include "color.h"
 #include "bitmap.h"
+#include "color.h"
 #include "detect.h"
 #include "dither.h"
 #include "globals.h"
+#include "system.h"
+
 #include "mda.h"
 #include "cga.h"
 #include "ega.h"

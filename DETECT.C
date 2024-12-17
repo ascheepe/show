@@ -23,13 +23,17 @@ detect_graphics(void)
 		switch (regs.h.bl) {
 		case 0x00:
 			return GRAPHICS_ERROR;
+
 		case 0x01:
 			return MDA_GRAPHICS;
+
 		case 0x02:
 			return CGA_GRAPHICS;
+
 		case 0x04:
 		case 0x05:
 			return EGA_GRAPHICS;
+
 		case 0x07:
 		case 0x08:
 			return VGA_GRAPHICS;

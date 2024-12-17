@@ -28,51 +28,6 @@ die(char *fmt, ...)
 }
 
 /*
- * Allocate memory with error checking.
- */
-void *
-xmalloc(size_t size)
-{
-	void *ptr;
-
-	ptr = malloc(size);
-	if (ptr == NULL)
-		die("malloc: out of memory.");
-
-	return ptr;
-}
-
-/*
- * Allocate and clear memory with error checking.
- */
-void *
-xcalloc(size_t nmemb, size_t size)
-{
-	void *ptr;
-
-	ptr = calloc(nmemb, size);
-	if (ptr == NULL)
-		die("calloc: out of memory.");
-
-	return ptr;
-}
-
-/*
- * Reallocate memory with error checking.
- */
-void *
-xrealloc(void *ptr, size_t size)
-{
-	void *new_ptr;
-
-	new_ptr = realloc(ptr, size);
-	if (new_ptr == NULL)
-		die("realloc: out of memory");
-
-	return new_ptr;
-}
-
-/*
  * Read a byte with error checking.
  */
 BYTE
@@ -129,22 +84,6 @@ setmode(int mode)
 }
 
 /*
- * Test if a file exists.
- */
-int
-file_exists(char *filename)
-{
-	FILE *fp;
-
-	fp = fopen(filename, "rb");
-	if (fp == NULL)
-		return false;
-
-	fclose(fp);
-	return true;
-}
-
-/*
  * memset for far pointers
  */
 void far *
@@ -165,29 +104,4 @@ memsetf(void far *s, int c, size_t n)
 
 	return s;
 }
-
-#if 0
-/*
- * memcpy for far pointers
- */
-void far *
-memcpyf(void far *dest, void far *src, size_t n)
-{
-	WORD far *destwp = (WORD far *)dest;
-	WORD far *srcwp = (WORD far *)src;
-	size_t nw = n / sizeof(WORD);
-	char far *destp;
-	char far *srcp;
-
-	n -= nw * sizeof(WORD);
-	while (nw-- > 0)
-		*destwp++ = *srcwp++;
-
-	destp = (char far *)destwp;
-	srcp = (char far *)srcwp;
-	while (n-- > 0)
-		*destp++ = *srcp++;
-
-	return dest;
-}
-#endif
+
