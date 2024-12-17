@@ -94,7 +94,20 @@ ega_plot(int x, int y, int color)
 void
 ega_clear_screen(void)
 {
-	setmode(MODE_EGA);
-	/* memset(vmem, 0, 128 * 1024); */
+	int x, y;
+
+	/* Write rgbi to all planes in parallel */
+	outp(0x3c4, 2);
+	outp(0x3c5, 0xf);
+
+	for (y = 0; y < 350; ++y) {
+		BYTE far *offset = vmem + (y << 6) + (y << 4);
+
+		for (x = 0; x < 640/8; ++x) {
+			BYTE far *pixel = offset + x;
+
+			*pixel = 0x00;
+		}
+	}
 }
 
