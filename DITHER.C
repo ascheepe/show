@@ -61,18 +61,18 @@ grayscale_dither(int row, BYTE *palette, int ncolors)
 	for (col = 1; col < image_width - 1; ++col) {
 		struct rgb *color;
 		BYTE oldcolor, newcolor, palidx;
-		int Yerr;
+		int err;
 
 		color = &image_palette[image_row[col]];
 		oldcolor = CLAMP(color_to_mono(color) + p0[col]);
-		newcolor = (oldcolor * ncolors / 256) * (256 / ncolors);
 		palidx = oldcolor * ncolors / 256;
+		newcolor = palidx * (256 / ncolors);
 
-		Yerr = oldcolor - newcolor;
-		p0[col + 1] += Yerr * 7 / 16;
-		p1[col + 0] += Yerr * 5 / 16;
-		p1[col - 1] += Yerr * 3 / 16;
-		p1[col + 1] += Yerr * 1 / 16;
+		err = oldcolor - newcolor;
+		p0[col + 1] += err * 7 / 16;
+		p1[col + 0] += err * 5 / 16;
+		p1[col - 1] += err * 3 / 16;
+		p1[col + 1] += err * 1 / 16;
 
 		plot(col + x_offset, row + y_offset, palette[palidx]);
 	}
@@ -90,7 +90,7 @@ struct dither_error {
 };
 
 /*
- * Dither and plot a bitmap.
+ * Dither and plot a row in color.
  */
 void
 color_dither(int row, struct rgb *palette, int ncolors)
@@ -106,7 +106,7 @@ color_dither(int row, struct rgb *palette, int ncolors)
 
 	for (col = 1; col < image_width - 1; ++col) {
 		struct rgb oldcolor, newcolor, *color;
-		int r_err, g_err, b_err;
+		int err[3];
 		BYTE i;
 
 		color = &image_palette[image_row[col]];
@@ -120,22 +120,22 @@ color_dither(int row, struct rgb *palette, int ncolors)
 		newcolor.g = color->g;
 		newcolor.b = color->b;
 
-		r_err = oldcolor.r - newcolor.r;
-		g_err = oldcolor.g - newcolor.g;
-		b_err = oldcolor.b - newcolor.b;
+		err[0] = oldcolor.r - newcolor.r;
+		err[1] = oldcolor.g - newcolor.g;
+		err[2] = oldcolor.b - newcolor.b;
 
-		p0[col + 1].r += r_err * 7 / 16;
-		p0[col + 1].g += g_err * 7 / 16;
-		p0[col + 1].b += b_err * 7 / 16;
-		p1[col + 0].r += r_err * 5 / 16;
-		p1[col + 0].g += g_err * 5 / 16;
-		p1[col + 0].b += b_err * 5 / 16;
-		p1[col - 1].r += r_err * 3 / 16;
-		p1[col - 1].g += g_err * 3 / 16;
-		p1[col - 1].b += b_err * 3 / 16;
-		p1[col + 1].r += r_err * 1 / 16;
-		p1[col + 1].g += g_err * 1 / 16;
-		p1[col + 1].b += b_err * 1 / 16;
+		p0[col + 1].r += err[0] * 7 / 16;
+		p0[col + 1].g += err[1] * 7 / 16;
+		p0[col + 1].b += err[2] * 7 / 16;
+		p1[col + 0].r += err[0] * 5 / 16;
+		p1[col + 0].g += err[1] * 5 / 16;
+		p1[col + 0].b += err[2] * 5 / 16;
+		p1[col - 1].r += err[0] * 3 / 16;
+		p1[col - 1].g += err[1] * 3 / 16;
+		p1[col - 1].b += err[2] * 3 / 16;
+		p1[col + 1].r += err[0] * 1 / 16;
+		p1[col + 1].g += err[1] * 1 / 16;
+		p1[col + 1].b += err[2] * 1 / 16;
 
 		plot(col + x_offset, row + y_offset, i);
 	}
