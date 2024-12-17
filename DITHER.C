@@ -25,11 +25,12 @@
 static int
 pick_color(const struct rgb *color, const struct rgb *palette, int ncolors)
 {
-	DWORD dist = -1, maxdist = -1;
+	DWORD maxdist = -1;
 	WORD i, match;
 
 	for (i = 0; i < ncolors; ++i) {
 		WORD d[3];
+		DWORD dist;
 
 		d[R] = abs(color->r - palette[i].r);
 		d[G] = abs(color->g - palette[i].g);
