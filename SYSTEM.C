@@ -147,10 +147,19 @@ file_exists(char *filename)
 /*
  * memset for far pointers
  */
-void far *memsetf(void far *s, int c, size_t n)
+void far *
+memsetf(void far *s, int c, size_t n)
 {
-	char far *p = s;
+	WORD cc = (c << 8) | c;
+	WORD far *wp = (WORD far *)s;
+	size_t nw = n / sizeof(WORD);
+	char far *p;
 
+	n -= nw * sizeof(WORD);
+	while (nw-- > 0)
+		*wp++ = cc;
+
+	p = (char far *)wp;
 	while (n-- > 0)
 		*p++ = c;
 
@@ -160,13 +169,23 @@ void far *memsetf(void far *s, int c, size_t n)
 /*
  * memcpy for far pointers
  */
-void far *memcpyf(void far *dest, void far *src, size_t n)
+void far *
+memcpyf(void far *dest, void far *src, size_t n)
 {
-	char far *pdest = dest;
-	char far *psrc = src;
+	WORD far *destwp = (WORD far *)dest;
+	WORD far *srcwp = (WORD far *)src;
+	size_t nw = n / sizeof(WORD);
+	char far *destp;
+	char far *srcp;
 
+	n -= nw * sizeof(WORD);
+	while (nw-- > 0)
+		*destwp++ = *srcwp++;
+
+	destp = (char far *)destwp;
+	srcp = (char far *)srcwp;
 	while (n-- > 0)
-		*pdest++ = *psrc++;
+		*destp++ = *srcp++;
 
 	return dest;
 }
