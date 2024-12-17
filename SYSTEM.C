@@ -166,6 +166,7 @@ memsetf(void far *s, int c, size_t n)
 	return s;
 }
 
+#if 0
 /*
  * memcpy for far pointers
  */
@@ -189,5 +190,4 @@ memcpyf(void far *dest, void far *src, size_t n)
 
 	return dest;
 }
-
-
+#endif
