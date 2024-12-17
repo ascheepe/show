@@ -110,7 +110,6 @@ bitmap_show(char *filename)
 		break;
 	}
 
-	dither_init();
 	for (row = 0; row < image_height; ++row) {
 		maybe_exit();
 
