@@ -46,7 +46,7 @@ pick_color(const struct rgb *color, const struct rgb *palette, int ncolors)
 /*
  * Dither and plot a row in grayscale.
  */
-void
+static void
 grayscale_dither(int row, BYTE *palette, int ncolors)
 {
 	static BYTE error[2][MAX_IMAGE_WIDTH];
@@ -92,7 +92,7 @@ struct dither_error {
 /*
  * Dither and plot a row in color.
  */
-void
+static void
 color_dither(int row, struct rgb *palette, int ncolors)
 {
 	static struct dither_error error[2][MAX_IMAGE_WIDTH];
