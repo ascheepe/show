@@ -1,4 +1,3 @@
-option stack=8192
 system dos
 name show
 file BITMAP.OBJ
