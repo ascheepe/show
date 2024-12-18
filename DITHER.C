@@ -14,9 +14,6 @@
 #define CLAMP(n) ((n) > 255 ? 255 : (n) < 0 ? 0 : (n))
 #define SQR(n) ((DWORD)((n)*(n)))
 
-/* For array indexes */
-enum { R, G, B };
-
 /*
  * Finds the closest color to 'color' in palette
  * 'palette', returning the index of it.
@@ -25,17 +22,17 @@ static int
 pick_color(const struct rgb *color, const struct rgb *palette, int ncolors)
 {
 	DWORD maxdist = -1;
-	WORD i, match;
+	WORD match, i;
 
 	for (i = 0; i < ncolors; ++i) {
 		DWORD dist;
-		WORD d[3];
+		struct { WORD r, g, b; } d;
 
-		d[R] = abs(color->r - palette[i].r);
-		d[G] = abs(color->g - palette[i].g);
-		d[B] = abs(color->b - palette[i].b);
+		d.r = abs(color->r - palette[i].r);
+		d.g = abs(color->g - palette[i].g);
+		d.b = abs(color->b - palette[i].b);
 
-		dist = SQR(d[R]) + SQR(d[G]) + SQR(d[B]);
+		dist = SQR(d.r) + SQR(d.g) + SQR(d.b);
 		if (dist < maxdist) {
 			maxdist = dist;
 			match = i;
@@ -109,7 +106,7 @@ color_dither(int row, struct rgb *palette, int ncolors)
 
 	for (col = 1; col < image_width - 1; ++col) {
 		struct rgb oldcolor, newcolor, *color;
-		int err[3];
+		struct dither_error err;
 		BYTE i;
 
 		color = &image_palette[image_row[col]];
@@ -123,22 +120,22 @@ color_dither(int row, struct rgb *palette, int ncolors)
 		newcolor.g = color->g;
 		newcolor.b = color->b;
 
-		err[R] = oldcolor.r - newcolor.r;
-		err[G] = oldcolor.g - newcolor.g;
-		err[B] = oldcolor.b - newcolor.b;
+		err.r = oldcolor.r - newcolor.r;
+		err.g = oldcolor.g - newcolor.g;
+		err.b = oldcolor.b - newcolor.b;
 
-		p0[col + 1].r += err[R] * 7 / 16;
-		p0[col + 1].g += err[G] * 7 / 16;
-		p0[col + 1].b += err[B] * 7 / 16;
-		p1[col + 0].r += err[R] * 5 / 16;
-		p1[col + 0].g += err[G] * 5 / 16;
-		p1[col + 0].b += err[B] * 5 / 16;
-		p1[col - 1].r += err[R] * 3 / 16;
-		p1[col - 1].g += err[G] * 3 / 16;
-		p1[col - 1].b += err[B] * 3 / 16;
-		p1[col + 1].r += err[R] * 1 / 16;
-		p1[col + 1].g += err[G] * 1 / 16;
-		p1[col + 1].b += err[B] * 1 / 16;
+		p0[col + 1].r += err.r * 7 / 16;
+		p0[col + 1].g += err.g * 7 / 16;
+		p0[col + 1].b += err.b * 7 / 16;
+		p1[col + 0].r += err.r * 5 / 16;
+		p1[col + 0].g += err.g * 5 / 16;
+		p1[col + 0].b += err.b * 5 / 16;
+		p1[col - 1].r += err.r * 3 / 16;
+		p1[col - 1].g += err.g * 3 / 16;
+		p1[col - 1].b += err.b * 3 / 16;
+		p1[col + 1].r += err.r * 1 / 16;
+		p1[col + 1].g += err.g * 1 / 16;
+		p1[col + 1].b += err.b * 1 / 16;
 
 		plot(col + x_offset, row + y_offset, i);
 	}
