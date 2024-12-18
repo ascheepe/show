@@ -35,7 +35,7 @@ pick_color(const struct rgb *color, const struct rgb *palette, int ncolors)
 		d[G] = abs(color->g - palette[i].g);
 		d[B] = abs(color->b - palette[i].b);
 
-		dist = SQR(d[R]) * 3 + SQR(d[G]) * 6 + SQR(d[B]) * 1;
+		dist = SQR(d[R]) + SQR(d[G]) + SQR(d[B]);
 		if (dist < maxdist) {
 			maxdist = dist;
 			match = i;
