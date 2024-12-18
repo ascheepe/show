@@ -163,13 +163,7 @@ show(int row)
 		break;
 
 	case VGA_GRAPHICS:
-		{
-			int col;
-
-			for (col = 0; col < image_width; ++col)
-				plot(col + x_offset, row + y_offset,
-				    image_row[col]);
-		}
+		vga_plot_row(row, image_row);
 		break;
 	}
 }

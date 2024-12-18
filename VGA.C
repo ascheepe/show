@@ -1,6 +1,7 @@
 #include <dos.h>
 
 #include "color.h"
+#include "globals.h"
 #include "system.h"
 #include "vga.h"
 
@@ -15,6 +16,16 @@ void
 vga_plot(int x, int y, int color)
 {
 	vmem[INDEX(x, y)] = color;
+}
+
+void
+vga_plot_row(int y, BYTE *rowdata)
+{
+	int x, offset;
+
+	offset = INDEX(0, y);
+	for (x = 0; x < image_width; ++x)
+		vmem[offset + x + x_offset] = rowdata[x];
 }
 
 void
