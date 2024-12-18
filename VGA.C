@@ -23,9 +23,9 @@ vga_plot_row(int y, BYTE *rowdata)
 {
 	int x, offset;
 
-	offset = INDEX(0, y);
+	offset = INDEX(0, y) + x_offset;
 	for (x = 0; x < image_width; ++x)
-		vmem[offset + x + x_offset] = rowdata[x];
+		vmem[offset + x] = rowdata[x];
 }
 
 void
