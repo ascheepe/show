@@ -7,6 +7,5 @@ struct rgb {
 	BYTE r, g, b;
 };
 
-BYTE color_to_mono(struct rgb *);
 #endif
 

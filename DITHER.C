@@ -42,6 +42,14 @@ pick_color(const struct rgb *color, const struct rgb *palette, int ncolors)
 	return match;
 }
 
+static BYTE
+color_to_mono(struct rgb *color)
+{
+	return
+		color->r * 30 / 100 +
+		color->g * 59 / 100 +
+		color->b * 11 / 100;
+}
 
 /*
  * Dither and plot a row in grayscale.
