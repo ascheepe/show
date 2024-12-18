@@ -92,9 +92,7 @@ grayscale_dither(int row, BYTE *palette, int ncolors)
 }
 
 struct dither_error {
-	int r;
-	int g;
-	int b;
+	int r, g, b;
 };
 
 /*
