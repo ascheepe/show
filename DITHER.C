@@ -25,14 +25,14 @@ pick_color(const struct rgb *color, const struct rgb *palette, int ncolors)
 	WORD match, i;
 
 	for (i = 0; i < ncolors; ++i) {
+		struct { WORD r, g, b; } diff;
 		DWORD dist;
-		struct { WORD r, g, b; } d;
 
-		d.r = color->r - palette[i].r;
-		d.g = color->g - palette[i].g;
-		d.b = color->b - palette[i].b;
+		diff.r = color->r - palette[i].r;
+		diff.g = color->g - palette[i].g;
+		diff.b = color->b - palette[i].b;
 
-		dist = SQR(d.r) + SQR(d.g) + SQR(d.b);
+		dist = SQR(diff.r) + SQR(diff.g) + SQR(diff.b);
 		if (dist < maxdist) {
 			maxdist = dist;
 			match = i;
@@ -113,15 +113,15 @@ color_dither(int row, struct rgb *palette, int ncolors)
 	for (col = 1; col < image_width - 1; ++col) {
 		struct rgb oldcolor, newcolor, *color;
 		struct dither_error err;
-		BYTE i;
+		BYTE palidx;
 
 		color = &image_palette[image_row[col]];
 		oldcolor.r = CLAMP(color->r + p0[col].r);
 		oldcolor.g = CLAMP(color->g + p0[col].g);
 		oldcolor.b = CLAMP(color->b + p0[col].b);
 
-		i = pick_color(&oldcolor, palette, ncolors);
-		color = &palette[i];
+		palidx = pick_color(&oldcolor, palette, ncolors);
+		color = &palette[palidx];
 		newcolor.r = color->r;
 		newcolor.g = color->g;
 		newcolor.b = color->b;
@@ -143,7 +143,7 @@ color_dither(int row, struct rgb *palette, int ncolors)
 		p1[col + 1].g += err.g * 1 / 16;
 		p1[col + 1].b += err.b * 1 / 16;
 
-		plot(col + x_offset, row + y_offset, i);
+		plot(col + x_offset, row + y_offset, palidx);
 	}
 
 	memset(p0, 0, sizeof(struct dither_error) * MAX_IMAGE_WIDTH);
