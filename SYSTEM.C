@@ -21,9 +21,6 @@ die(char *fmt, ...)
 	vfprintf(stderr, fmt, vp);
 	va_end(vp);
 
-	if (fmt[0] && fmt[strlen(fmt) - 1] == ':')
-		fprintf(stderr, " %s", strerror(errno));
-
 	exit(1);
 }
 

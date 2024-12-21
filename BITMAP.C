@@ -26,7 +26,7 @@ bitmap_show(char *filename)
 
 	fp = fopen(filename, "rb");
 	if (fp == NULL)
-		die("bitmap_read:");
+		die("bitmap_read: can't open file '%s'.", filename);
 
 	if (read_word(fp) != 0x4d42)
 		die("bitmap_read: not a bitmap file.");
