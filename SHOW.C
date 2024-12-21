@@ -42,16 +42,15 @@ maybe_exit(void)
 int
 main(int argc, char **argv)
 {
-	WORD waitms = 5 * 1000;
+	WORD waits = 5;
 	struct ffblk ffblk;
 
 	if (argc == 2) {
-		waitms = atoi(argv[1]);
-		if (waitms == 0) {
+		waits = atoi(argv[1]);
+		if (waits == 0) {
 			fprintf(stderr, "\aInvalid delay.\n");
 			return 1;
 		}
-		waitms *= 1000;
 	}
 
 	if (findfirst("*.bmp", &ffblk, 0) == -1) {
@@ -95,10 +94,10 @@ main(int argc, char **argv)
 
 			bitmap_show(ffblk.ff_name);
 
-			for (i = 0; i < waitms; i += 100) {
+			for (i = 0; i < waits; ++i) {
 				if (maybe_exit())
 					break;
-				delay(100);
+				sleep(1);
 			}
 		}
 	}
