@@ -91,16 +91,16 @@ grayscale_dither(int row, BYTE *palette, int ncolors)
 	p1 = ptmp;
 }
 
-struct dither_error {
-	int r, g, b;
-};
-
 /*
  * Dither and plot a row in color.
  */
 static void
 color_dither(int row, struct rgb *palette, int ncolors)
 {
+	struct dither_error {
+		int r, g, b;
+	};
+
 	static struct dither_error error[2][MAX_IMAGE_WIDTH];
 	static struct dither_error *p0 = &error[0][0];
 	static struct dither_error *p1 = &error[1][0];
