@@ -68,21 +68,20 @@ grayscale_dither(int row, BYTE *palette, int ncolors)
 
 	for (col = 1; col < image_width - 1; ++col) {
 		struct rgb *color;
-		BYTE oldcolor, newcolor, palidx;
+		BYTE i, oldcolor, newcolor;
 		int err;
 
 		color = &image_palette[image_row[col]];
 		oldcolor = CLAMP(color_to_mono(color) + p0[col]);
-		palidx = oldcolor * ncolors / 256;
-		newcolor = palidx * (256 / ncolors);
+		i = oldcolor * ncolors / 256;
+		plot(col + x_offset, row + y_offset, palette[i]);
+		newcolor = i * 256 / ncolors;
 
 		err = oldcolor - newcolor;
 		p0[col + 1] += err * 7 / 16;
 		p1[col + 0] += err * 5 / 16;
 		p1[col - 1] += err * 3 / 16;
 		p1[col + 1] += err * 1 / 16;
-
-		plot(col + x_offset, row + y_offset, palette[palidx]);
 	}
 
 	memset(p0, 0, MAX_IMAGE_WIDTH);
@@ -113,15 +112,16 @@ color_dither(int row, struct rgb *palette, int ncolors)
 	for (col = 1; col < image_width - 1; ++col) {
 		struct rgb oldcolor, newcolor, *color;
 		struct dither_error err;
-		BYTE palidx;
+		BYTE i;
 
 		color = &image_palette[image_row[col]];
 		oldcolor.r = CLAMP(color->r + p0[col].r);
 		oldcolor.g = CLAMP(color->g + p0[col].g);
 		oldcolor.b = CLAMP(color->b + p0[col].b);
 
-		palidx = pick_color(&oldcolor, palette, ncolors);
-		color = &palette[palidx];
+		i = pick_color(&oldcolor, palette, ncolors);
+		plot(col + x_offset, row + y_offset, i);
+		color = &palette[i];
 		newcolor.r = color->r;
 		newcolor.g = color->g;
 		newcolor.b = color->b;
@@ -142,8 +142,6 @@ color_dither(int row, struct rgb *palette, int ncolors)
 		p1[col + 1].r += err.r * 1 / 16;
 		p1[col + 1].g += err.g * 1 / 16;
 		p1[col + 1].b += err.b * 1 / 16;
-
-		plot(col + x_offset, row + y_offset, palidx);
 	}
 
 	memset(p0, 0, sizeof(struct dither_error) * MAX_IMAGE_WIDTH);
