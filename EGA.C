@@ -94,6 +94,8 @@ ega_plot(int x, int y, int color)
 void
 ega_clear_screen(void)
 {
+	setmode(MODE_EGA);
+#if 0
 	int x, y;
 
 	/* Write rgbi to all planes in parallel */
@@ -109,5 +111,6 @@ ega_clear_screen(void)
 			*pixel = 0x00;
 		}
 	}
+#endif
 }
 
