@@ -151,21 +151,18 @@ color_dither(int row, struct rgb *palette, int ncolors)
 }
 
 void
-show(int row)
+show_row(int row)
 {
 	switch (graphics_mode) {
 	case MDA_GRAPHICS:
 		grayscale_dither(row, mda_palette, 2);
 		break;
-
 	case CGA_GRAPHICS:
 		grayscale_dither(row, cga_palette, 4);
 		break;
-
 	case EGA_GRAPHICS:
 		color_dither(row, ega_palette, 16);
 		break;
-
 	case VGA_GRAPHICS:
 		vga_plot_row(row, image_row);
 		break;

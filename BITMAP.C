@@ -116,7 +116,7 @@ bitmap_show(char *filename)
 		if (fread(image_row, image_width, 1, fp) != 1)
 			die("bitmap_read: input error.");
 
-		show(row);
+		show_row(row);
 
 		if (skip > 0)
 			fseek(fp, skip, SEEK_CUR);

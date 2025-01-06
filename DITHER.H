@@ -1,7 +1,7 @@
 #ifndef DITHER_H
 #define DITHER_H
 
-void show(int);
+void show_row(int);
 
 #endif
 
