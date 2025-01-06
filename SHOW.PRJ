@@ -7,5 +7,6 @@ globals.c
 mda.c
 show.c
 system.c
+tccompat.c
 vga.c
 

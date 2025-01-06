@@ -10,4 +10,4 @@ file MDA.OBJ
 file SHOW.OBJ
 file SYSTEM.OBJ
 file VGA.OBJ
-
+file WCCOMPAT.OBJ
