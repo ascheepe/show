@@ -1,5 +1,6 @@
-#include <string.h>
+#include <conio.h>
 #include <dos.h>
+#include <string.h>
 
 #include "system.h"
 #include "mda.h"
@@ -80,4 +81,3 @@ mda_clear_screen(void)
 {
 	memsetf(vmem, 0, 32 * 1024);
 }
-
