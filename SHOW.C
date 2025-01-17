@@ -16,8 +16,6 @@
 #include "ega.h"
 #include "vga.h"
 
-static WORD waitms = 5000;
-
 #define KEY_ESC 27
 int
 maybe_exit(void)
@@ -44,30 +42,21 @@ maybe_exit(void)
 void
 showfile(char *filename)
 {
-	WORD i;
-
 	bitmap_show(filename);
-
-	for (i = 0; i < waitms; i += 100) {
+	for (;;)
 		if (maybe_exit())
 			break;
-		delay(100);
-	}
 }
 
 int
 main(int argc, char **argv)
 {
 	if (argc == 2) {
-		waitms = atoi(argv[1]);
-		if (waitms == 0) {
-			fprintf(stderr, "\aInvalid delay.\n");
+		if (!file_exists(argv[1])) {
+			fprintf(stderr, "Can't open '%s'.\n", argv[1]);
 			return 1;
 		}
-		waitms *= 1000;
-	}
-
-	if (!bmp_present()) {
+	} else if (!bmp_present()) {
 		fprintf(stderr, "No images found.\n");
 		return 1;
 	}
@@ -93,6 +82,12 @@ main(int argc, char **argv)
 		break;
 	}
 
-	for (;;)
-		foreach_bmp(showfile);
+	if (argc == 2)
+		showfile(argv[1]);
+	else
+		for (;;)
+			foreach_bmp(showfile);
+
+	return 0;
 }
+
