@@ -1,8 +1,3 @@
-#include <dos.h>
-#include <conio.h>
-#include <ctype.h>
-#include <stdlib.h>
-
 #include "bitmap.h"
 #include "color.h"
 #include "compat.h"
@@ -15,29 +10,6 @@
 #include "cga.h"
 #include "ega.h"
 #include "vga.h"
-
-#define KEY_ESC 27
-int
-maybe_exit(void)
-{
-	int ch;
-
-	if (!kbhit())
-		return 0;
-
-	ch = getch();
-
-	/* read away function/arrow keys */
-	if (ch == 0 || ch == 224)
-		return getch();
-
-	if (ch == KEY_ESC || tolower(ch) == 'q') {
-		setmode(MODE_TEXT);
-		exit(0);
-	}
-
-	return ch;
-}
 
 void
 showfile(char *filename)

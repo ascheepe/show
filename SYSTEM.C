@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <conio.h>
+#include <ctype.h>
 #include <dos.h>
 #include <errno.h>
 
@@ -114,4 +116,27 @@ file_exists(char *filename)
 
 	fclose(f);
 	return 1;
-}
+}
+
+int
+maybe_exit(void)
+{
+	int ch;
+
+	if (!kbhit())
+		return 0;
+
+	ch = getch();
+
+	/* read away function/arrow keys */
+	if (ch == 0 || ch == 224)
+		return getch();
+
+	if (ch == KEY_ESC || tolower(ch) == 'q') {
+		setmode(MODE_TEXT);
+		exit(0);
+	}
+
+	return ch;
+}
+
