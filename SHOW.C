@@ -42,25 +42,17 @@ maybe_exit(void)
 void
 showfile(char *filename)
 {
+	if (!file_exists(filename))
+		die("Can't open '%s'.\n", filename);
+
 	bitmap_show(filename);
-	for (;;)
-		if (maybe_exit())
-			break;
+	while (maybe_exit() == 0)
+		;
 }
 
 int
 main(int argc, char **argv)
 {
-	if (argc == 2) {
-		if (!file_exists(argv[1])) {
-			fprintf(stderr, "Can't open '%s'.\n", argv[1]);
-			return 1;
-		}
-	} else if (!bmp_present()) {
-		fprintf(stderr, "No images found.\n");
-		return 1;
-	}
-
 	graphics_mode = detect_graphics();
 
 	switch (graphics_mode) {
@@ -82,12 +74,14 @@ main(int argc, char **argv)
 		break;
 	}
 
-	if (argc == 2)
-		showfile(argv[1]);
+	if (argc > 1)
+		for (++argv; *argv != NULL; ++argv)
+			showfile(*argv);
 	else
 		for (;;)
 			foreach_bmp(showfile);
 
+	setmode(MODE_TEXT);
 	return 0;
 }
 
