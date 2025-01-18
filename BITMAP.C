@@ -118,10 +118,7 @@ bitmap_show(char *filename)
 
 		show_row(row);
 
-		if (skip > 0)
-			fseek(fp, skip, SEEK_CUR);
-
-		fseek(fp, -width * 2, SEEK_CUR);
+		fseek(fp, -width * 2 + skip, SEEK_CUR);
 	}
 
 	fclose(fp);
