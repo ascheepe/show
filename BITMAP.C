@@ -79,8 +79,7 @@ bitmap_show(char *filename)
 	skip = width - image_width;
 
 	/* read, dither and show the image data */
-	fseek(fp, pixel_offset, SEEK_SET);
-	fseek(fp, image_height * width - width, SEEK_CUR);
+	fseek(fp, pixel_offset + image_height * width - width, SEEK_SET);
 
 	switch (graphics_mode) {
 	case MDA_GRAPHICS:
