@@ -1,5 +1,6 @@
 bitmap.c
 cga.c
+cplus.c
 detect.c
 dither.c
 ega.c

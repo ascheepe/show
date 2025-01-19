@@ -20,6 +20,7 @@ extern int image_height;
 
 extern BYTE mda_palette[2];
 extern BYTE cga_palette[4];
+extern struct rgb cplus_palette[16];
 extern struct rgb ega_palette[16];
 extern void (*plot)(int, int, int);
 #endif
