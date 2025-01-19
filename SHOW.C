@@ -11,17 +11,6 @@
 #include "ega.h"
 #include "vga.h"
 
-void
-showfile(char *filename)
-{
-	if (!file_exists(filename))
-		die("Can't open '%s'.\n", filename);
-
-	bitmap_show(filename);
-	while (maybe_exit() == 0)
-		;
-}
-
 int
 main(int argc, char **argv)
 {
@@ -46,12 +35,13 @@ main(int argc, char **argv)
 		break;
 	}
 
-	if (argc > 1)
+	if (argc > 1) {
 		for (++argv; *argv != NULL; ++argv)
-			showfile(*argv);
-	else
+			bitmap_show(*argv);
+	} else {
 		for (;;)
-			foreach_bmp(showfile);
+			foreach_bmp(bitmap_show);
+	}
 
 	setmode(MODE_TEXT);
 	return 0;

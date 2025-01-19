@@ -119,7 +119,9 @@ bitmap_show(char *filename)
 
 		fseek(fp, -width * 2 + skip, SEEK_CUR);
 	}
-
 	fclose(fp);
+
+	while (maybe_exit() == 0)
+		;
 }
 

@@ -106,19 +106,6 @@ memsetf(void far *s, int c, size_t n)
 }
 
 int
-file_exists(char *filename)
-{
-	FILE *f;
-
-	f = fopen(filename, "r");
-	if (f == NULL)
-		return 0;
-
-	fclose(f);
-	return 1;
-}
-
-int
 maybe_exit(void)
 {
 	int ch;
