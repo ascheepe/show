@@ -74,33 +74,23 @@ bitmap_show(char *filename)
 		image_palette[i].b = 0;
 	}
 
-	/* pad width to multiple of 4 */
-	width = ((image_width + 3) / 4) * 4;
-	skip = width - image_width;
-
-	/* read, dither and show the image data */
-	fseek(fp, pixel_offset + image_height * width - width, SEEK_SET);
-
 	switch (graphics_mode) {
 	case MDA_GRAPHICS:
 		x_offset = MDA_WIDTH / 2 - image_width / 2;
 		y_offset = MDA_HEIGHT / 2 - image_height / 2;
 		mda_clear_screen();
 		break;
-
 	case CGA_GRAPHICS:
 		x_offset = CGA_WIDTH / 2 - image_width / 2;
 		y_offset = CGA_HEIGHT / 2 - image_height / 2;
 		cga_clear_screen();
 		break;
-
 	case EGA_GRAPHICS:
 		x_offset = EGA_WIDTH / 2 - image_width / 2;
 		y_offset = EGA_HEIGHT / 2 - image_height / 2;
 		ega_clear_screen();
 		ega_set_palette(ega_palette, 16);
 		break;
-
 	case VGA_GRAPHICS:
 		x_offset = VGA_WIDTH / 2 - image_width / 2;
 		y_offset = VGA_HEIGHT / 2 - image_height / 2;
@@ -108,6 +98,13 @@ bitmap_show(char *filename)
 		vga_set_palette(image_palette);
 		break;
 	}
+
+	/* pad width to multiple of 4 */
+	width = ((image_width + 3) / 4) * 4;
+	skip = width - image_width;
+
+	/* read, dither and show the image data */
+	fseek(fp, pixel_offset + image_height * width - width, SEEK_SET);
 
 	for (row = 0; row < image_height; ++row) {
 		maybe_exit();
