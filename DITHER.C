@@ -12,7 +12,7 @@
 #include "vga.h"
 
 #define CLAMP(n) ((n) > 255 ? 255 : (n) < 0 ? 0 : (n))
-#define SQR(n) ((DWORD)((n)*(n)))
+#define SQR(n) ((WORD)((n)*(n)))
 
 /*
  * Finds the closest color to 'color' in palette
@@ -32,7 +32,7 @@ pick_color(const struct rgb *color, const struct rgb *palette, int ncolors)
 		diff.g = color->g - palette[i].g;
 		diff.b = color->b - palette[i].b;
 
-		dist = SQR(diff.r) + SQR(diff.g) + SQR(diff.b);
+		dist = (DWORD)SQR(diff.r) + SQR(diff.g) + SQR(diff.b);
 		if (dist < maxdist) {
 			maxdist = dist;
 			match = i;
