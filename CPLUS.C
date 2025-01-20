@@ -34,10 +34,17 @@ cplus_plot(int x, int y, int palidx)
 	BYTE bival = *bipixel;
 	BYTE r, g, b, i, rg, bi;
 
-	r = cplus_palette[palidx].r ? 2 : 0;
-	g = cplus_palette[palidx].g ? 1 : 0;
-	b = cplus_palette[palidx].b ? 2 : 0;
-	i = palidx > 7 ? 1 : 0;
+	if (palidx < 8) {
+		r = cplus_palette[palidx].r ? 2 : 0;
+		g = cplus_palette[palidx].g ? 1 : 0;
+		b = cplus_palette[palidx].b ? 2 : 0;
+		i = 0;
+	} else {
+		r = cplus_palette[palidx].r == 0xff ? 2 : 0;
+		g = cplus_palette[palidx].g == 0xff ? 1 : 0;
+		b = cplus_palette[palidx].b == 0xff ? 2 : 0;
+		i = 1;
+	}
 
 	rg = r | g;
 	bi = b | i;
