@@ -1,7 +1,7 @@
 #ifndef VGA_H
 #define VGA_H
 
-#include "color.h"
+#include "globals.h"
 #include "system.h"
 
 #define VGA_WIDTH 320

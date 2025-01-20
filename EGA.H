@@ -1,11 +1,11 @@
 #ifndef EGA_H
 #define EGA_H
 
+#include "globals.h"
 #include "system.h"
-#include "color.h"
 
-#define EGA_WIDTH 640
-#define EGA_HEIGHT 350
+#define EGA_WIDTH 320
+#define EGA_HEIGHT 200
 
 void ega_plot(int, int, int);
 void ega_plot(int, int, int);

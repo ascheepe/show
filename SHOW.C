@@ -1,5 +1,4 @@
 #include "bitmap.h"
-#include "color.h"
 #include "compat.h"
 #include "detect.h"
 #include "dither.h"
@@ -49,7 +48,7 @@ main(int argc, char **argv)
 			foreach_bmp(bitmap_show);
 	}
 
-	setmode(MODE_TEXT);
+	setmode(MODE_TXT);
 	return 0;
 }
 

@@ -1,7 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "color.h"
 #include "detect.h"
 #include "globals.h"
 #include "system.h"
@@ -13,7 +12,6 @@
 #include "vga.h"
 
 #define CLAMP(n) ((n) > 255 ? 255 : (n) < 0 ? 0 : (n))
-#define SQR(n) ((WORD)(n)*(n))
 
 /*
  * Finds the closest color to 'color' in palette
@@ -162,10 +160,8 @@ show_row(int row)
 		grayscale_dither(row, cga_palette, 4);
 		break;
 	case CPLUS_GRAPHICS:
-		color_dither(row, cplus_palette, 16);
-		break;
 	case EGA_GRAPHICS:
-		color_dither(row, ega_palette, 16);
+		color_dither(row, std_palette, 16);
 		break;
 	case VGA_GRAPHICS:
 		vga_plot_row(row, image_row);

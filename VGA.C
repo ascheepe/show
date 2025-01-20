@@ -1,7 +1,6 @@
 #include <conio.h>
 #include <dos.h>
 
-#include "color.h"
 #include "globals.h"
 #include "system.h"
 #include "vga.h"

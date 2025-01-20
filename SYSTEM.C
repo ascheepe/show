@@ -18,7 +18,7 @@ die(char *fmt, ...)
 {
 	va_list vp;
 
-	setmode(MODE_TEXT);
+	setmode(MODE_TXT);
 
 	va_start(vp, fmt);
 	vfprintf(stderr, fmt, vp);
@@ -120,7 +120,7 @@ maybe_exit(void)
 		return getch();
 
 	if (ch == KEY_ESC || tolower(ch) == 'q') {
-		setmode(MODE_TEXT);
+		setmode(MODE_TXT);
 		exit(0);
 	}
 
