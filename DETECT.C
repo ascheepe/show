@@ -75,7 +75,6 @@ is_cplus(void)
 	*q = 0xaa;
 	outp(0x3dd, (1 << 6) | (1 << 4));
 	if (*p == 0xaa && *q == 0x55) {
-		outp(0x3dd, 1 << 4);
 		return 1;
 	}
 

@@ -24,6 +24,7 @@ main(int argc, char **argv)
 	case CGA_GRAPHICS:
 		setmode(MODE_CGA);
 		if (is_cplus()) {
+			cplus_init();
 			graphics_mode = CPLUS_GRAPHICS;
 			plot = cplus_plot;
 		} else {
