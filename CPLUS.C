@@ -8,26 +8,18 @@
 static BYTE far *vmem = (BYTE far *) 0xB8000000L;
 
 /*
- * Colorplus has 4 pixels per byte as such:
- * bit   : 7 6  5 4  3 2  1 0
- * color : 1 0  1 0  1 0  1 0
- *          \/   \/   \/   \/
- * pixel :  0    1    2    3
- *
- * even lines are stored at B8000
- * while odd lines are offset +2000;
- * BA000.
- *
- * The red/green bits are stored as above while the
- * blue/intensity bits are stored at BC000.
+ * Colorplus works like cga, except the color bits
+ * are stored at B8000 (+2000) for red/green and
+ * BC000 (+2000) for blue/intensity.
  */
 void
 cplus_plot(int x, int y, int palidx)
 {
 	BYTE mask[] = { 0x3f, 0xcf, 0xf3, 0xfc };
-	WORD offset = (0x2000 * (y & 1)) + (80 * (y >> 1)) + (x >> 2);
+	BYTE y2 = y >> 1;
+	WORD offset = (0x2000 * (y & 1)) + (y2 << 6) + (y2 << 4) + (x >> 2);
 	BYTE far *rgpixel = vmem + offset;
-	BYTE far *bipixel = vmem + 0x4000 + offset;
+	BYTE far *bipixel = vmem + offset + 0x4000;
 	BYTE bitpos = x & 3;
 	BYTE rgval = *rgpixel;
 	BYTE bival = *bipixel;

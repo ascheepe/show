@@ -20,8 +20,10 @@ void
 cga_plot(int x, int y, int color)
 {
 	BYTE mask[] = { 0x3f, 0xcf, 0xf3, 0xfc };
-	BYTE far *pixel =
-		vmem + (0x2000 * (y & 1)) + (80 * (y >> 1)) + (x >> 2);
+
+	BYTE y2 = y >> 1;
+	WORD offset = (0x2000 * (y & 1)) + (y2 << 6) + (y2 << 4) + (x >> 2);
+	BYTE far *pixel = vmem + offset;
 	BYTE bitpos = x & 3;
 	BYTE val = *pixel;
 
