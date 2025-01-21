@@ -67,6 +67,7 @@ is_cplus(void)
 	outp(0x3dd, 1 << 4);
 
 	/* plain cga maps BC00 to B800 */
+	*q = 0x00;
 	*p = 0x55;
 	if (*q == 0x55)
 		return 0;
