@@ -25,10 +25,9 @@ void
 cplus_plot(int x, int y, int palidx)
 {
 	BYTE mask[] = { 0x3f, 0xcf, 0xf3, 0xfc };
-	BYTE far *rgpixel = vmem + (0x2000 * (y & 1))
-	+ (80 * (y >> 1)) + (x >> 2);
-	BYTE far *bipixel = vmem + 0x4000 + (0x2000 * (y & 1))
-	+ (80 * (y >> 1)) + (x >> 2);
+	WORD offset = (0x2000 * (y & 1)) + (80 * (y >> 1)) + (x >> 2);
+	BYTE far *rgpixel = vmem + offset;
+	BYTE far *bipixel = vmem + 0x4000 + offset;
 	BYTE bitpos = x & 3;
 	BYTE rgval = *rgpixel;
 	BYTE bival = *bipixel;
