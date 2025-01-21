@@ -23,17 +23,13 @@ detect_graphics(void)
 		switch (regs.h.bl) {
 		case 0x00:
 			return GRAPHICS_ERROR;
-
 		case 0x01:
 			return MDA_GRAPHICS;
-
 		case 0x02:
 			return CGA_GRAPHICS;
-
 		case 0x04:
 		case 0x05:
 			return EGA_GRAPHICS;
-
 		case 0x07:
 		case 0x08:
 			return VGA_GRAPHICS;
@@ -59,5 +55,30 @@ detect_graphics(void)
 
 	/* if all else fails assume CGA */
 	return CGA_GRAPHICS;
+}
+
+int
+is_cplus(void)
+{
+	char far *p = (char far *) 0xB8000000L;
+	char far *q = (char far *) 0xBC000000L;
+
+	/* try to enable colorplus */
+	outp(0x3dd, 1 << 4);
+
+	/* plain cga maps BC00 to B800 */
+	*p = 0x55;
+	if (*q == 0x55)
+		return 0;
+
+	/* colorplus can swap pages */
+	*q = 0xaa;
+	outp(0x3dd, (1 << 6) | (1 << 4));
+	if (*p == 0xaa && *q == 0x55) {
+		outp(0x3dd, 1 << 4);
+		return 1;
+	}
+
+	return 0;
 }
 

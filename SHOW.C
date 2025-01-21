@@ -23,12 +23,12 @@ main(int argc, char **argv)
 		break;
 	case CGA_GRAPHICS:
 		setmode(MODE_CGA);
-		plot = cga_plot;
-		break;
-	case CPLUS_GRAPHICS:
-		setmode(MODE_CGA);
-		cplus_init();
-		plot = cplus_plot;
+		if (is_cplus()) {
+			graphics_mode = CPLUS_GRAPHICS;
+			plot = cplus_plot;
+		} else {
+			plot = cga_plot;
+		}
 		break;
 	case EGA_GRAPHICS:
 		setmode(MODE_EGA);

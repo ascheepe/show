@@ -11,6 +11,7 @@ enum graphics_type {
 };
 
 enum graphics_type detect_graphics(void);
+int is_cplus(void);
 
 #endif
 
