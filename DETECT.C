@@ -67,13 +67,12 @@ is_cplus(void)
 	outp(0x3dd, 1 << 4);
 
 	/* plain cga maps BC00 to B800 */
-	*q = 0x00;
+	*q = 0xaa;
 	*p = 0x55;
 	if (*q == 0x55)
 		return 0;
 
 	/* colorplus can swap pages */
-	*q = 0xaa;
 	outp(0x3dd, (1 << 6) | (1 << 4));
 	if (*p == 0xaa && *q == 0x55) {
 		return 1;
