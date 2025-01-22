@@ -23,7 +23,7 @@ cplus_plot(int x, int y, int palidx)
 	BYTE bitpos = x & 3;
 	BYTE rgval = *rgpixel;
 	BYTE bival = *bipixel;
-	BYTE r, g, b, i, rg, bi;
+	BYTE r, g, b, i;
 
 	if (palidx < 8) {
 		r = std_palette[palidx].r ? 2 : 0;
@@ -37,13 +37,10 @@ cplus_plot(int x, int y, int palidx)
 		i = 1;
 	}
 
-	rg = r | g;
-	bi = b | i;
-
 	rgval &= mask[bitpos];
-	rgval |= rg << ((bitpos ^ 3) << 1);
+	rgval |= (r | g) << ((bitpos ^ 3) << 1);
 	bival &= mask[bitpos];
-	bival |= bi << ((bitpos ^ 3) << 1);
+	bival |= (b | i) << ((bitpos ^ 3) << 1);
 
 	*rgpixel = rgval;
 	*bipixel = bival;

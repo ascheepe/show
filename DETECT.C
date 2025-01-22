@@ -74,9 +74,8 @@ is_cplus(void)
 
 	/* colorplus can swap pages */
 	outp(0x3dd, (1 << 6) | (1 << 4));
-	if (*p == 0xaa && *q == 0x55) {
+	if (*p == 0xaa && *q == 0x55)
 		return 1;
-	}
 
 	return 0;
 }
