@@ -2,6 +2,7 @@ system dos
 name show
 file BITMAP.OBJ
 file CGA.OBJ
+file CPLUS.OBJ
 file DETECT.OBJ
 file DITHER.OBJ
 file EGA.OBJ
@@ -11,3 +12,4 @@ file SHOW.OBJ
 file SYSTEM.OBJ
 file VGA.OBJ
 file WCCOMPAT.OBJ
+
