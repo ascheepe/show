@@ -4,7 +4,6 @@
 #include "cga.h"
 
 static BYTE far *vmem = (BYTE far *) 0xB8000000L;
-static BYTE pixelmask[] = { 0x3f, 0xcf, 0xf3, 0xfc };
 
 /*
  * CGA has 4 pixels per byte as such:
@@ -20,6 +19,7 @@ static BYTE pixelmask[] = { 0x3f, 0xcf, 0xf3, 0xfc };
 void
 cga_plot(int x, int y, int color)
 {
+	static BYTE mask[] = { 0x3f, 0xcf, 0xf3, 0xfc };
 	BYTE y2 = y >> 1;
 	WORD offset = (0x2000 * (y & 1)) + (y2 << 6) + (y2 << 4) + (x >> 2);
 	BYTE far *pixel = vmem + offset;
@@ -27,7 +27,7 @@ cga_plot(int x, int y, int color)
 	BYTE val = *pixel;
 
 	/* clear masked pixels */
-	val &= pixelmask[bitpos];
+	val &= mask[bitpos];
 
 	/*
 	 * set masked pixels:

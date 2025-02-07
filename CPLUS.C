@@ -6,7 +6,6 @@
 #include "system.h"
 
 static BYTE far *vmem = (BYTE far *) 0xB8000000L;
-static BYTE pixelmask[] = { 0x3f, 0xcf, 0xf3, 0xfc };
 
 /*
  * Colorplus works like cga, except the color bits
@@ -16,6 +15,7 @@ static BYTE pixelmask[] = { 0x3f, 0xcf, 0xf3, 0xfc };
 void
 cplus_plot(int x, int y, int palidx)
 {
+	static BYTE mask[] = { 0x3f, 0xcf, 0xf3, 0xfc };
 	BYTE y2 = y >> 1;
 	WORD offset = (0x2000 * (y & 1)) + (y2 << 6) + (y2 << 4) + (x >> 2);
 	BYTE far *rgpixel = vmem + offset;
@@ -37,9 +37,9 @@ cplus_plot(int x, int y, int palidx)
 		i = 1;
 	}
 
-	rgval &= pixelmask[bitpos];
+	rgval &= mask[bitpos];
 	rgval |= (r | g) << ((bitpos ^ 3) << 1);
-	bival &= pixelmask[bitpos];
+	bival &= mask[bitpos];
 	bival |= (b | i) << ((bitpos ^ 3) << 1);
 
 	*rgpixel = rgval;
