@@ -13,15 +13,15 @@
 static BYTE far *vmem = (BYTE far *) 0xA0000000L;
 
 void
-vga_plot(int x, int y, int color)
+vga_plot(WORD x, BYTE y, BYTE color)
 {
 	vmem[INDEX(x, y)] = color;
 }
 
 void
-vga_plot_row(int y, BYTE *rowdata)
+vga_plot_row(BYTE y, BYTE *rowdata)
 {
-	int x, offset;
+	WORD x, offset;
 
 	offset = INDEX(0, y) + x_offset;
 	for (x = 0; x < image_width; ++x)

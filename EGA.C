@@ -9,7 +9,7 @@
 static BYTE far *vmem = (BYTE far *) 0xA0000000L;
 
 void
-ega_plot(int x, int y, int color)
+ega_plot(WORD x, BYTE y, BYTE color)
 {
 	BYTE far *pixel = vmem + (y << 5) + (y << 3) + (x >> 3);
 	BYTE mask = 0x80 >> (x & 7);

@@ -17,7 +17,7 @@ static BYTE far *vmem = (BYTE far *) 0xB8000000L;
  * BA000.
  */
 void
-cga_plot(int x, int y, int color)
+cga_plot(WORD x, BYTE y, int color)
 {
 	static BYTE mask[] = { 0x3f, 0xcf, 0xf3, 0xfc };
 	BYTE y2 = y >> 1;
