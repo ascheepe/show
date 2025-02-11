@@ -2,7 +2,7 @@
 #include <string.h>
 
 void
-foreach_bmp(void (*fn)(char *filename))
+foreach_pcx(void (*fn)(char *filename))
 {
 	struct dirent *de;
 	DIR *d;
@@ -18,7 +18,7 @@ foreach_bmp(void (*fn)(char *filename))
 		if (ext == NULL)
 			continue;
 
-		if (strcmp(ext, ".BMP") == 0)
+		if (strcmp(ext, ".PCX") == 0)
 			fn(de->d_name);
 	}
 
@@ -26,7 +26,7 @@ foreach_bmp(void (*fn)(char *filename))
 }
 
 int
-bmp_present(void)
+pcx_present(void)
 {
 	struct dirent *de;
 	DIR *d;
@@ -44,7 +44,7 @@ bmp_present(void)
 		if (ext == NULL)
 			continue;
 
-		if (strcmp(ext, ".BMP") == 0) {
+		if (strcmp(ext, ".PCX") == 0) {
 			r = 1;
 			break;
 		}
@@ -53,3 +53,4 @@ bmp_present(void)
 	closedir(d);
 	return r;
 }
+

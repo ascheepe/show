@@ -1,4 +1,3 @@
-bitmap.c
 cga.c
 cplus.c
 detect.c
@@ -6,6 +5,7 @@ dither.c
 ega.c
 globals.c
 mda.c
+pcx.c
 show.c
 system.c
 tccompat.c

@@ -1,4 +1,4 @@
-#include "bitmap.h"
+#include "pcx.h"
 #include "compat.h"
 #include "detect.h"
 #include "dither.h"
@@ -43,10 +43,10 @@ main(int argc, char **argv)
 
 	if (argc > 1) {
 		for (++argv; *argv != NULL; ++argv)
-			bitmap_show(*argv);
+			pcx_show(*argv);
 	} else {
 		for (;;)
-			foreach_bmp(bitmap_show);
+			foreach_pcx(pcx_show);
 	}
 
 	setmode(MODE_TXT);
