@@ -12,7 +12,7 @@ enum {
 };
 
 void mda_set_mode(int);
-void mda_plot(int, int, int);
+void mda_plot(WORD, WORD, BYTE);
 void mda_clear_screen(void);
 
 #endif

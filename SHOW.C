@@ -1,8 +1,8 @@
-#include "pcx.h"
 #include "compat.h"
 #include "detect.h"
 #include "dither.h"
 #include "globals.h"
+#include "pcx.h"
 #include "system.h"
 
 #include "mda.h"

@@ -43,8 +43,7 @@ void
 pcx_show(char *filename)
 {
 	FILE *fp;
-	DWORD width, row;
-	int i, skip;
+	DWORD i, row;
 
 	fp = fopen(filename, "rb");
 	if (fp == NULL)

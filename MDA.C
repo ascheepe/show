@@ -64,7 +64,7 @@ mda_set_mode(int mode)
 }
 
 void
-mda_plot(int x, int y, int color)
+mda_plot(WORD x, WORD y, BYTE color)
 {
 	BYTE far *pixel =
 	    vmem + (0x2000 * (y & 3)) + (90 * (y >> 2)) + (x >> 3);
@@ -81,3 +81,4 @@ mda_clear_screen(void)
 {
 	memsetf(vmem, 0, 32 * 1024);
 }
+

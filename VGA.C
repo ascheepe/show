@@ -13,7 +13,7 @@
 static BYTE far *vmem = (BYTE far *) 0xA0000000L;
 
 void
-vga_plot(WORD x, BYTE y, BYTE color)
+vga_plot(WORD x, WORD y, BYTE color)
 {
 	vmem[INDEX(x, y)] = color;
 }

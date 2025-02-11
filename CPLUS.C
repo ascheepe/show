@@ -13,7 +13,7 @@ static BYTE far *vmem = (BYTE far *) 0xB8000000L;
  * BC000 (+2000) for blue/intensity.
  */
 void
-cplus_plot(WORD x, BYTE y, BYTE palidx)
+cplus_plot(WORD x, WORD y, BYTE palidx)
 {
 	static BYTE mask[] = { 0x3f, 0xcf, 0xf3, 0xfc };
 	BYTE y2 = y >> 1;

@@ -11,8 +11,8 @@ int graphics_mode;
 /* Image data */
 BYTE image_row[MAX_IMAGE_WIDTH];
 struct rgb image_palette[MAX_IMAGE_COLORS];
-int image_width;
-int image_height;
+WORD image_width;
+WORD image_height;
 
 BYTE mda_palette[2] = { 0, 1 };
 BYTE cga_palette[4] = { 0, 2, 1, 3 };
@@ -35,5 +35,5 @@ struct rgb std_palette[16] = {
 	{ 0xFF, 0xFF, 0xFF },
 };
 
-void (*plot)(int x, int y, int color);
+void (*plot)(WORD x, WORD y, BYTE color);
 
