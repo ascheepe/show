@@ -63,9 +63,9 @@ pcx_show(char *filename)
 	if (image_width > 320)
 		die("pcx_show: image is too wide.");
 	image_height = read_word(fp) + 1;
-	if (read_word(fp) > 200)
+	if (image_height > 200)
 		die("pcx_show: image is too tall.");
-	if (fseek(fp, 51, SEEK_CUR) != 0)
+	if (fseek(fp, 53, SEEK_CUR) != 0)
 		die("pcx_show: short read.");
 	if (read_byte(fp) != 0x01)
 		die("pcx_show: number of planes should be one.");
