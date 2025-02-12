@@ -18,11 +18,11 @@ pcx_read_row(FILE *fp)
 	maybe_exit();
 
 	while (xpos < image_width) {
-		BYTE pixelvalue;
+		u8 pixelvalue;
 
 		pixelvalue = read_byte(fp);
 		if (pixelvalue >= 192) {
-			BYTE count = pixelvalue - 192;
+			u8 count = pixelvalue - 192;
 
 			if (xpos + count > image_width)
 				die("pcx_read_row: rle overflow.");
@@ -43,7 +43,7 @@ void
 pcx_show(char *filename)
 {
 	FILE *fp;
-	DWORD i, row;
+	u32 i, row;
 
 	fp = fopen(filename, "rb");
 	if (fp == NULL)

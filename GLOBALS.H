@@ -8,9 +8,9 @@ enum { false, true };
 #define MODE_EGA 0x0d
 #define MODE_VGA 0x13
 
-typedef unsigned char BYTE;
-typedef unsigned short WORD;
-typedef unsigned long DWORD;
+typedef unsigned char u8;
+typedef unsigned short u16;
+typedef unsigned long u32;
 
 #define KEY_ESC 27
 
@@ -19,22 +19,22 @@ typedef unsigned long DWORD;
 #define MAX_IMAGE_COLORS 256
 
 struct rgb {
-	BYTE r, g,b;
+	u8 r, g,b;
 };
 
 extern int graphics_mode;
 
-extern WORD x_offset;
-extern WORD y_offset;
+extern u16 x_offset;
+extern u16 y_offset;
 
-extern BYTE image_row[MAX_IMAGE_WIDTH];
+extern u8 image_row[MAX_IMAGE_WIDTH];
 extern struct rgb image_palette[MAX_IMAGE_COLORS];
-extern WORD image_width;
-extern WORD image_height;
+extern u16 image_width;
+extern u16 image_height;
 
-extern BYTE mda_palette[2];
-extern BYTE cga_palette[4];
+extern u8 mda_palette[2];
+extern u8 cga_palette[4];
 extern struct rgb std_palette[16];
-extern void (*plot)(WORD, WORD, BYTE);
+extern void (*plot)(u16, u16, u8);
 #endif
 

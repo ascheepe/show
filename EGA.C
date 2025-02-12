@@ -6,13 +6,13 @@
 #include "globals.h"
 #include "system.h"
 
-static BYTE far *vmem = (BYTE far *) 0xA0000000L;
+static u8 far *vmem = (u8 far *) 0xA0000000L;
 
 void
-ega_plot(WORD x, WORD y, BYTE color)
+ega_plot(u16 x, u16 y, u8 color)
 {
-	BYTE far *pixel = vmem + (y << 5) + (y << 3) + (x >> 3);
-	BYTE mask = 0x80 >> (x & 7);
+	u8 far *pixel = vmem + (y << 5) + (y << 3) + (x >> 3);
+	u8 mask = 0x80 >> (x & 7);
 
 	/*
 	 * color selects which planes to write to
@@ -45,10 +45,10 @@ ega_clear_screen(void)
 	outp(0x3c5, 0xf);
 
 	for (y = 0; y < EGA_HEIGHT; ++y) {
-		BYTE far *offset = vmem + (y << 5) + (y << 3);
+		u8 far *offset = vmem + (y << 5) + (y << 3);
 
 		for (x = 0; x < EGA_WIDTH / 8; ++x) {
-			BYTE far *pixel = offset + x;
+			u8 far *pixel = offset + x;
 
 			*pixel = 0x00;
 		}
