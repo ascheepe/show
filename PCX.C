@@ -13,7 +13,7 @@
 static void
 pcx_read_row(FILE *fp)
 {
-	int xpos = 0;
+	u16 xpos = 0;
 
 	maybe_exit();
 
