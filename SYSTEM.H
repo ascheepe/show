@@ -4,9 +4,9 @@
 #include "globals.h"
 
 void die(char *fmt, ...);
-u8 read_byte(FILE *);
-u16 read_word(FILE *);
-u32 read_dword(FILE *);
+u8 read8(FILE *);
+u16 read16(FILE *);
+u32 read32(FILE *);
 void setmode(int);
 void far *memsetf(void far *, int, size_t);
 int maybe_exit(void);

@@ -31,12 +31,12 @@ die(char *fmt, ...)
  * Read a byte with error checking.
  */
 u8
-read_byte(FILE *fp)
+read8(FILE *fp)
 {
 	int ch;
 
 	if ((ch = fgetc(fp)) == EOF)
-		die("read_byte: input error.");
+		die("read8: input error.");
 
 	return ch;
 }
@@ -45,12 +45,12 @@ read_byte(FILE *fp)
  * Read a word with error checking.
  */
 u16
-read_word(FILE *fp)
+read16(FILE *fp)
 {
 	u8 buf[2];
 
 	if (fread(buf, 2, 1, fp) != 1)
-		die("read_word: input error.");
+		die("read16: input error.");
 
 	return buf[0] | (buf[1] << 8);
 }
@@ -59,12 +59,12 @@ read_word(FILE *fp)
  * Read a double word with error checking.
  */
 u32
-read_dword(FILE *fp)
+read32(FILE *fp)
 {
 	u8 buf[4];
 
 	if (fread(buf, 4, 1, fp) != 1)
-		die("read_dword: input error.");
+		die("read32: input error.");
 
 	return (u32) buf[0] | ((u32) buf[1] << 8) |
 	    ((u32) buf[2] << 16) | ((u32) buf[3] << 24);

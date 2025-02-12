@@ -28,43 +28,43 @@ bitmap_show(char *filename)
 	if (fp == NULL)
 		die("bitmap_read: can't open file '%s'.", filename);
 
-	if (read_word(fp) != 0x4d42)
+	if (read16(fp) != 0x4d42)
 		die("bitmap_read: not a bitmap file.");
 
-	/* file_size = */ read_dword(fp);
-	/* reserved  = */ read_dword(fp);
-	pixel_offset = read_dword(fp);
-	header_size = read_dword(fp);
-	image_width = read_dword(fp);
-	image_height = read_dword(fp);
+	/* file_size = */ read32(fp);
+	/* reserved  = */ read32(fp);
+	pixel_offset = read32(fp);
+	header_size = read32(fp);
+	image_width = read32(fp);
+	image_height = read32(fp);
 
 	if (image_width == 0 || image_height == 0 ||
 	    image_width > MAX_IMAGE_WIDTH || image_height > MAX_IMAGE_HEIGHT)
 		die("bitmap_read: image must be 320x200 or less.");
 
-	/* planes = */ read_word(fp);
-	if (read_word(fp) > 8)
+	/* planes = */ read16(fp);
+	if (read16(fp) > 8)
 		die("bitmap_read: unsupported bit depth.");
 
-	if (read_dword(fp) != 0)
+	if (read32(fp) != 0)
 		die("bitmap_read: compression is not supported.");
 
-	/* image_size = */ read_dword(fp);
-	/* x_ppm      = */ read_dword(fp);
-	/* y_ppm      = */ read_dword(fp);
+	/* image_size = */ read32(fp);
+	/* x_ppm      = */ read32(fp);
+	/* y_ppm      = */ read32(fp);
 
-	ncolors = read_dword(fp);
-	/* ncolors_important = */ read_dword(fp);
+	ncolors = read32(fp);
+	/* ncolors_important = */ read32(fp);
 
 	/* palette data is bgr(a), located after all the headers */
 	fseek(fp, header_size + FILEHEADERSIZE, SEEK_SET);
 	for (i = 0; i < ncolors; ++i) {
-		image_palette[i].b = read_byte(fp);
-		image_palette[i].g = read_byte(fp);
-		image_palette[i].r = read_byte(fp);
+		image_palette[i].b = read8(fp);
+		image_palette[i].g = read8(fp);
+		image_palette[i].r = read8(fp);
 
 		/* read away alpha value */
-		read_byte(fp);
+		read8(fp);
 	}
 
 	/* fill remaining palette with black */

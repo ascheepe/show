@@ -20,14 +20,14 @@ pcx_read_row(FILE *fp)
 	while (xpos < image_width) {
 		u8 pixelvalue;
 
-		pixelvalue = read_byte(fp);
+		pixelvalue = read8(fp);
 		if (pixelvalue >= 192) {
 			u8 count = pixelvalue - 192;
 
 			if (xpos + count > image_width)
 				die("pcx_read_row: rle overflow.");
 
-			pixelvalue = read_byte(fp);
+			pixelvalue = read8(fp);
 			while (count-- > 0)
 				image_row[xpos++] = pixelvalue;
 		} else {
@@ -49,33 +49,33 @@ pcx_show(char *filename)
 	if (fp == NULL)
 		die("pcx_show: can't open file '%s'.", filename);
 
-	if (read_byte(fp) != 0x0a)
+	if (read8(fp) != 0x0a)
 		die("pcx_show: not a pcx file.");
 
-	/* version = */ read_byte(fp);
-	if (read_byte(fp) != 0x01)
+	/* version = */ read8(fp);
+	if (read8(fp) != 0x01)
 		die("pcx_show: only rle compressed images are supported.");
-	if (read_byte(fp) != 0x08)
+	if (read8(fp) != 0x08)
 		die("pcx_show: only 8 bits per plane are supported.");
-	if (read_word(fp) != 0x0000 || read_word(fp) != 0x0000)
+	if (read16(fp) != 0x0000 || read16(fp) != 0x0000)
 		die("pcx_show: minimum x/y coordinates should be zero.");
-	image_width = read_word(fp) + 1;
+	image_width = read16(fp) + 1;
 	if (image_width > 320)
 		die("pcx_show: image is too wide.");
-	image_height = read_word(fp) + 1;
+	image_height = read16(fp) + 1;
 	if (image_height > 200)
 		die("pcx_show: image is too tall.");
 	if (fseek(fp, 53, SEEK_CUR) != 0)
 		die("pcx_show: short read.");
-	if (read_byte(fp) != 0x01)
+	if (read8(fp) != 0x01)
 		die("pcx_show: number of planes should be one.");
-	if (fseek(fp, -769, SEEK_END) != 0 || read_byte(fp) != 0x0c)
+	if (fseek(fp, -769, SEEK_END) != 0 || read8(fp) != 0x0c)
 		die("pcx_show: 256 color palette missing.");
 
 	for (i = 0; i < 256; ++i) {
-		image_palette[i].r = read_byte(fp);
-		image_palette[i].g = read_byte(fp);
-		image_palette[i].b = read_byte(fp);
+		image_palette[i].r = read8(fp);
+		image_palette[i].g = read8(fp);
+		image_palette[i].b = read8(fp);
 	}
 
 	switch (graphics_mode) {
