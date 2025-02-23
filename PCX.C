@@ -18,20 +18,20 @@ pcx_read_row(FILE *fp)
 	maybe_exit();
 
 	while (xpos < image_width) {
-		u8 pixelvalue;
+		u8 val;
 
-		pixelvalue = read8(fp);
-		if (pixelvalue >= 192) {
-			u8 count = pixelvalue - 192;
+		val = read8(fp);
+		if (val >= 192) {
+			u8 count = val - 192;
 
 			if (xpos + count > image_width)
 				die("pcx_read_row: rle overflow.");
 
-			pixelvalue = read8(fp);
+			val = read8(fp);
 			while (count-- > 0)
-				image_row[xpos++] = pixelvalue;
+				image_row[xpos++] = val;
 		} else {
-			image_row[xpos++] = pixelvalue;
+			image_row[xpos++] = val;
 		}
 	}
 }
