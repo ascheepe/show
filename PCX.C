@@ -11,7 +11,7 @@
 #include "vga.h"
 
 static void
-pcx_read_row(FILE *fp)
+read_row(FILE *fp)
 {
 	u16 xpos = 0;
 
@@ -25,7 +25,7 @@ pcx_read_row(FILE *fp)
 			u8 count = val - 192;
 
 			if (xpos + count > image_width)
-				die("pcx_read_row: rle overflow.");
+				die("read_row: rle overflow.");
 
 			val = read8(fp);
 			while (count-- > 0)
@@ -110,7 +110,7 @@ pcx_show(char *filename)
 	/* read, dither and show the image data */
 	fseek(fp, 128, SEEK_SET);
 	for (row = 0; row < image_height; ++row) {
-		pcx_read_row(fp);
+		read_row(fp);
 		show_row(row);
 	}
 	fclose(fp);
