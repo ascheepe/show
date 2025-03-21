@@ -10,6 +10,7 @@ file MDA.OBJ
 file PCX.OBJ
 file SHOW.OBJ
 file SYSTEM.OBJ
+file TGA.OBJ
 file VGA.OBJ
 file WCCOMPAT.OBJ
 

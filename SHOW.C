@@ -8,6 +8,7 @@
 #include "mda.h"
 #include "cga.h"
 #include "cplus.h"
+#include "tga.h"
 #include "ega.h"
 #include "vga.h"
 
@@ -22,14 +23,23 @@ main(int argc, char **argv)
 		plot = mda_plot;
 		break;
 	case CGA_GRAPHICS:
-		setmode(MODE_CGA);
 		if (is_cplus()) {
+			setmode(MODE_CGA);
 			cplus_init();
 			graphics_mode = CPLUS_GRAPHICS;
 			plot = cplus_plot;
+		} else if (is_tga()) {
+			setmode(MODE_TGA);
+			graphics_mode = TGA_GRAPHICS;
+			plot = tga_plot;
 		} else {
+			setmode(MODE_CGA);
 			plot = cga_plot;
 		}
+		break;
+	case TGA_GRAPHICS:
+		setmode(MODE_TGA);
+		plot = tga_plot;
 		break;
 	case EGA_GRAPHICS:
 		setmode(MODE_EGA);

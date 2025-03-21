@@ -7,6 +7,7 @@
 #include "mda.h"
 #include "cga.h"
 #include "cplus.h"
+#include "tga.h"
 #include "ega.h"
 #include "vga.h"
 
@@ -93,6 +94,11 @@ pcx_show(char *filename)
 		x_offset = CPLUS_WIDTH / 2 - image_width / 2;
 		y_offset = CPLUS_HEIGHT / 2 - image_height / 2;
 		cplus_clear_screen();
+		break;
+	case TGA_GRAPHICS:
+		x_offset = TGA_WIDTH / 2 - image_width / 2;
+		y_offset = TGA_HEIGHT / 2 - image_height / 2;
+		tga_clear_screen();
 		break;
 	case EGA_GRAPHICS:
 		x_offset = EGA_WIDTH / 2 - image_width / 2;

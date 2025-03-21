@@ -5,6 +5,7 @@ enum { false, true };
 
 #define MODE_TXT 0x03
 #define MODE_CGA 0x05
+#define MODE_TGA 0x09
 #define MODE_EGA 0x0d
 #define MODE_VGA 0x13
 

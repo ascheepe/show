@@ -9,5 +9,6 @@ pcx.c
 show.c
 system.c
 tccompat.c
+tga.c
 vga.c
 

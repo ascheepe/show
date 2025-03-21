@@ -8,6 +8,7 @@
 #include "mda.h"
 #include "cga.h"
 #include "cplus.h"
+#include "tga.h"
 #include "ega.h"
 #include "vga.h"
 
@@ -160,6 +161,7 @@ show_row(int row)
 		grayscale_dither(row, cga_palette, 4);
 		break;
 	case CPLUS_GRAPHICS:
+	case TGA_GRAPHICS:
 	case EGA_GRAPHICS:
 		color_dither(row, std_palette, 16);
 		break;

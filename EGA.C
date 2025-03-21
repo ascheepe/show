@@ -37,22 +37,6 @@ void
 ega_clear_screen(void)
 {
 	setmode(MODE_EGA);
-#if 0
-	int x, y;
-
-	/* Write rgbi to all planes in parallel */
-	outp(0x3c4, 2);
-	outp(0x3c5, 0xf);
-
-	for (y = 0; y < EGA_HEIGHT; ++y) {
-		u8 far *offset = vmem + (y << 5) + (y << 3);
-
-		for (x = 0; x < EGA_WIDTH / 8; ++x) {
-			u8 far *pixel = offset + x;
-
-			*pixel = 0x00;
-		}
-	}
-#endif
+	/* memsetf(vmem, 0, 64000U); */
 }
 

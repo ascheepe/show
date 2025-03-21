@@ -41,15 +41,14 @@ detect_graphics(void)
 
 	/* If not detected yet check if it's an EGA card */
 	regs.h.ah = 0x12;
-	regs.x.bx = 0x10;
+	regs.x.bx = 0xff10;
 	int86(0x10, &regs, &regs);
 
-	if (regs.x.bx != 0x10)
+	if (regs.h.bh != 0xff)
 		return EGA_GRAPHICS;
 
-	/* Try equipment info if still not found */
+	/* If system started with 80x25 monochrome it's probably MDA */
 	int86(0x11, &regs, &regs);
-
 	if (((regs.h.al & 0x30) >> 4) == 3)
 		return MDA_GRAPHICS;
 
@@ -78,5 +77,15 @@ is_cplus(void)
 		return 1;
 
 	return 0;
+}
+
+int
+is_tga(void)
+{
+	/* set mode */
+	outp(0x3d8, 0x0f);
+
+	/* if it sticks it's probably tandy graphics */
+	return inp(0x3d8) == 0x0f;
 }
 
