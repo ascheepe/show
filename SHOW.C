@@ -28,10 +28,6 @@ main(int argc, char **argv)
 			cplus_init();
 			graphics_mode = CPLUS_GRAPHICS;
 			plot = cplus_plot;
-		} else if (is_tga()) {
-			setmode(MODE_TGA);
-			graphics_mode = TGA_GRAPHICS;
-			plot = tga_plot;
 		} else {
 			setmode(MODE_CGA);
 			plot = cga_plot;
@@ -49,6 +45,9 @@ main(int argc, char **argv)
 		setmode(MODE_VGA);
 		plot = vga_plot;
 		break;
+	default:
+	case GRAPHICS_ERROR:
+		die("Can't determine graphics card.");
 	}
 
 	if (argc > 1) {

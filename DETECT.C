@@ -1,6 +1,7 @@
 #include <dos.h>
 
 #include "detect.h"
+#include "system.h"
 
 /*
  * Try to detect the used graphics card;
@@ -14,45 +15,36 @@ detect_graphics(void)
 {
 	union REGS regs;
 
-	/* First try int10 service */
-	regs.h.ah = 0x1a;
-	regs.h.al = 0x00;
+	/* VGA */
+	regs.x.ax = 0x1200;
+	regs.h.bl = 0x32;
 	int86(0x10, &regs, &regs);
+	if (regs.h.al == 0x12)
+		return VGA_GRAPHICS;
 
-	if (regs.h.al == 0x1a) {
-		switch (regs.h.bl) {
-		case 0x00:
-			return GRAPHICS_ERROR;
-		case 0x01:
-			return MDA_GRAPHICS;
-		case 0x02:
-			return CGA_GRAPHICS;
-		case 0x04:
-		case 0x05:
-			return EGA_GRAPHICS;
-		case 0x07:
-		case 0x08:
-			return VGA_GRAPHICS;
-		}
-
-		/* if we had int10 service assume CGA */
-		return CGA_GRAPHICS;
-	}
-
-	/* If not detected yet check if it's an EGA card */
+	/* EGA */
 	regs.h.ah = 0x12;
 	regs.x.bx = 0xff10;
 	int86(0x10, &regs, &regs);
-
 	if (regs.h.bh != 0xff)
 		return EGA_GRAPHICS;
 
-	/* If system started with 80x25 monochrome it's probably MDA */
-	int86(0x11, &regs, &regs);
-	if (((regs.h.al & 0x30) >> 4) == 3)
+	/* MDA */
+	regs.h.ah = 0x0f;
+	int86(0x10, &regs, &regs);
+	if (regs.h.al == 0x07)
 		return MDA_GRAPHICS;
 
-	/* if all else fails assume CGA */
+	/* PcJr */
+	if (*((u8 far *)(0xffff000eL)) == 0xfd)
+		return TGA_GRAPHICS;
+
+	/* Tandy */
+	if (*((u8 far *)(0xffff000eL)) == 0xff
+	&& *((u8 far *)(0xfc000000L)) == 0x21)
+		return TGA_GRAPHICS;
+
+	/* If all failed it must be CGA */
 	return CGA_GRAPHICS;
 }
 
@@ -77,15 +69,4 @@ is_cplus(void)
 		return 1;
 
 	return 0;
-}
-
-int
-is_tga(void)
-{
-	/* set mode */
-	outp(0x3d8, 0x0f);
-
-	/* if it sticks it's probably tandy graphics */
-	return inp(0x3d8) == 0x0f;
-}
-
+}
