@@ -15,7 +15,7 @@ u16 image_width;
 u16 image_height;
 
 u8 mda_palette[2] = { 0, 1 };
-u8 cga_palette[4] = { 0, 2, 1, 3 };
+u8 cga_palette[4] = { 0, 1, 2, 3 };
 struct rgb std_palette[16] = {
 	{ 0x00, 0x00, 0x00 },
 	{ 0x00, 0x00, 0xAA },
