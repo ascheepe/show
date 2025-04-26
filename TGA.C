@@ -23,11 +23,10 @@ tga_plot(u16 x, u16 y, u8 color)
 {
 	u8 far *pixel = vmem + 0x2000L * (y & 3) + ((y >> 2) * 160) + (x >> 1);
 
-	if (x & 1) {
+	if (x & 1)
 		*pixel = (*pixel & 0xf0) | (color & 0x0f);
-	} else {
+	else
 		*pixel = (*pixel & 0x0f) | ((color & 0x0f) << 4);
-	}
 }
 
 void
