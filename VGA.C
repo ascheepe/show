@@ -52,7 +52,7 @@ void
 vga_clear_screen(void)
 {
 	vga_set_color(0, 0, 0, 0);
-	memsetf(vmem, 0, 320 * 200);
+	memsetf(vmem, 0, 320U * 200);
 }
 
 void

@@ -51,8 +51,8 @@ detect_graphics(void)
 int
 is_cplus(void)
 {
-	char far *p = (char far *) 0xB8000000L;
-	char far *q = (char far *) 0xBC000000L;
+	u8 far *p = (u8 far *) 0xB8000000L;
+	u8 far *q = (u8 far *) 0xBC000000L;
 
 	/* try to enable colorplus */
 	outp(0x3dd, 1 << 4);

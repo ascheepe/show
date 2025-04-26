@@ -79,6 +79,6 @@ mda_plot(u16 x, u16 y, u8 color)
 void
 mda_clear_screen(void)
 {
-	memsetf(vmem, 0, 32 * 1024);
+	memsetf(vmem, 0, 32U * 1024);
 }
 
