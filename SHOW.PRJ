@@ -1,3 +1,4 @@
+bios.c
 cga.c
 cplus.c
 detect.c
