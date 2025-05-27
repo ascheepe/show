@@ -3,8 +3,8 @@
 
 #include "system.h"
 
-#define MDA_WIDTH  720
-#define MDA_HEIGHT 348
+#define MDA_WIDTH  320
+#define MDA_HEIGHT 200
 
 enum {
 	MDA_TEXT_MODE,

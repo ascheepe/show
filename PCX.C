@@ -87,6 +87,7 @@ pcx_show(char *filename)
 	case MDA_GRAPHICS:
 		x_offset = MDA_WIDTH / 2 - image_width / 2;
 		y_offset = MDA_HEIGHT / 2 - image_height / 2;
+		mda_clear_screen();
 		break;
 	case CGA_GRAPHICS:
 		x_offset = CGA_WIDTH / 2 - image_width / 2;
@@ -113,9 +114,14 @@ pcx_show(char *filename)
 		break;
 	}
 
+	/* adjust for y offset */
+	memset(image_row, 0, sizeof(image_row));
+	for (row = 0; row < y_offset; ++row)
+		show_row(row);
+
 	/* read, dither and show the image data */
 	fseek(fp, 128, SEEK_SET);
-	for (row = 0; row < image_height; ++row) {
+	for (row = y_offset; row < image_height; ++row) {
 		read_row(fp);
 		show_row(row);
 	}
