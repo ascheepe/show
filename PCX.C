@@ -127,6 +127,11 @@ pcx_show(char *filename)
 	}
 	fclose(fp);
 
+	/* adjust for y offset */
+	memset(image_row, 0, sizeof(image_row));
+	for (; row < MAX_IMAGE_HEIGHT; ++row)
+		show_row(row);
+
 	while (maybe_exit() == 0)
 		;
 }
