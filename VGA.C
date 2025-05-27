@@ -23,8 +23,8 @@ vga_plot_row(u8 y, u8 *rowdata)
 {
 	u16 x, offset;
 
-	offset = INDEX(0, y) + x_offset;
-	for (x = 0; x < image_width; ++x)
+	offset = INDEX(0, y); /* + x_offset; */
+	for (x = 0; x < MAX_IMAGE_WIDTH; ++x)
 		vmem[offset + x] = rowdata[x];
 }
 

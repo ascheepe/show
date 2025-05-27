@@ -66,7 +66,7 @@ grayscale_dither(int row, u8 *palette, int ncolors)
 	if (row == 0)
 		memset(error, 0, sizeof(error));
 
-	for (col = 1; col < image_width - 1; ++col) {
+	for (col = 1; col < MAX_IMAGE_WIDTH - 1; ++col) {
 		struct rgb *color;
 		u8 i, oldcolor, newcolor;
 		int err;
@@ -74,7 +74,7 @@ grayscale_dither(int row, u8 *palette, int ncolors)
 		color = &image_palette[image_row[col]];
 		oldcolor = CLAMP(color_to_mono(color) + p0[col]);
 		i = oldcolor * ncolors / 256;
-		plot(col + x_offset, row + y_offset, palette[i]);
+		plot(col, row, palette[i]);
 		newcolor = i * 256 / ncolors;
 
 		err = oldcolor - newcolor;
@@ -109,7 +109,7 @@ color_dither(int row, struct rgb *palette, int ncolors)
 	if (row == 0)
 		memset(error, 0, sizeof(error));
 
-	for (col = 1; col < image_width - 1; ++col) {
+	for (col = 1; col < MAX_IMAGE_WIDTH - 1; ++col) {
 		struct rgb oldcolor, newcolor, *color;
 		struct dither_error err;
 		u8 i;
@@ -120,7 +120,7 @@ color_dither(int row, struct rgb *palette, int ncolors)
 		oldcolor.b = CLAMP(color->b + p0[col].b);
 
 		i = pick_color(&oldcolor, palette, ncolors);
-		plot(col + x_offset, row + y_offset, i);
+		plot(col, row, i);
 		color = &palette[i];
 		newcolor.r = color->r;
 		newcolor.g = color->g;

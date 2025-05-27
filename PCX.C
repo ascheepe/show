@@ -1,3 +1,5 @@
+#include <string.h>
+
 #include "pcx.h"
 #include "detect.h"
 #include "dither.h"
@@ -18,6 +20,8 @@ read_row(FILE *fp)
 
 	maybe_exit();
 
+	memset(image_row, 0, sizeof(image_row));
+
 	while (xpos < image_width) {
 		u8 val;
 
@@ -30,9 +34,9 @@ read_row(FILE *fp)
 
 			val = read8(fp);
 			while (count-- > 0)
-				image_row[xpos++] = val;
+				image_row[x_offset + xpos++] = val;
 		} else {
-			image_row[xpos++] = val;
+			image_row[x_offset + xpos++] = val;
 		}
 	}
 }
@@ -83,22 +87,18 @@ pcx_show(char *filename)
 	case MDA_GRAPHICS:
 		x_offset = MDA_WIDTH / 2 - image_width / 2;
 		y_offset = MDA_HEIGHT / 2 - image_height / 2;
-		mda_clear_screen();
 		break;
 	case CGA_GRAPHICS:
 		x_offset = CGA_WIDTH / 2 - image_width / 2;
 		y_offset = CGA_HEIGHT / 2 - image_height / 2;
-		cga_clear_screen();
 		break;
 	case CPLUS_GRAPHICS:
 		x_offset = CPLUS_WIDTH / 2 - image_width / 2;
 		y_offset = CPLUS_HEIGHT / 2 - image_height / 2;
-		cplus_clear_screen();
 		break;
 	case TGA_GRAPHICS:
 		x_offset = TGA_WIDTH / 2 - image_width / 2;
 		y_offset = TGA_HEIGHT / 2 - image_height / 2;
-		tga_clear_screen();
 		break;
 	case EGA_GRAPHICS:
 		x_offset = EGA_WIDTH / 2 - image_width / 2;
