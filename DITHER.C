@@ -74,7 +74,11 @@ grayscale_dither(int row, u8 *palette, int ncolors)
 		color = &image_palette[image_row[col]];
 		oldcolor = CLAMP(color_to_mono(color) + p0[col]);
 		i = oldcolor * ncolors / 256;
-		plot(col, row, palette[i]);
+		/* FIXME: hack for MDA */
+		if (graphics_mode == MDA_GRAPHICS)
+			plot(col + 200, row + 74, palette[i]);
+		else
+			plot(col, row, palette[i]);
 		newcolor = i * 256 / ncolors;
 
 		err = oldcolor - newcolor;
