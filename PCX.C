@@ -92,10 +92,12 @@ pcx_show(char *filename)
 	case CGA_GRAPHICS:
 		x_offset = CGA_WIDTH / 2 - image_width / 2;
 		y_offset = CGA_HEIGHT / 2 - image_height / 2;
+		cga_clear_screen();
 		break;
 	case CPLUS_GRAPHICS:
 		x_offset = CPLUS_WIDTH / 2 - image_width / 2;
 		y_offset = CPLUS_HEIGHT / 2 - image_height / 2;
+		cplus_clear_screen();
 		break;
 	case TGA_GRAPHICS:
 		x_offset = TGA_WIDTH / 2 - image_width / 2;
