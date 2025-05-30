@@ -77,6 +77,14 @@ mda_plot(u16 x, u16 y, u8 color)
 }
 
 void
+mda_plot_scaled(u16 x, u16 y, u8 color)
+{
+	x *= 2;
+	mda_plot(x + 40 + 0, y + 74, color);
+	mda_plot(x + 40 + 1, y + 74, color);
+}
+
+void
 mda_clear_screen(void)
 {
 	memsetf(vmem, 0, 32U * 1024);

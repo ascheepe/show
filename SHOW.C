@@ -20,7 +20,7 @@ main(int argc, char **argv)
 	switch (graphics_mode) {
 	case MDA_GRAPHICS:
 		mda_set_mode(MDA_GRAPHICS_MODE);
-		plot = mda_plot;
+		plot = mda_plot_scaled;
 		break;
 	case CGA_GRAPHICS:
 		if (is_cplus()) {
