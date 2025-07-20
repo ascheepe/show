@@ -5,7 +5,7 @@
 #include "system.h"
 #include "mda.h"
 
-static u8 far *vmem = (u8 far *) 0xB0000000L;
+static BYTE far *vmem = (BYTE far *) 0xB0000000L;
 
 #define PORT_INDEX 0x3b4
 #define PORT_DATA (PORT_INDEX + 1)
@@ -17,13 +17,13 @@ static u8 far *vmem = (u8 far *) 0xB0000000L;
 #define MDA_MODE_GRAPHICS 2
 #define MDA_MODE_TEXT 0x20
 
-static u8 graphics_init[] = {
+static BYTE graphics_init[] = {
 	0x35, 0x2d, 0x2e, 0x07,
 	0x5b, 0x02, 0x57, 0x57,
 	0x02, 0x03, 0x00, 0x00,
 };
 
-static u8 text_init[] = {
+static BYTE text_init[] = {
 	0x61, 0x50, 0x52, 0x0f,
 	0x19, 0x06, 0x19, 0x19,
 	0x02, 0x0d, 0x0b, 0x0c,
@@ -32,7 +32,7 @@ static u8 text_init[] = {
 void
 mda_set_mode(int mode)
 {
-	u8 *data;
+	BYTE *data;
 	size_t len;
 	int i;
 
@@ -64,11 +64,11 @@ mda_set_mode(int mode)
 }
 
 void
-mda_plot(u16 x, u16 y, u8 color)
+mda_plot(WORD x, WORD y, BYTE color)
 {
-	u8 far *pixel =
+	BYTE far *pixel =
 	    vmem + (0x2000 * (y & 3)) + (90 * (y >> 2)) + (x >> 3);
-	u8 val = 1 << (7 - (x & 7));
+	BYTE val = 1 << (7 - (x & 7));
 
 	if (color)
 		*pixel |= val;
@@ -77,7 +77,7 @@ mda_plot(u16 x, u16 y, u8 color)
 }
 
 void
-mda_plot_scaled(u16 x, u16 y, u8 color)
+mda_plot_scaled(WORD x, WORD y, BYTE color)
 {
 	x *= 2;
 	mda_plot(x + 40 + 0, y + 74, color);

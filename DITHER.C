@@ -21,12 +21,12 @@
 static int
 pick_color(const struct rgb *color, const struct rgb *palette, int ncolors)
 {
-	u16 i, match, maxdist;
+	WORD i, match, maxdist;
 
 	maxdist = -1;
 	for (i = 0; i < ncolors; ++i) {
 		struct rgb diff;
-		u16 dist;
+		WORD dist;
 
 		diff.r = abs((int)color->r - palette[i].r);
 		diff.g = abs((int)color->g - palette[i].g);
@@ -42,7 +42,7 @@ pick_color(const struct rgb *color, const struct rgb *palette, int ncolors)
 	return match;
 }
 
-static u8
+static BYTE
 color_to_mono(struct rgb *color)
 {
 	return
@@ -55,20 +55,20 @@ color_to_mono(struct rgb *color)
  * Dither and plot a row in grayscale.
  */
 static void
-grayscale_dither(int row, u8 *palette, int ncolors)
+grayscale_dither(int row, BYTE *palette, int ncolors)
 {
-	static u8 error[2][MAX_IMAGE_WIDTH];
-	static u8 *p0 = &error[0][0];
-	static u8 *p1 = &error[1][0];
-	u8 *ptmp;
-	u16 col;
+	static BYTE error[2][MAX_IMAGE_WIDTH];
+	static BYTE *p0 = &error[0][0];
+	static BYTE *p1 = &error[1][0];
+	BYTE *ptmp;
+	WORD col;
 
 	if (row == 0)
 		memset(error, 0, sizeof(error));
 
 	for (col = 1; col < MAX_IMAGE_WIDTH - 1; ++col) {
 		struct rgb *color;
-		u8 i, oldcolor, newcolor;
+		BYTE i, oldcolor, newcolor;
 		int err;
 
 		color = &image_palette[image_row[col]];
@@ -104,7 +104,7 @@ color_dither(int row, struct rgb *palette, int ncolors)
 	static struct dither_error *p0 = &error[0][0];
 	static struct dither_error *p1 = &error[1][0];
 	struct dither_error *ptmp;
-	u16 col;
+	WORD col;
 
 	if (row == 0)
 		memset(error, 0, sizeof(error));
@@ -112,7 +112,7 @@ color_dither(int row, struct rgb *palette, int ncolors)
 	for (col = 1; col < MAX_IMAGE_WIDTH - 1; ++col) {
 		struct rgb oldcolor, newcolor, *color;
 		struct dither_error err;
-		u8 i;
+		BYTE i;
 
 		color = &image_palette[image_row[col]];
 		oldcolor.r = CLAMP(color->r + p0[col].r);

@@ -36,12 +36,12 @@ detect_graphics(void)
 		return MDA_GRAPHICS;
 
 	/* PcJr */
-	if (*((u8 far *)(0xffff000eL)) == 0xfd)
+	if (*((BYTE far *)(0xffff000eL)) == 0xfd)
 		return TGA_GRAPHICS;
 
 	/* Tandy */
-	if (*((u8 far *)(0xffff000eL)) == 0xff
-	&& *((u8 far *)(0xfc000000L)) == 0x21)
+	if (*((BYTE far *)(0xffff000eL)) == 0xff
+	&& *((BYTE far *)(0xfc000000L)) == 0x21)
 		return TGA_GRAPHICS;
 
 	/* If all failed it must be CGA */
@@ -51,8 +51,8 @@ detect_graphics(void)
 int
 is_cplus(void)
 {
-	u8 far *p = (u8 far *) 0xB8000000L;
-	u8 far *q = (u8 far *) 0xBC000000L;
+	BYTE far *p = (BYTE far *) 0xB8000000L;
+	BYTE far *q = (BYTE far *) 0xBC000000L;
 
 	/* try to enable colorplus */
 	outp(0x3dd, 1 << 4);

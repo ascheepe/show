@@ -3,7 +3,7 @@
 #include "system.h"
 #include "cga.h"
 
-static u8 far *vmem = (u8 far *) 0xB8000000L;
+static BYTE far *vmem = (BYTE far *) 0xB8000000L;
 
 /*
  * CGA has 4 pixels per byte as such:
@@ -17,14 +17,14 @@ static u8 far *vmem = (u8 far *) 0xB8000000L;
  * BA000.
  */
 void
-cga_plot(u16 x, u16 y, u8 color)
+cga_plot(WORD x, WORD y, BYTE color)
 {
-	static u8 mask[] = { 0x3f, 0xcf, 0xf3, 0xfc };
-	u8 y2 = y >> 1;
-	u16 offset = (0x2000 * (y & 1)) + (y2 << 6) + (y2 << 4) + (x >> 2);
-	u8 far *pixel = vmem + offset;
-	u8 bitpos = x & 3;
-	u8 val = *pixel;
+	static BYTE mask[] = { 0x3f, 0xcf, 0xf3, 0xfc };
+	BYTE y2 = y >> 1;
+	WORD offset = (0x2000 * (y & 1)) + (y2 << 6) + (y2 << 4) + (x >> 2);
+	BYTE far *pixel = vmem + offset;
+	BYTE bitpos = x & 3;
+	BYTE val = *pixel;
 
 	/* clear masked pixels */
 	val &= mask[bitpos];

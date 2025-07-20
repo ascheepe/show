@@ -10,18 +10,18 @@
 #define VIDEO_STATUS_REGISTER 0x3da
 
 #define INDEX(x, y) (((y) << 8) + ((y) << 6) + (x))
-static u8 far *vmem = (u8 far *) 0xA0000000L;
+static BYTE far *vmem = (BYTE far *) 0xA0000000L;
 
 void
-vga_plot(u16 x, u16 y, u8 color)
+vga_plot(WORD x, WORD y, BYTE color)
 {
 	vmem[INDEX(x, y)] = color;
 }
 
 void
-vga_plot_row(u8 y, u8 *rowdata)
+vga_plot_row(BYTE y, BYTE *rowdata)
 {
-	u16 x, offset;
+	WORD x, offset;
 
 	offset = INDEX(0, y); /* + x_offset; */
 	for (x = 0; x < MAX_IMAGE_WIDTH; ++x)
@@ -39,7 +39,7 @@ vga_wait_vblank(void)
 }
 
 void
-vga_set_color(u8 index, u8 r, u8 g, u8 b)
+vga_set_color(BYTE index, BYTE r, BYTE g, BYTE b)
 {
 	vga_wait_vblank();
 	outp(VGA_DAC_PEL_ADDRESS, index);

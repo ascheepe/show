@@ -6,7 +6,7 @@
 #define BIOS_WIDTH 320
 #define BIOS_HEIGHT 200
 
-void bios_plot(u16, u16, u8);
+void bios_plot(WORD, WORD, BYTE);
 void bios_clear_screen(void);
 
 #endif

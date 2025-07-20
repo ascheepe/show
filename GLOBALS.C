@@ -2,20 +2,20 @@
 #include "system.h"
 
 /* Offsets to center the picture */
-u16 x_offset;
-u16 y_offset;
+WORD x_offset;
+WORD y_offset;
 
 /* The graphics mode of this system */
 int graphics_mode;
 
 /* Image data */
-u8 image_row[MAX_IMAGE_WIDTH];
+BYTE image_row[MAX_IMAGE_WIDTH];
 struct rgb image_palette[MAX_IMAGE_COLORS];
-u16 image_width;
-u16 image_height;
+WORD image_width;
+WORD image_height;
 
-u8 mda_palette[2] = { 0, 1 };
-u8 cga_palette[4] = { 0, 2, 1, 3 };
+BYTE mda_palette[2] = { 0, 1 };
+BYTE cga_palette[4] = { 0, 2, 1, 3 };
 struct rgb std_palette[16] = {
 	{ 0x00, 0x00, 0x00 },
 	{ 0x00, 0x00, 0xAA },
@@ -35,5 +35,5 @@ struct rgb std_palette[16] = {
 	{ 0xFF, 0xFF, 0xFF },
 };
 
-void (*plot)(u16 x, u16 y, u8 color);
+void (*plot)(WORD x, WORD y, BYTE color);
 

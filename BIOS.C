@@ -3,7 +3,7 @@
 #include "bios.h"
 
 void
-bios_plot(u16 x, u16 y, u8 color)
+bios_plot(WORD x, WORD y, BYTE color)
 {
 	union REGS regs;
 
@@ -18,7 +18,7 @@ bios_plot(u16 x, u16 y, u8 color)
 void
 bios_clear_screen(void)
 {
-	u16 x, y;
+	WORD x, y;
 
 	for (y = 0; y < BIOS_HEIGHT; ++y) {
 		for (x = 0; x < BIOS_WIDTH; ++x)

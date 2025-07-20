@@ -12,8 +12,8 @@ enum {
 };
 
 void mda_set_mode(int);
-void mda_plot(u16, u16, u8);
-void mda_plot_scaled(u16, u16, u8);
+void mda_plot(WORD, WORD, BYTE);
+void mda_plot_scaled(WORD, WORD, BYTE);
 void mda_clear_screen(void);
 
 #endif

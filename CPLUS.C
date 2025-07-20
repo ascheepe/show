@@ -5,7 +5,7 @@
 #include "cplus.h"
 #include "system.h"
 
-static u8 far *vmem = (u8 far *) 0xB8000000L;
+static BYTE far *vmem = (BYTE far *) 0xB8000000L;
 
 /*
  * Colorplus works like cga, except the color bits
@@ -13,17 +13,17 @@ static u8 far *vmem = (u8 far *) 0xB8000000L;
  * BC000 (+2000) for blue/intensity.
  */
 void
-cplus_plot(u16 x, u16 y, u8 palidx)
+cplus_plot(WORD x, WORD y, BYTE palidx)
 {
-	static u8 mask[] = { 0x3f, 0xcf, 0xf3, 0xfc };
-	u8 y2 = y >> 1;
-	u16 offset = (0x2000 * (y & 1)) + (y2 << 6) + (y2 << 4) + (x >> 2);
-	u8 far *rgpixel = vmem + offset;
-	u8 far *bipixel = vmem + offset + 0x4000;
-	u8 bitpos = x & 3;
-	u8 rgval = *rgpixel;
-	u8 bival = *bipixel;
-	u8 r, g, b, i;
+	static BYTE mask[] = { 0x3f, 0xcf, 0xf3, 0xfc };
+	BYTE y2 = y >> 1;
+	WORD offset = (0x2000 * (y & 1)) + (y2 << 6) + (y2 << 4) + (x >> 2);
+	BYTE far *rgpixel = vmem + offset;
+	BYTE far *bipixel = vmem + offset + 0x4000;
+	BYTE bitpos = x & 3;
+	BYTE rgval = *rgpixel;
+	BYTE bival = *bipixel;
+	BYTE r, g, b, i;
 
 	if (palidx < 8) {
 		r = std_palette[palidx].r ? 2 : 0;

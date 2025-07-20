@@ -30,8 +30,8 @@ die(char *fmt, ...)
 /*
  * Read a byte with error checking.
  */
-u8
-read8(FILE *fp)
+BYTE
+read_byte(FILE *fp)
 {
 	int ch;
 
@@ -44,10 +44,10 @@ read8(FILE *fp)
 /*
  * Read a word with error checking.
  */
-u16
-read16(FILE *fp)
+WORD
+read_word(FILE *fp)
 {
-	u8 buf[2];
+	BYTE buf[2];
 
 	if (fread(buf, 2, 1, fp) != 1)
 		die("read16: input error.");
@@ -58,16 +58,16 @@ read16(FILE *fp)
 /*
  * Read a double word with error checking.
  */
-u32
-read32(FILE *fp)
+DWORD
+read_dword(FILE *fp)
 {
-	u8 buf[4];
+	BYTE buf[4];
 
 	if (fread(buf, 4, 1, fp) != 1)
 		die("read32: input error.");
 
-	return (u32) buf[0] | ((u32) buf[1] << 8) |
-	    ((u32) buf[2] << 16) | ((u32) buf[3] << 24);
+	return (DWORD) buf[0] | ((DWORD) buf[1] << 8) |
+	    ((DWORD) buf[2] << 16) | ((DWORD) buf[3] << 24);
 }
 
 /*
@@ -89,12 +89,12 @@ setmode(int mode)
 void far *
 memsetf(void far *s, int c, size_t n)
 {
-	u16 cc = (c << 8) | c;
-	u16 far *wp = (u16 far *)s;
-	size_t nw = n / sizeof(u16);
+	WORD cc = (c << 8) | c;
+	WORD far *wp = (WORD far *)s;
+	size_t nw = n / sizeof(WORD);
 	char far *p;
 
-	n -= nw * sizeof(u16);
+	n -= nw * sizeof(WORD);
 	while (nw-- > 0)
 		*wp++ = cc;
 

@@ -19,9 +19,9 @@ void
 bitmap_show(char *filename)
 {
 	FILE *fp;
-	u32 width, row;
-	u32 header_size, pixel_offset;
-	u32 ncolors;
+	DWORD width, row;
+	DWORD header_size, pixel_offset;
+	DWORD ncolors;
 	int i, skip;
 
 	fp = fopen(filename, "rb");

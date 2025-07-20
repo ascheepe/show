@@ -16,23 +16,23 @@
 static void
 read_row(FILE *fp)
 {
-	u16 xpos = 0;
+	WORD xpos = 0;
 
 	maybe_exit();
 
 	memset(image_row, 0, sizeof(image_row));
 
 	while (xpos < image_width) {
-		u8 val;
+		BYTE val;
 
-		val = read8(fp);
+		val = read_byte(fp);
 		if (val >= 192) {
-			u8 count = val - 192;
+			BYTE count = val - 192;
 
 			if (xpos + count > image_width)
 				die("read_row: rle overflow.");
 
-			val = read8(fp);
+			val = read_byte(fp);
 			while (count-- > 0)
 				image_row[x_offset + xpos++] = val;
 		} else {
@@ -48,39 +48,39 @@ void
 pcx_show(char *filename)
 {
 	FILE *fp;
-	u32 i, row;
+	DWORD i, row;
 
 	fp = fopen(filename, "rb");
 	if (fp == NULL)
 		die("pcx_show: can't open file '%s'.", filename);
 
-	if (read8(fp) != 0x0a)
+	if (read_byte(fp) != 0x0a)
 		die("pcx_show: not a pcx file.");
 
-	/* version = */ read8(fp);
-	if (read8(fp) != 0x01)
+	/* version = */ read_byte(fp);
+	if (read_byte(fp) != 0x01)
 		die("pcx_show: only rle compressed images are supported.");
-	if (read8(fp) != 0x08)
+	if (read_byte(fp) != 0x08)
 		die("pcx_show: only 8 bits per plane are supported.");
-	if (read16(fp) != 0x0000 || read16(fp) != 0x0000)
+	if (read_word(fp) != 0x0000 || read_word(fp) != 0x0000)
 		die("pcx_show: minimum x/y coordinates should be zero.");
-	image_width = read16(fp) + 1;
+	image_width = read_word(fp) + 1;
 	if (image_width > 320)
 		die("pcx_show: image is too wide.");
-	image_height = read16(fp) + 1;
+	image_height = read_word(fp) + 1;
 	if (image_height > 200)
 		die("pcx_show: image is too tall.");
 	if (fseek(fp, 53, SEEK_CUR) != 0)
 		die("pcx_show: short read.");
-	if (read8(fp) != 0x01)
+	if (read_byte(fp) != 0x01)
 		die("pcx_show: number of planes should be one.");
-	if (fseek(fp, -769, SEEK_END) != 0 || read8(fp) != 0x0c)
+	if (fseek(fp, -769, SEEK_END) != 0 || read_byte(fp) != 0x0c)
 		die("pcx_show: 256 color palette missing.");
 
 	for (i = 0; i < 256; ++i) {
-		image_palette[i].r = read8(fp);
-		image_palette[i].g = read8(fp);
-		image_palette[i].b = read8(fp);
+		image_palette[i].r = read_byte(fp);
+		image_palette[i].g = read_byte(fp);
+		image_palette[i].b = read_byte(fp);
 	}
 
 	switch (graphics_mode) {

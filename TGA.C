@@ -4,7 +4,7 @@
 #include "tga.h"
 
 void
-tga_plot(u16 x, u16 y, u8 color)
+tga_plot(WORD x, WORD y, BYTE color)
 {
 	bios_plot(x, y, color);
 }
