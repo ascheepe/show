@@ -26,13 +26,22 @@ pick_color(const struct rgb *color, const struct rgb *palette, int ncolors)
 	maxdist = -1;
 	for (i = 0; i < ncolors; ++i) {
 		struct rgb diff;
-		WORD dist;
+		WORD dist, r, rf, bf;
+
+		r = (color->r + palette[i].r) / 2;
+		if (r < 128) {
+			rf = 2;
+			bf = 3;
+		} else {
+			rf = 3;
+			bf = 2;
+		}
 
 		diff.r = abs((int)color->r - palette[i].r);
 		diff.g = abs((int)color->g - palette[i].g);
 		diff.b = abs((int)color->b - palette[i].b);
 
-		dist = diff.r + diff.g + diff.b;
+		dist = rf * diff.r + 4 * diff.g + bf * diff.b;
 		if (dist < maxdist) {
 			maxdist = dist;
 			match = i;
