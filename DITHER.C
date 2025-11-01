@@ -64,37 +64,37 @@ color_to_mono(struct rgb *color)
 static void
 grayscale_dither(int row, BYTE *palette, int ncolors)
 {
-	static BYTE error[2][MAX_IMAGE_WIDTH];
-	static BYTE *p0 = &error[0][0];
-	static BYTE *p1 = &error[1][0];
-	BYTE *ptmp;
+	static int error[2][MAX_IMAGE_WIDTH + 2];
+	BYTE i0 = (row + 0) & 1;
+	BYTE i1 = (row + 1) & 1;
 	WORD col;
 
 	if (row == 0)
 		memset(error, 0, sizeof(error));
+	else
+		memset(error[i1], 0, sizeof(error[i1]));
 
-	for (col = 1; col < MAX_IMAGE_WIDTH - 1; ++col) {
+	for (col = 0; col < MAX_IMAGE_WIDTH; ++col) {
 		struct rgb *color;
 		BYTE i, oldcolor, newcolor;
-		int err;
+		WORD idx;
+		int diff;
+
+		/* adjust for col-1 and col+1 */
+		idx = col + 1;
 
 		color = &image_palette[image_row[col]];
-		oldcolor = CLAMP(color_to_mono(color) + p0[col]);
-		i = oldcolor * ncolors / 256;
+		oldcolor = CLAMP(color_to_mono(color) + error[i0][idx]);
+		i = oldcolor * (ncolors - 1) / 255;
 		plot(col, row, palette[i]);
-		newcolor = i * 256 / ncolors;
+		newcolor = i * 255 / (ncolors - 1);
 
-		err = oldcolor - newcolor;
-		p0[col + 1] += err * 7 / 16;
-		p1[col + 0] += err * 5 / 16;
-		p1[col - 1] += err * 3 / 16;
-		p1[col + 1] += err * 1 / 16;
+		diff = oldcolor - newcolor;
+		error[i0][idx + 1] += diff * 7 / 16;
+		error[i1][idx + 0] += diff * 5 / 16;
+		error[i1][idx - 1] += diff * 3 / 16;
+		error[i1][idx + 1] += diff * 1 / 16;
 	}
-
-	memset(p0, 0, MAX_IMAGE_WIDTH);
-	ptmp = p0;
-	p0 = p1;
-	p1 = ptmp;
 }
 
 /*
@@ -107,24 +107,29 @@ color_dither(int row, struct rgb *palette, int ncolors)
 		int r, g, b;
 	};
 
-	static struct dither_error error[2][MAX_IMAGE_WIDTH];
-	static struct dither_error *p0 = &error[0][0];
-	static struct dither_error *p1 = &error[1][0];
-	struct dither_error *ptmp;
+	static struct dither_error error[2][MAX_IMAGE_WIDTH + 2];
+	BYTE i0 = (row + 0) & 1;
+	BYTE i1 = (row + 1) & 1;
 	WORD col;
 
 	if (row == 0)
 		memset(error, 0, sizeof(error));
+	else
+		memset(error[i1], 0, sizeof(error[i1]));
 
-	for (col = 1; col < MAX_IMAGE_WIDTH - 1; ++col) {
+	for (col = 0; col < MAX_IMAGE_WIDTH; ++col) {
 		struct rgb oldcolor, newcolor, *color;
-		struct dither_error err;
+		struct dither_error diff;
+		WORD idx;
 		BYTE i;
 
+		/* adjust for col-1 and col+1 */
+		idx = col + 1;
+
 		color = &image_palette[image_row[col]];
-		oldcolor.r = CLAMP(color->r + p0[col].r);
-		oldcolor.g = CLAMP(color->g + p0[col].g);
-		oldcolor.b = CLAMP(color->b + p0[col].b);
+		oldcolor.r = CLAMP(color->r + error[i0][idx].r);
+		oldcolor.g = CLAMP(color->g + error[i0][idx].g);
+		oldcolor.b = CLAMP(color->b + error[i0][idx].b);
 
 		i = pick_color(&oldcolor, palette, ncolors);
 		plot(col, row, i);
@@ -133,28 +138,23 @@ color_dither(int row, struct rgb *palette, int ncolors)
 		newcolor.g = color->g;
 		newcolor.b = color->b;
 
-		err.r = oldcolor.r - newcolor.r;
-		err.g = oldcolor.g - newcolor.g;
-		err.b = oldcolor.b - newcolor.b;
+		diff.r = oldcolor.r - newcolor.r;
+		diff.g = oldcolor.g - newcolor.g;
+		diff.b = oldcolor.b - newcolor.b;
 
-		p0[col + 1].r += err.r * 7 / 16;
-		p0[col + 1].g += err.g * 7 / 16;
-		p0[col + 1].b += err.b * 7 / 16;
-		p1[col + 0].r += err.r * 5 / 16;
-		p1[col + 0].g += err.g * 5 / 16;
-		p1[col + 0].b += err.b * 5 / 16;
-		p1[col - 1].r += err.r * 3 / 16;
-		p1[col - 1].g += err.g * 3 / 16;
-		p1[col - 1].b += err.b * 3 / 16;
-		p1[col + 1].r += err.r * 1 / 16;
-		p1[col + 1].g += err.g * 1 / 16;
-		p1[col + 1].b += err.b * 1 / 16;
+		error[i0][idx + 1].r += diff.r * 7 / 16;
+		error[i0][idx + 1].g += diff.g * 7 / 16;
+		error[i0][idx + 1].b += diff.b * 7 / 16;
+		error[i1][idx + 0].r += diff.r * 5 / 16;
+		error[i1][idx + 0].g += diff.g * 5 / 16;
+		error[i1][idx + 0].b += diff.b * 5 / 16;
+		error[i1][idx - 1].r += diff.r * 3 / 16;
+		error[i1][idx - 1].g += diff.g * 3 / 16;
+		error[i1][idx - 1].b += diff.b * 3 / 16;
+		error[i1][idx + 1].r += diff.r * 1 / 16;
+		error[i1][idx + 1].g += diff.g * 1 / 16;
+		error[i1][idx + 1].b += diff.b * 1 / 16;
 	}
-
-	memset(p0, 0, sizeof(struct dither_error) * MAX_IMAGE_WIDTH);
-	ptmp = p0;
-	p0 = p1;
-	p1 = ptmp;
 }
 
 void
